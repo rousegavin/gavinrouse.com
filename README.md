@@ -1,49 +1,38 @@
-# Gavin Rouse — The Rouse House
+# gavinrouse.com
 
-Personal website.
+Personal website for Gavin Rouse — engineer, builder, writer.
 
 ## Structure
 
 ```
-gavinrouse/
-├── index.html    # Main landing page
-└── README.md     # This file
+gavinrouse.com/
+├── index.html              # Main site
+├── writing/
+│   └── the-load-bearing-wall.html  # Essay
+├── CNAME                   # gavinrouse.com
+└── README.md
 ```
 
-## Current Deployment
+## Deployment
 
-- **Host:** GitHub Pages
-- **URL:** https://franklinclawdbot.github.io/websites/gavinrouse/
+- **Host:** GitHub Pages (`rousegavin/gavinrouse.com`)
+- **URL:** https://gavinrouse.com
+- **Branch:** master → root
 
-## End Goal: Cloudflare Pages
+Push to master → auto-deploys.
 
-### Setup
+## DNS
 
-1. **Go to Cloudflare Dashboard** → Pages → Create project
-2. **Connect to GitHub** → Select `FranklinClawdbot/websites`
-3. **Configure:**
-   - Project name: `gavinrouse-com`
-   - Production branch: `master`
-   - Build command: *(empty - static site)*
-   - Build output directory: `built-site/gavinrouse`
-4. **Add Custom Domain:** gavinrouse.com
+| Type | Host | Value |
+|------|------|-------|
+| A | @ | 185.199.108.153 |
+| A | @ | 185.199.109.153 |
+| A | @ | 185.199.110.153 |
+| A | @ | 185.199.111.153 |
+| CNAME | www | rousegavin.github.io |
 
-### DNS (when ready)
+## Design System
 
-```
-Type: CNAME
-Name: @
-Target: gavinrouse-com.pages.dev
-```
-
-### Updating
-
-1. Edit `built-site/gavinrouse/index.html`
-2. Commit and push
-3. Auto-deploys
-
-## Site Info
-
-- **Tagline:** Engineer by trade. Builder by nature.
-- **Location:** Pasco, Washington
-- **Theme:** Cormorant Garamond + DM Sans
+- **Fonts:** Cormorant Garamond (headings) + DM Sans (body) + JetBrains Mono (mono)
+- **Palette:** `#0a0a0b` bg · `#c9a84c` gold · `#e8e6e3` text
+- **Style:** Dark, editorial, high-contrast
