@@ -10,6 +10,7 @@
   <meta property="og:title" content="Gavin Rouse — Engineer by trade. Builder by nature.">
   <meta property="og:description" content="I build, I grow, I lead, I serve. I refuse to be one thing. Welcome to The Rouse House.">
   <meta property="og:type" content="website">
+  <link rel="icon" href="gr-shield-white.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -137,18 +138,23 @@
     .hero-content { max-width: 780px; text-align: center; }
 
     .hero-monogram {
-      width: 105px; height: 105px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent) 0%, #8a6d2a 100%);
-      display: flex; align-items: center; justify-content: center;
+      width: 120px; height: auto;
+      display: block;
       margin: 0 auto 2.5rem;
-      font-family: var(--serif);
-      font-size: 2.6rem;
-      font-weight: 700;
-      color: var(--bg);
+      opacity: 0.92;
       letter-spacing: -0.03em;
       box-shadow: 0 0 60px var(--accent-glow), 0 4px 24px rgba(0,0,0,0.4);
       animation: fadeUp 0.7s ease both;
+    }
+
+    .hero-name {
+      font-family: var(--serif);
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.5rem;
+      animation: fadeUp 0.7s ease 0.06s both;
     }
 
     .hero-location {
@@ -829,7 +835,7 @@
 
   <!-- Navigation -->
   <nav>
-    <a class="nav-logo" href="../">Gavin Rouse</a>
+    <a class="nav-logo" href="../"><img src="gr-shield-white.svg" alt="Gavin Rouse" height="28"></a>
     <button class="nav-toggle" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
       <span></span><span></span><span></span>
     </button>
@@ -845,10 +851,10 @@
   <!-- Hero -->
   <section class="hero">
     <div class="hero-content">
-      <div class="hero-monogram">GR</div>
-      <p class="hero-location">Pasco, Washington</p>
+      <img class="hero-monogram" src="gr-shield-white.svg" alt="GR Shield">
       <h1>Engineer by trade.<br><em>Builder</em> by nature.</h1>
       <p class="hero-sub">I build, I grow, I lead, I serve.</p>
+      <p class="hero-location">Pasco, Washington</p>
       <div class="hero-actions">
         <div class="hero-actions-row">
           <a class="btn btn-primary" href="#rouse-house">The Rouse House &rarr;</a>
