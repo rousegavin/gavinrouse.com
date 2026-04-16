@@ -142,6 +142,8 @@
     }
 
     /* ── ARTICLE ── */
+    article { overflow-x: hidden; }
+
     article h2 {
       font-family: var(--serif);
       font-size: 1.7rem;
@@ -387,6 +389,25 @@
     .status-val.warn { color: var(--red); }
     .status-val.ok { color: #4ade80; }
 
+    /* ── LEDE ── */
+    .lede {
+      background: var(--bg-elevated);
+      border-left: 3px solid var(--accent);
+      padding: 1.75rem 2rem;
+      margin-bottom: 2rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .lede p {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--text-primary);
+      line-height: 1.7;
+      margin-bottom: 0.9rem;
+      max-width: 100%;
+    }
+    .lede p:last-child { margin-bottom: 0; }
+
     /* ── GLOSSARY ── */
     .glossary-grid {
       display: grid;
@@ -422,6 +443,34 @@
     }
     @media (max-width: 600px) {
       .person-row { grid-template-columns: 1fr; gap: 0.15rem; }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      .masthead { padding: 1rem 1.25rem; }
+      .hero { padding: 2.5rem 1.25rem 2rem; }
+      h1.headline { font-size: 1.9rem; }
+      .deck { font-size: 1.05rem; }
+      .byline { gap: 0.75rem; flex-direction: column; }
+      .layout { padding: 2rem 1.25rem 4rem; gap: 2rem; }
+      article h2 { font-size: 1.35rem; }
+      article h3 { font-size: 1.1rem; }
+      article p, article li { font-size: 0.96rem; }
+      .lede p { font-size: 1rem; }
+      .toc ol li { font-size: 0.85rem; }
+      .stat-block .stat-num { font-size: 2rem; }
+      .callout p, .violation-box p { font-size: 0.92rem; }
+      .checklist li { font-size: 0.9rem; }
+      table { font-size: 0.8rem; min-width: 520px; }
+      thead th { font-size: 0.65rem; padding: 0.5rem 0.75rem; white-space: normal; }
+      tbody td { padding: 0.5rem 0.75rem; }
+      .glossary-grid { grid-template-columns: 1fr; }
+      .glossary-term { padding-top: 1.1rem; padding-bottom: 0.1rem; white-space: normal; }
+      .glossary-def { padding-top: 0.2rem; border-bottom: none; border-top: 1px solid var(--border); }
+      .sidebar-card-header { font-size: 0.65rem; }
+      .doc-name { font-size: 0.82rem; }
+      .doc-desc { font-size: 0.72rem; }
+      .status-label, .status-val { font-size: 0.8rem; }
     }
     .person-row:last-child { border-bottom: none; }
     .person-name { font-weight: 600; color: var(--text-primary); }
@@ -468,6 +517,13 @@
        MAIN ARTICLE
   ══════════════════════════════════════════════ -->
   <article>
+
+    <div class="lede">
+      <p>I'm not a lawyer, a lobbyist, or a journalist. I'm a guy whose wife got caught in a broken government system — and was annoyed enough to do something about it.</p>
+      <p>She had the degree, passed the exams, had the job, had the supervisor. The only thing missing was DOH's signature — for 100 days. State law says 90. No deficiency letter was ever sent.</p>
+      <p>She was one of 154. Together they represent an estimated $4 million in suppressed wages sitting in a state permit queue, held by people already qualified to do the work — while clinics ran understaffed, referrals piled up, and patients waited months for care they needed yesterday.</p>
+      <p>I filed a public records request, handed 74 pages of government emails to an AI, and this is what we found. The government keeps records. Someone should look at them.</p>
+    </div>
 
     <div class="toc">
       <div class="toc-title">Contents</div>
