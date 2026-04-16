@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WA DOH SLPI Processing Failure — Analysis &amp; Living Record</title>
+  <meta name="description" content="A comprehensive public records investigation into Washington State DOH's failure to process Speech-Language Pathology Interim Permits within statutory deadlines.">
+  <meta name="author" content="G. Rouse">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../gr-shield-white.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --bg-elevated: #111113;
+      --bg-card: #16161a;
+      --text-primary: #e8e6e3;
+      --text-secondary: #94918a;
+      --text-tertiary: #82807a;
+      --accent: #c9a84c;
+      --accent-dim: rgba(201, 168, 76, 0.15);
+      --accent-glow: rgba(201, 168, 76, 0.06);
+      --border: #222220;
+      --red: #dc2626;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'DM Sans', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    a { color: var(--accent); text-decoration: none; transition: opacity 0.2s; }
+    a:hover { opacity: 0.75; }
+
+    /* ── MASTHEAD ── */
+    .masthead {
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .masthead-home {
+      font-family: var(--serif);
+      font-size: 1rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+    .masthead-home:hover { color: var(--accent); opacity: 1; }
+    .masthead-sep { color: var(--border); font-size: 1.2rem; }
+    .masthead-section {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 2rem;
+      height: 1px;
+      background: var(--accent);
+    }
+    h1.headline {
+      font-family: var(--serif);
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--text-primary);
+      margin-bottom: 1.25rem;
+    }
+    .deck {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-style: italic;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 2rem;
+    }
+    .byline {
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .byline span { display: flex; align-items: center; gap: 0.4rem; }
+
+    /* ── LAYOUT ── */
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3.5rem 2rem 6rem;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 4rem;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; gap: 3rem; }
+    }
+
+    /* ── ARTICLE ── */
+    article h2 {
+      font-family: var(--serif);
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 3rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: 2rem;
+    }
+    article h3 {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 2rem 0 0.75rem;
+    }
+    article p {
+      margin-bottom: 1.25rem;
+      font-size: 1.02rem;
+      color: var(--text-primary);
+      max-width: 68ch;
+    }
+    article ul, article ol {
+      margin: 0.75rem 0 1.25rem 1.5rem;
+      max-width: 68ch;
+    }
+    article li {
+      margin-bottom: 0.5rem;
+      font-size: 1.02rem;
+    }
+    article strong { color: var(--text-primary); font-weight: 600; }
+
+    /* ── TABLES ── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    thead tr { background: var(--bg-elevated); }
+    thead th {
+      padding: 0.65rem 1rem;
+      text-align: left;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-elevated); }
+    tbody td {
+      padding: 0.6rem 1rem;
+      color: var(--text-primary);
+    }
+    tbody td:first-child { font-weight: 500; }
+
+    /* ── CALLOUT / STAT ── */
+    .callout {
+      background: var(--bg-card);
+      border-left: 3px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .callout p { margin: 0; font-size: 1rem; color: var(--text-secondary); }
+    .callout strong { color: var(--accent); }
+
+    .stat-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--red);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 0 4px 4px;
+    }
+    .stat-block .stat-num {
+      font-family: var(--serif);
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    .stat-block .stat-label {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+    .stat-block .stat-sub {
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+    }
+
+    .violation-box {
+      background: rgba(220, 38, 38, 0.08);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      border-left: 3px solid var(--red);
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .violation-box .viol-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.5rem;
+    }
+    .violation-box p { margin: 0; font-size: 0.95rem; }
+
+    /* ── CHECKLIST ── */
+    .checklist { list-style: none; margin-left: 0; }
+    .checklist li {
+      display: flex;
+      gap: 0.75rem;
+      align-items: baseline;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist li::before {
+      content: '☐';
+      color: var(--text-tertiary);
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .toc-title {
+      font-family: var(--sans);
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 1rem;
+    }
+    .toc ol {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+    .toc ol li { margin-bottom: 0.4rem; font-size: 0.88rem; }
+    .toc ol li a { color: var(--text-secondary); }
+    .toc ol li a:hover { color: var(--accent); opacity: 1; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { position: sticky; top: 2rem; }
+    .sidebar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .sidebar-card-header {
+      background: var(--bg-elevated);
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+    .doc-list { padding: 0.5rem 0; }
+    .doc-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .doc-item:last-child { border-bottom: none; }
+    .doc-item:hover { background: var(--bg-elevated); }
+    .doc-icon {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      background: var(--accent-dim);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      font-family: var(--mono);
+    }
+    .doc-meta { min-width: 0; }
+    .doc-name {
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 0.2rem;
+    }
+    .doc-name a { color: var(--text-primary); }
+    .doc-name a:hover { color: var(--accent); opacity: 1; }
+    .doc-desc {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      line-height: 1.35;
+    }
+    .doc-pages {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 0.2rem;
+    }
+
+    .status-card { padding: 1.25rem; }
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    .status-row:last-child { border-bottom: none; }
+    .status-label { color: var(--text-secondary); }
+    .status-val { color: var(--text-primary); font-weight: 500; text-align: right; max-width: 55%; }
+    .status-val.warn { color: var(--red); }
+    .status-val.ok { color: #4ade80; }
+
+    /* ── GLOSSARY ── */
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.25rem 1.5rem;
+      max-width: 68ch;
+    }
+    .glossary-term {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--accent);
+      padding-top: 0.6rem;
+      white-space: nowrap;
+    }
+    .glossary-def {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .glossary-term + .glossary-term { /* gap between entries */ }
+
+    /* ── KEY PEOPLE ── */
+    .people-grid { display: flex; flex-direction: column; gap: 0.5rem; max-width: 68ch; }
+    .person-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 0 1.25rem;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.92rem;
+      align-items: baseline;
+    }
+    @media (max-width: 600px) {
+      .person-row { grid-template-columns: 1fr; gap: 0.15rem; }
+    }
+    .person-row:last-child { border-bottom: none; }
+    .person-name { font-weight: 600; color: var(--text-primary); }
+    .person-role { font-size: 0.8rem; color: var(--text-tertiary); margin-top: 0.15rem; }
+    .person-rel { color: var(--text-secondary); }
+
+    /* ── DIVIDER ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+    footer a { color: var(--text-tertiary); }
+    footer a:hover { color: var(--accent); opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header class="masthead">
+  <a class="masthead-home" href="https://gavinrouse.com">Gavin Rouse</a>
+  <span class="masthead-sep">/</span>
+  <span class="masthead-section">Public Records Investigation</span>
+</header>
+
+<div class="hero">
+  <div class="eyebrow">WA DOH · SLPI · Public Records Request</div>
+  <h1 class="headline">Washington DOH Is Leaving New Speech Pathologists in Limbo — And It Knows It</h1>
+  <p class="deck">A public records request reveals that the state agency responsible for processing a required work permit for new graduates is routinely violating its own statutory deadlines — and has been absorbing escalations without fixing the underlying system for years.</p>
+  <div class="byline">
+    <span>By G. Rouse</span>
+    <span>Last updated: April 15, 2026</span>
+    <span>Living record — updated as production continues</span>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- ══════════════════════════════════════════════
+       MAIN ARTICLE
+  ══════════════════════════════════════════════ -->
+  <article>
+
+    <div class="toc">
+      <div class="toc-title">Contents</div>
+      <ol>
+        <li><a href="#plain-english">The Problem in Plain English</a></li>
+        <li><a href="#what-is-slpi">What Is an SLPI?</a></li>
+        <li><a href="#data">The Data: DOH's Own Numbers</a></li>
+        <li><a href="#what-broke">What Broke and When</a></li>
+        <li><a href="#helms">HELMS: The IT Migration That Made Everything Worse</a></li>
+        <li><a href="#cms">CMS Medicare: The Federal Rule That Compounded the Harm</a></li>
+        <li><a href="#cost">The Economic and Human Cost</a></li>
+        <li><a href="#equity">The Equity Problem</a></li>
+        <li><a href="#legal">Legal Framework: What the Law Actually Requires</a></li>
+        <li><a href="#pdr">What the Public Records Request Revealed</a></li>
+        <li><a href="#gaps">Gaps: What DOH Didn't Produce</a></li>
+        <li><a href="#status">Current Status</a></li>
+        <li><a href="#action">Action Items</a></li>
+        <li><a href="#people">Key People and Entities</a></li>
+        <li><a href="#glossary">Glossary</a></li>
+      </ol>
+    </div>
+
+    <!-- 1 -->
+    <h2 id="plain-english">1. The Problem in Plain English</h2>
+
+    <p>Washington State Department of Health (DOH) is failing to process a routine occupational permit — the Speech-Language Pathology Interim Permit (SLPI) — within any reasonable timeframe, or even within the timeframe required by state law.</p>
+
+    <p>This permit is required for newly graduated Speech-Language Pathologists (SLPs) to work legally in Washington while they complete their post-graduate supervised training year. Without it, they cannot practice. They cannot get paid. They sit — degree in hand, job offer waiting, hospital or clinic understaffed — while DOH processes paperwork.</p>
+
+    <div class="stat-block">
+      <div class="stat-num">79.3</div>
+      <div class="stat-label">Average days to process in 2025 (through Nov)</div>
+      <div class="stat-sub">Up from 29.7 days in 2023. State law requires a decision within 90 days. With averages approaching that ceiling, a significant fraction of applicants are waiting <em>longer than the law allows.</em></div>
+    </div>
+
+    <p>As of November 2025, <strong>154 applications were unresolved</strong> — representing an estimated <strong>$3.85–$4.62 million in suppressed wages</strong> for people who have already completed graduate school, passed national exams, and secured employment.</p>
+
+    <p>This is not an abstract policy problem. Patients — people with swallowing disorders, stroke survivors, children with feeding difficulties — are waiting months for care that should be available now.</p>
+
+    <!-- 2 -->
+    <h2 id="what-is-slpi">2. What Is an SLPI?</h2>
+
+    <h3>Background: Becoming a Licensed SLP</h3>
+    <p>To become a fully licensed Speech-Language Pathologist in Washington state, a person must:</p>
+    <ol>
+      <li>Complete a Master's degree in Speech-Language Pathology (typically 2–3 years post-bachelor's)</li>
+      <li>Pass the PRAXIS exam (national standardized test, minimum score 162)</li>
+      <li>Complete a Clinical Fellowship Year (CFY) — a post-graduation supervised work period requiring 1,080 hours over at least 36 weeks</li>
+      <li>Pass a Washington-specific Jurisprudence (JP) exam on state laws governing the profession</li>
+      <li>Apply for and receive a full SLP license</li>
+    </ol>
+
+    <h3>What the SLPI Is</h3>
+    <p>The <strong>Speech-Language Pathology Interim Permit (SLPI)</strong> is a one-year, non-renewable temporary work authorization that allows a new graduate to work legally in Washington while completing their CFY. Without it, the new graduate cannot legally practice — even with a job offer, even with a supervising SLP, even inside a licensed clinic.</p>
+
+    <p><strong>Key facts:</strong> Cost $305 · Duration one year, non-renewable · Must work under a licensed WA SLP with ≥ 2 years experience · One supervisor may oversee a maximum of 4 SLPI holders simultaneously · If the permit expires while waiting for processing, the holder cannot practice until the board grants an extension.</p>
+
+    <h3>Is the Permit Necessary?</h3>
+    <p>The stated purpose is to ensure new graduates practice under supervision while building clinical competency. However, the supervision requirement already exists independently — employer and supervisor are contractually and professionally accountable regardless of whether DOH processes a permit. A simple employer attestation system (used by other states) would accomplish the same public safety function in days rather than months.</p>
+
+    <p>In Washington, eliminating the permit requirement entirely would require amending RCW 18.35. Reforming it to an attestation model is achievable through rulemaking. Other states using attestation-based systems are not experiencing worse SLP outcomes.</p>
+
+    <!-- 3 -->
+    <h2 id="data">3. The Data: DOH's Own Numbers</h2>
+
+    <p>DOH produced the following statistics in response to the public records request — the only quantitative data provided. The underlying data is available in <a href="SLPI_PDR.xlsx" download>SLPI_PDR.xlsx</a>.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Apps Received</th>
+            <th>Permits Issued</th>
+            <th>Closed / Denied</th>
+            <th>Avg Days to Issue</th>
+            <th>Median Days</th>
+            <th>Min</th>
+            <th>Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>2020</td><td>136</td><td>122</td><td>6</td><td>44.3</td><td>27</td><td>0</td><td>535</td></tr>
+          <tr><td>2021</td><td>177</td><td>171</td><td>14</td><td>42.9</td><td>27</td><td>4</td><td>366</td></tr>
+          <tr><td>2022</td><td>152</td><td>144</td><td>7</td><td>32.8</td><td>24</td><td>3</td><td>196</td></tr>
+          <tr><td>2023</td><td>151</td><td>127</td><td>12</td><td>29.7</td><td>16</td><td>2</td><td>468</td></tr>
+          <tr><td>2024</td><td>150</td><td>125</td><td>24</td><td>61.0</td><td>48</td><td>3</td><td>1,324</td></tr>
+          <tr><td>2025*</td><td>232</td><td>85</td><td>7</td><td>79.3</td><td>66</td><td>0</td><td>426</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-tertiary);margin-top:-0.75rem;margin-bottom:1.5rem;">*2025 data through November 6, 2025 only.</p>
+
+    <h3>What These Numbers Mean</h3>
+    <p><strong>154 pending applications</strong> as of Nov 6, 2025 — spread across multiple application years. (Total received 2020–2025: 998. Issued: 774. Denied/closed: 70.)</p>
+
+    <p><strong>The processing time collapse:</strong> 2022–2023 was the system functioning reasonably well — median 16–24 days. In 2024, something broke. Median jumped from 16 → 48 days (+200%). In 2025, worse still: 79.3-day mean, 66-day median, with 232 applications received — 55% above the ~150/year baseline.</p>
+
+    <p><strong>The 2025 issuance collapse:</strong> 232 applications received, only 85 issued through November. The pipeline is deeply clogged.</p>
+
+    <p><strong>The 2024 denial spike:</strong> Denials and closures jumped from 7–14/year historically to 24 in 2024. DOH has not explained this. Possible causes: expired permits auto-closed during HELMS migration, stricter review, or ILRS-to-HELMS data artifacts.</p>
+
+    <!-- 4 -->
+    <h2 id="what-broke">4. What Broke and When</h2>
+
+    <p>DOH's public explanation is that the HELMS IT migration (April 2025) caused the processing delays. That is <strong>partially true but misleading</strong> — the data shows the system was already failing in 2024, a full year before HELMS launched.</p>
+
+    <div class="callout">
+      <p><strong>The honest timeline:</strong> Processing degraded in 2024 for unexplained reasons, then the HELMS migration compounded it in April 2025. A system running 29-day averages in 2023 would have absorbed HELMS disruption and recovered. A system already running 61-day averages entering the migration had no margin.</p>
+    </div>
+
+    <p>By May 2025, DOH was processing April 12, 2025 applications as of early July — a 12-week queue. Individual extensions were being issued as emergency relief for permit holders whose licenses expired while waiting. <strong>DOH has not explained what caused the 2024 degradation.</strong></p>
+
+    <h3>The Graduation Season Problem</h3>
+    <p>SLPI applications peak in late summer and fall as new master's degree graduates enter the workforce. This is predictable. DOH's processing capacity does not appear to scale for this annual surge. The 2025 volume (232 applications) likely reflects both deferred 2024 demand and normal cohort growth.</p>
+
+    <!-- 5 -->
+    <h2 id="helms">5. HELMS: The IT Migration That Made Everything Worse</h2>
+
+    <p><strong>HELMS</strong> (Healthcare Enforcement and Licensing Management System) is a new credentialing platform launched by WA DOH on <strong>April 29, 2025</strong>, replacing the legacy ILRS (Integrated Licensing and Regulatory System).</p>
+
+    <p>Any large IT migration in a government licensing system creates temporary disruption. For a system already operating near capacity, this disruption has an outsized impact. In DOH's case, the HELMS migration caused confusion about how to print and issue licenses post-launch (documented in internal emails, May 2025), disrupted workflows for applications received before April 29, and contributed to the growing backlog in the months following launch.</p>
+
+    <p><strong>The downstream policy impact:</strong> Rule changes implementing 2SHB 1724 — legislation designed to reduce licensing barriers — had to be delayed until December 31, 2025 specifically because HELMS couldn't support the new requirements. Legislation designed to help people was held hostage by an IT project.</p>
+
+    <!-- 6 -->
+    <h2 id="cms">6. CMS Medicare: The Federal Rule That Compounded the Harm</h2>
+
+    <p>Effective <strong>January 1, 2025</strong>, CMS clarified its longstanding position: <strong>provisional or interim state licenses do not qualify as "licensed" for Medicare Part B billing purposes.</strong> (Publicized via Medicare Learning Network communication MM13922; ASHA held a national Town Hall on June 20, 2025 to address the impact.)</p>
+
+    <p>An SLPI holder cannot bill Medicare Part B independently — they must bill under their supervising SLP's credentials. This creates compounding pressure: supervisors are capped at 4 SLPI holders, billing under their credentials adds compliance complexity, and every day of processing delay extends that dependent-billing period from weeks to months.</p>
+
+    <p>For employers — hospitals, pediatric clinics, therapy centers — this makes hiring SLPI holders administratively burdensome. The processing delays make it worse by extending the burden period from weeks to months.</p>
+
+    <!-- 7 -->
+    <h2 id="cost">7. The Economic and Human Cost</h2>
+
+    <h3>Individual Level</h3>
+    <p>The applicant who prompted this records request submitted a complete application August 13, 2024 — the same day she completed her Master's degree — with a job offer waiting at Prosser Memorial Hospital. The SLPI was issued <strong>November 22, 2024: 101 days later.</strong> Approximate lost wages: $25,000–$30,000. Upon arrival, she found patient referrals backed up months due to the understaffing her own processing delay had contributed to.</p>
+
+    <div class="callout">
+      <p>This applicant had a support system. Someone without one — a first-generation graduate, a relocated applicant, someone without family financial backing — would have faced the same 101-day wait without a safety net.</p>
+    </div>
+
+    <h3>Aggregate Level</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Low Estimate</th><th>High Estimate</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Aggregate lost wages (154 pending)</td><td>$3,850,000</td><td>$4,620,000</td></tr>
+          <tr><td>Annualized (ongoing, ~232 apps/yr at 79-day avg)</td><td>~$5,800,000</td><td>~$6,960,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Conservative estimates based on typical SLP starting salaries. Does not include student loan interest accrual, relocation costs, or psychological cost of financial uncertainty after 6+ years of education.</p>
+
+    <h3>Patient-Side Cost</h3>
+    <p>SLPs treat dysphagia (swallowing disorders) — patients at risk of aspiration pneumonia; post-stroke and TBI communication recovery; pediatric feeding disorders; voice, fluency, and language delays. A 100-day processing delay is 100 days of referrals building up at understaffed clinics. This converts into measurable outcomes: delayed recovery, preventable hospitalizations, longer acute care stays.</p>
+
+    <!-- 8 -->
+    <h2 id="equity">8. The Equity Problem</h2>
+
+    <p>The 90-day statutory processing window, and the interim permit structure itself, embeds an assumption that new graduates can sustain themselves financially for 3+ months without income after completing graduate school. That assumption describes one socioeconomic profile.</p>
+
+    <p>It excludes first-generation college graduates without family financial support; applicants who relocated and are paying rent without income; anyone carrying significant student loan debt; single applicants without a partner's income as backup. The processing delay does not fall equally — it falls hardest on the people with the least capacity to absorb it, who are disproportionately underrepresented in the SLP profession already.</p>
+
+    <p>In Washington state, which has strong political commitments to equity and reducing barriers to professional entry, this framing is both accurate and politically potent. The SLPI processing failure is a structural equity problem embedded in a credentialing system designed for applicants with resources.</p>
+
+    <!-- 9 -->
+    <h2 id="legal">9. Legal Framework: What the Law Actually Requires</h2>
+
+    <h3>RCW 18.130.070 — The 90-Day Rule</h3>
+    <p>Washington state law requires DOH to issue a decision on a <strong>completed application</strong> within 90 days of receipt. Key phrase: "completed application." If DOH sends a deficiency letter requesting missing documents, the clock pauses until the applicant responds. If no deficiency is ever issued, the clock runs continuously from the date of submission.</p>
+
+    <div class="violation-box">
+      <div class="viol-label">Confirmed Statutory Violation</div>
+      <p>The case described above (application submitted August 13, 2024; no deficiency letter issued; permit received November 22, 2024) represents a <strong>confirmed violation of RCW 18.130.070.</strong> 90 days from August 13 = November 11. The permit was issued 11 days past the statutory deadline. DOH has no published SLA, no KPI framework for timeliness, and no audit process — confirmed by the PRR response.</p>
+    </div>
+
+    <h3>RCW 18.35</h3>
+    <p>Governing statute for hearing and speech licensure. Changes to the permit requirement (e.g., replacing it with an attestation system) would require amending this statute.</p>
+
+    <h3>WAC 246-828</h3>
+    <p>Administrative rules implementing RCW 18.35. Govern specific requirements, fees, and procedures. Rule amendments go through the Hearing and Speech Advisory Board and the standard CR-101/CR-102/CR-103 rulemaking process.</p>
+
+    <h3>2SHB 1724 (RCW 18.130.077)</h3>
+    <p>Legislation to reduce professional licensure barriers, including licensure by endorsement and other streamlining measures. Board adopted implementing rules March 14, 2025; CR-103 filed April 14, 2025 (WSR# 25-09-055). <strong>Effective date delayed to December 31, 2025</strong> because HELMS couldn't support the required system changes.</p>
+
+    <h3>Governor Ferguson Executive Order 25-03</h3>
+    <p>Issued January 2025, directing state agencies to streamline licensing processes. DOH accepted typed applications effective January 31, 2025 as one response. The broader spirit — reducing bureaucratic friction in professional licensing — is directly relevant to the SLPI processing failure.</p>
+
+    <!-- 10 -->
+    <h2 id="pdr">10. What the Public Records Request Revealed</h2>
+
+    <p>Filed under RCW 42.56 (Washington Public Records Act), covering January 1, 2020–present. Six items requested:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Requested</th><th>Produced</th><th>Assessment</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>SOPs / flowcharts</td><td>Informal staff notes + deficiency email templates</td><td>No formal SOP exists</td></tr>
+          <tr><td>2</td><td>Annual application / approval / denial totals</td><td>SLPI_PDR.xlsx — complete 2020–2025</td><td>Fully responsive</td></tr>
+          <tr><td>3</td><td>Processing time statistics</td><td>SLPI_PDR.xlsx — complete 2020–2025</td><td>Fully responsive</td></tr>
+          <tr><td>4</td><td>Staffing resource data</td><td>Not yet produced</td><td>Pending</td></tr>
+          <tr><td>5</td><td>KPIs / audit reports on timeliness</td><td>Not yet produced</td><td>Pending</td></tr>
+          <tr><td>6</td><td>Communications about delays / backlogs</td><td>Two PDF packets of internal emails</td><td>Partially responsive</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Files Produced</h3>
+
+    <p><a href="SLPI_PDR.xlsx" download><strong>SLPI_PDR.xlsx</strong></a> — The only quantitative file. Annual statistics 2020–2025, forming the data in Section 3.</p>
+
+    <p><a href="Deficiency_Statements_R.pdf" target="_blank"><strong>Deficiency_Statements_R.pdf</strong></a> — Standardized email templates for every common deficiency notice type (missing PRAXIS score, missing transcripts, supervision forms, etc.). The closest thing to a documented process for SLPI review. An informal reference, not a formal SOP.</p>
+
+    <p><a href="Hearing_and_Speech_Notes_R.pdf" target="_blank"><strong>Hearing_and_Speech_Notes_R.pdf</strong></a> — Internal staff reference notes on processing requirements by credential type. Key SLPI details: fee ($305), duration (1 year, non-renewable), supervisor requirements, extension process. <em>No processing timelines or SLAs are documented.</em> These are notes, not a managed policy document.</p>
+
+    <p><a href="PDF_PACKET_R.pdf" target="_blank"><strong>PDF_PACKET_R.pdf</strong></a> (41 pages) — Internal emails, January–July 2025. Key contents:</p>
+    <ul>
+      <li>April 2025: Children/Youth Special Healthcare Needs program reporting therapy centers experiencing "up to 4 months" delays. DOH's OHP Executive Director Jennifer Santiago attributed delays to HELMS migration and applicant document response times. March 2025 stats: only 36 credentials issued that month across SLP and SLPA combined.</li>
+      <li>May 2025: Operational confusion following HELMS launch (license printing procedures).</li>
+      <li>June 26, 2025: Santiago personally emailing a pediatric clinic about an individual permit holder's extension.</li>
+      <li>July 2, 2025: State Senator Jim McCune (WA 2nd District) filed a legislative inquiry on behalf of constituent Danielle Kline — filed May 16, pending 6+ weeks, no communication, had to delay her start date four times, cannot pay rent. Marked "DONE" quickly. Constituent referrals receive expedited handling.</li>
+      <li>July 8, 2025: Katelyn Hartley (expired permit, Spokane clinic). DOH still processing April 12 applications as of July 8. Extended to 10/31/25.</li>
+    </ul>
+
+    <p><a href="PDF_PACKET_R_2.pdf" target="_blank"><strong>PDF_PACKET_R (1).pdf</strong></a> (33 pages) — Internal emails, January–April 2025. Key contents:</p>
+    <ul>
+      <li>January 10, 2025: New demographic survey required for all applications effective January 1, 2025.</li>
+      <li>January 22, 2025: Licensed SLP counts by year (2019–2024): grew from 3,249 → 4,099.</li>
+      <li>January 27, 2025: Typed applications accepted effective January 31 per EO 25-03.</li>
+      <li>February 6, 2025: Board meeting canceled — invalid Teams link, OPMA compliance issue.</li>
+      <li>April 14, 2025: CR-103 filed (WSR# 25-09-055).</li>
+    </ul>
+
+    <h3>Key Patterns in the Communications</h3>
+
+    <p><strong>DOH leadership knows — and has not fixed it.</strong> Jennifer Santiago is personally handling individual constituent escalations. That is not normal executive-level work — it indicates the operational problem has risen to the top of the organization, and that the organization has chosen reactive triage over systemic repair.</p>
+
+    <p><strong>Every escalation path has produced individual band-aids, not systemic change.</strong> The records document a catalog of failed escalations: Amanda Simon (Children/Youth Special Healthcare Needs) raised the alarm in April 2025 → acknowledged, nothing changed. Senator McCune filed a legislative inquiry in July 2025 → constituent expedited, system unchanged. Multiple constituent and legislative contacts produced the same pattern.</p>
+
+    <p><strong>Extensions are being used as a pressure valve.</strong> When permits expire while waiting for processing, DOH issues extensions rather than resolving the underlying queue. This manages individual complaints without reducing backlog.</p>
+
+    <p><strong>Legislative escalation gets individuals expedited — not fixed.</strong> Constituent referrals from legislators receive faster individual handling. This is the fastest documented path to resolution for a specific case — but it depends on having a responsive representative, and has not produced any systemic change.</p>
+
+    <p><strong>The 2024 degradation is unexplained.</strong> DOH's communications blame HELMS (April 2025) for delays. The data shows the problem began in 2024. No internal communication explains what changed.</p>
+
+    <!-- 11 -->
+    <h2 id="gaps">11. Gaps: What DOH Didn't Produce</h2>
+
+    <div class="callout">
+      <p><strong>Important caveat:</strong> DOH's IT search returned <strong>5,204 documents.</strong> Only two installments (~74 pages of communications + 2 reference documents + 1 data file) have been produced so far. Production is ongoing at ~250 pages per installment every 45 days. The absence of a document in the first two installments does not mean it doesn't exist.</p>
+    </div>
+
+    <p>Items not yet produced:</p>
+    <ul>
+      <li><strong>Staffing data, KPIs / audit reports</strong> (request items 4 and 5) — either DOH has no formal analysis (consistent with the informal nature of everything produced so far), these are pending in a future installment, or they are being withheld under an exemption that should be cited.</li>
+      <li><strong>Formal SOP</strong> — the closest thing produced is informal staff notes and deficiency email templates.</li>
+      <li><strong>Explanation for the 2024 processing time degradation</strong> — not addressed in any produced record.</li>
+      <li><strong>Explanation for the 2024 denial spike</strong> — 24 denials vs. the ~10/year historical baseline, unexplained.</li>
+    </ul>
+
+    <p>This section will be updated as future installments are received.</p>
+
+    <!-- 12 -->
+    <h2 id="status">12. Current Status</h2>
+
+    <p>As of April 15, 2026:</p>
+    <ul>
+      <li>DOH is producing records from an IT search that returned <strong>5,204 documents</strong></li>
+      <li>Production rate: ~250 pages per installment, every 45 days</li>
+      <li>Two installments already received and analyzed (the documents linked in the sidebar)</li>
+      <li>Additional installments ongoing until request is fulfilled</li>
+      <li>HELMS: launched April 29, 2025; operational; 2SHB 1724 amendments effective December 31, 2025</li>
+      <li>Processing status as of today: unknown — Nov 2025 data (79.3-day average) is the most recent available</li>
+      <li>Statutory violation: at least one confirmed (RCW 18.130.070); documentation being assembled</li>
+    </ul>
+
+    <!-- 13 -->
+    <h2 id="action">13. Action Items</h2>
+
+    <h3>Immediate — Requires Documentation First</h3>
+    <ul class="checklist">
+      <li>Locate application submission confirmation — DOH email confirming receipt, dated August 13, 2024. Search wife's inbox for any @doh.wa.gov email from that date.</li>
+      <li>Locate permit issuance documentation — the SLPI itself, or DOH email confirming issuance on November 22, 2024.</li>
+      <li>Confirm no deficiency letters were received — search inbox for all DOH correspondence between August 13 and November 22, 2024. Absence of deficiency letters is critical to establishing the RCW 18.130.070 violation.</li>
+    </ul>
+
+    <h3>Complaints to File (Once Documentation Confirmed)</h3>
+    <ul class="checklist">
+      <li><strong>Governor's Office</strong> — Cite EO 25-03 and documented violation. File at governor.wa.gov/contact. Highest political leverage, lowest effort.</li>
+      <li><strong>WA Attorney General</strong> — RCW 18.130.070 violation, specific dates, no deficiency issued. File at atg.wa.gov/file-complaint.</li>
+      <li><strong>WA State Auditor</strong> — Government performance failure, $3.85M+ in quantified economic harm. File at sao.wa.gov/report-concern.</li>
+    </ul>
+
+    <h3>Legislative Strategy</h3>
+    <ul class="checklist">
+      <li><strong>Contact Senator McCune's office directly.</strong> McCune (WA 2nd District) filed a formal legislative inquiry in July 2025. His office is already on record caring about this issue.</li>
+      <li><strong>Contact Senate Health &amp; Long Term Care and House Health Care &amp; Wellness committee chairs directly.</strong> Committee staff are often more responsive than individual member offices.</li>
+      <li><strong>Contact multiple representatives simultaneously</strong> — particularly Eastern WA reps whose constituents work in healthcare, where SLP shortages in rural settings are acute.</li>
+      <li><strong>Consider ASHA Washington state chapter</strong> — already engaged on the CMS Medicare issue; coordinated advocacy carries more weight than individual complaints.</li>
+    </ul>
+
+    <h3>Formal Demand Letter</h3>
+    <ul class="checklist">
+      <li>Draft and send formal demand letter to DOH Secretary Dr. Umair Shah, CC Jennifer Santiago (OHP Executive Director), CC AG's office, CC Governor's office. Converts a private complaint into a political document with institutional accountability. <em>(Draft pending confirmation of documentation.)</em></li>
+    </ul>
+
+    <h3>Ongoing Records Request</h3>
+    <ul class="checklist">
+      <li>Monitor installment delivery — ~250 pages every 45 days</li>
+      <li>Watch for: staffing records and FTE allocations (2020–present), HELMS project decision documents, list of all SLPI extensions granted 2024–2025, records explaining the 2024 degradation, internal communications about the 1,324-day maximum outlier</li>
+    </ul>
+
+    <h3>Follow-Up PRR Candidates</h3>
+    <ul class="checklist">
+      <li>Formal request for documents used to train staff on SLPI processing — avoids the "no SOP" objection, forces production of whatever they do use</li>
+      <li>Staffing records: FTE allocations for OHP credentialing by credential type, 2020–present</li>
+    </ul>
+
+    <!-- 14 -->
+    <h2 id="people">14. Key People and Entities</h2>
+    <div class="people-grid">
+      <div class="person-row">
+        <div><div class="person-name">Jennifer Santiago</div><div class="person-role">OHP Executive Director, WA DOH</div></div>
+        <div class="person-rel">Operational lead; personally handling constituent escalations; primary contact for formal demands</div>
+      </div>
+      <div class="person-row">
+        <div><div class="person-name">Dr. Umair Shah</div><div class="person-role">Secretary of Health, WA DOH</div></div>
+        <div class="person-rel">Cabinet-level; target for formal demand letter</div>
+      </div>
+      <div class="person-row">
+        <div><div class="person-name">Senator Jim McCune</div><div class="person-role">WA State Senate, 2nd District</div></div>
+        <div class="person-rel">Filed constituent inquiry July 2025; constituent referrals get expedited DOH handling</div>
+      </div>
+      <div class="person-row">
+        <div><div class="person-name">Amanda Simon</div><div class="person-role">Children/Youth Special Healthcare Needs</div></div>
+        <div class="person-rel">Raised alarm April 2025 about 4-month delays at therapy centers</div>
+      </div>
+      <div class="person-row">
+        <div><div class="person-name">ASHA</div><div class="person-role">American Speech-Language-Hearing Association</div></div>
+        <div class="person-rel">National professional org; hosted June 2025 Town Hall on CMS Medicare ruling</div>
+      </div>
+      <div class="person-row">
+        <div><div class="person-name">WA Hearing &amp; Speech Advisory Board</div><div class="person-role">State advisory board</div></div>
+        <div class="person-rel">Governs WAC 246-828 rulemaking; meets ~quarterly</div>
+      </div>
+      <div class="person-row">
+        <div><div class="person-name">Governor Bob Ferguson</div><div class="person-role">WA Governor</div></div>
+        <div class="person-rel">Issued EO 25-03 (licensing streamlining); political leverage point</div>
+      </div>
+      <div class="person-row">
+        <div><div class="person-name">CMS</div><div class="person-role">Centers for Medicare &amp; Medicaid Services</div></div>
+        <div class="person-rel">Issued Medicare Part B ruling effective Jan 1, 2025; interim licenses don't qualify for independent billing</div>
+      </div>
+    </div>
+
+    <!-- 15 -->
+    <h2 id="glossary">15. Glossary</h2>
+    <div class="glossary-grid">
+      <div class="glossary-term">CFY</div><div class="glossary-def">Clinical Fellowship Year — post-graduation supervised work requiring 1,080 hours over ≥ 36 weeks, required before full SLP licensure.</div>
+      <div class="glossary-term">CMS</div><div class="glossary-def">Centers for Medicare &amp; Medicaid Services. Issued January 2025 ruling that interim/provisional state licenses do not qualify for independent Medicare Part B billing.</div>
+      <div class="glossary-term">CR-103</div><div class="glossary-def">State rulemaking document formally adopting rule changes after public comment. Filed April 14, 2025 (WSR# 25-09-055) adopting 2SHB 1724 implementing rules.</div>
+      <div class="glossary-term">EO 25-03</div><div class="glossary-def">Governor Ferguson Executive Order directing state agencies to streamline professional licensing processes. Issued January 2025.</div>
+      <div class="glossary-term">HELMS</div><div class="glossary-def">Healthcare Enforcement and Licensing Management System — new WA DOH credentialing database launched April 29, 2025. Replaced legacy ILRS.</div>
+      <div class="glossary-term">ILRS</div><div class="glossary-def">Integrated Licensing and Regulatory System — previous WA DOH credentialing database, replaced by HELMS in April 2025.</div>
+      <div class="glossary-term">OPMA</div><div class="glossary-def">Open Public Meetings Act — Washington law requiring public boards to provide proper public notice and access for meetings.</div>
+      <div class="glossary-term">PRAXIS</div><div class="glossary-def">National standardized exam required for SLP licensure. Minimum passing score: 162.</div>
+      <div class="glossary-term">PRR</div><div class="glossary-def">Public Records Request — formal request for government documents under RCW 42.56, Washington's Public Records Act.</div>
+      <div class="glossary-term">RCW 18.35</div><div class="glossary-def">Revised Code of Washington governing hearing and speech licensure.</div>
+      <div class="glossary-term">RCW 18.130.070</div><div class="glossary-def">Statute requiring DOH to issue a licensing decision within 90 days of receiving a completed application.</div>
+      <div class="glossary-term">RCW 42.56</div><div class="glossary-def">Washington Public Records Act — the law authorizing public records requests.</div>
+      <div class="glossary-term">SLP</div><div class="glossary-def">Speech-Language Pathologist — licensed healthcare professional treating communication, swallowing, and cognitive-communication disorders. Requires Master's degree + CFY + licensure.</div>
+      <div class="glossary-term">SLPA</div><div class="glossary-def">Speech-Language Pathology Assistant — separate credential for assistants working under SLP supervision.</div>
+      <div class="glossary-term">SLPI</div><div class="glossary-def">Speech-Language Pathology Interim Permit — one-year temporary work authorization allowing new SLP graduates to practice while completing their CFY. Subject of this analysis.</div>
+      <div class="glossary-term">2SHB 1724</div><div class="glossary-def">Washington legislation to reduce professional licensure barriers. Effective December 31, 2025 (delayed from earlier date due to HELMS).</div>
+      <div class="glossary-term">WAC 246-828</div><div class="glossary-def">Washington Administrative Code rules governing hearing and speech licensure.</div>
+    </div>
+
+    <hr>
+    <p style="font-size:0.85rem;color:var(--text-tertiary);font-style:italic;">This is a living record. Last updated April 15, 2026. Updated as new PRR installments are received, actions are taken, and status changes.</p>
+
+  </article>
+
+  <!-- ══════════════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Current Status</div>
+      <div class="status-card">
+        <div class="status-row">
+          <span class="status-label">Avg processing (2025)</span>
+          <span class="status-val warn">79.3 days</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Statutory limit</span>
+          <span class="status-val">90 days</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Pending applications</span>
+          <span class="status-val warn">154 (as of Nov '25)</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Suppressed wages</span>
+          <span class="status-val warn">$3.85–4.62M</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Stat. violation confirmed</span>
+          <span class="status-val warn">Yes — RCW 18.130.070</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">PRR docs outstanding</span>
+          <span class="status-val">~5,130 of 5,204</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Formal demand sent</span>
+          <span class="status-val" style="color:var(--text-tertiary)">Pending</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Source Documents</div>
+      <div class="doc-list">
+        <div class="doc-item">
+          <div class="doc-icon">XLS</div>
+          <div class="doc-meta">
+            <div class="doc-name"><a href="SLPI_PDR.xlsx" download>SLPI_PDR.xlsx</a></div>
+            <div class="doc-desc">Annual statistics: applications, issuances, denials, processing times 2020–2025</div>
+          </div>
+        </div>
+        <div class="doc-item">
+          <div class="doc-icon">PDF</div>
+          <div class="doc-meta">
+            <div class="doc-name"><a href="Deficiency_Statements_R.pdf" target="_blank">Deficiency_Statements_R.pdf</a></div>
+            <div class="doc-desc">Internal deficiency notice email templates — the closest thing to a documented process</div>
+          </div>
+        </div>
+        <div class="doc-item">
+          <div class="doc-icon">PDF</div>
+          <div class="doc-meta">
+            <div class="doc-name"><a href="Hearing_and_Speech_Notes_R.pdf" target="_blank">Hearing_and_Speech_Notes_R.pdf</a></div>
+            <div class="doc-desc">Internal staff reference notes on SLPI processing requirements. No SLAs documented.</div>
+          </div>
+        </div>
+        <div class="doc-item">
+          <div class="doc-icon">PDF</div>
+          <div class="doc-meta">
+            <div class="doc-name"><a href="PDF_PACKET_R.pdf" target="_blank">PDF_PACKET_R.pdf</a></div>
+            <div class="doc-desc">Internal emails Jan–Jul 2025. Includes McCune legislative inquiry, constituent escalations, HELMS confusion.</div>
+            <div class="doc-pages">41 pages</div>
+          </div>
+        </div>
+        <div class="doc-item">
+          <div class="doc-icon">PDF</div>
+          <div class="doc-meta">
+            <div class="doc-name"><a href="PDF_PACKET_R_2.pdf" target="_blank">PDF_PACKET_R (1).pdf</a></div>
+            <div class="doc-desc">Internal emails Jan–Apr 2025. EO 25-03 response, license counts, board meeting cancellation.</div>
+            <div class="doc-pages">33 pages</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">Filed Under</div>
+      <div class="status-card">
+        <div class="status-row">
+          <span class="status-label">Authority</span>
+          <span class="status-val">RCW 42.56</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Period covered</span>
+          <span class="status-val">Jan 1, 2020–present</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Total docs found</span>
+          <span class="status-val">5,204</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Production rate</span>
+          <span class="status-val">~250 pp / 45 days</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+</div>
+
+<footer>
+  <a href="https://gavinrouse.com">gavinrouse.com</a> &nbsp;&middot;&nbsp; This page is not indexed. URL-only access.
+</footer>
+
+</body>
+</html>
