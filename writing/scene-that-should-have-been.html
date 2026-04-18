@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Scene That Should Have Been in the Movie</title>
+<meta name="description" content="Why a man and an alien can love each other — and what Project Hail Mary wouldn't say about it.">
+<meta name="author" content="Gavin Rouse">
+<link rel="icon" href="../gr-shield-white.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Cinzel:wght@400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:       #f0e8d8;
+  --ink-dim:   #b8ad9e;
+  --ink-faint: #958b7a;
+  --bg:        #141008;
+  --gold:      #c8920a;
+  --gold-pale: #e8b84a;
+  --rule:      rgba(200,146,10,0.25);
+  --divider:   rgba(200,180,140,0.12);
+}
+
+html { font-size: 18px; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* COVER */
+.cover {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  position: relative;
+  background: radial-gradient(ellipse 80% 80% at 50% 40%, #1a1200 0%, var(--bg) 70%);
+}
+
+.cover-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 3.5rem;
+  opacity: 0.75;
+}
+
+.cover-ornament {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+  margin: 0 auto 3.5rem;
+}
+
+.cover h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(2.6rem, 7vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 0.15em;
+  max-width: 720px;
+}
+
+.cover h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--gold-pale);
+}
+
+.cover-subtitle {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  color: var(--ink-dim);
+  max-width: 500px;
+  margin: 2.5rem auto 0;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.cover-scroll {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cinzel', serif;
+  font-size: 0.52rem;
+  letter-spacing: 0.35em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+/* BODY */
+.body-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 7rem 2rem 5rem;
+}
+
+/* SPOILER BLOCK */
+.spoiler {
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--gold);
+  background: rgba(200,146,10,0.04);
+  padding: 1.1rem 1.5rem;
+  margin-bottom: 5rem;
+  border-radius: 0 3px 3px 0;
+}
+
+.spoiler p {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* SECTION */
+.section {
+  margin-bottom: 6rem;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-marker {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.section-numeral {
+  font-family: 'Cinzel', serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.32em;
+  color: var(--gold);
+  opacity: 0.8;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--rule), transparent);
+}
+
+.section h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(1.65rem, 3.8vw, 2.3rem);
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 2rem;
+  letter-spacing: -0.01em;
+}
+
+.section p.drop::first-letter {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 4.2rem;
+  font-weight: 600;
+  line-height: 0.72;
+  float: left;
+  margin-right: 0.08em;
+  margin-top: 0.15em;
+  color: var(--gold-pale);
+}
+
+p {
+  font-size: 1.02rem;
+  line-height: 1.9;
+  color: var(--ink-dim);
+  margin-bottom: 1.5rem;
+}
+
+p:last-child { margin-bottom: 0; }
+p strong { color: var(--ink); font-weight: 500; }
+p em { font-style: italic; color: #ccc0a8; }
+
+/* PULL QUOTE */
+.pq {
+  margin: 2.8rem 0;
+  padding: 0.25rem 0 0.25rem 2rem;
+  border-left: 1.5px solid var(--gold);
+}
+
+.pq p {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 1.3rem;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 0;
+}
+
+.pq p::first-letter { all: unset; }
+
+.pq-source {
+  font-family: 'Cinzel', serif;
+  font-size: 0.54rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-top: 0.8rem;
+  opacity: 0.65;
+}
+
+/* DIVIDER */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin: 5rem 0;
+  opacity: 0.45;
+}
+
+.divider-arm {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--divider), transparent);
+}
+
+.divider-pip {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.6;
+}
+
+/* SCENE RULE — thin gold line before/after screenplay */
+.scene-rule {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.scene-rule-arm {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--rule), transparent);
+}
+
+.scene-rule-center {
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+/* SCREENPLAY */
+.screenplay {
+  background: rgba(0,0,0,0.28);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 2.5rem 2.25rem;
+  margin: 0.5rem 0;
+}
+
+.sp-direction {
+  font-style: italic;
+  color: var(--ink-faint);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  margin-bottom: 1.1rem;
+}
+
+.sp-direction:last-child { margin-bottom: 0; }
+
+.sp-exchange {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0 1rem;
+  margin-bottom: 0.85rem;
+  align-items: baseline;
+}
+
+.sp-char {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  text-transform: uppercase;
+  padding-top: 0.2em;
+  line-height: 1.9;
+  text-align: right;
+}
+
+.sp-dialog {
+  color: var(--ink-dim);
+  font-size: 0.97rem;
+  line-height: 1.85;
+}
+
+.sp-dialog em { font-style: italic; color: #ccc0a8; }
+
+/* CODA */
+.coda {
+  text-align: center;
+  padding: 5rem 2rem 7rem;
+  border-top: 1px solid var(--divider);
+}
+
+.coda-word {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 2rem;
+  color: var(--gold-pale);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.6rem;
+}
+
+.coda-gloss {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--ink-faint);
+  margin-bottom: 3rem;
+}
+
+.coda-rule {
+  width: 32px;
+  height: 1px;
+  background: var(--gold);
+  margin: 0 auto 3rem;
+  opacity: 0.35;
+}
+
+.coda-quote {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 600px) {
+  html { font-size: 16px; }
+  .body-wrap { padding: 5rem 1.5rem 4rem; }
+  .pq { padding-left: 1.25rem; }
+  .screenplay { padding: 1.75rem 1.25rem; }
+  .sp-exchange { grid-template-columns: 4.5rem 1fr; gap: 0 0.75rem; }
+  .sp-char { font-size: 0.55rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-eyebrow">An Essay on Friendship, God &amp; Science Fiction</div>
+  <div class="cover-ornament"></div>
+  <h1>The Scene That Should Have Been <em>in the Movie</em></h1>
+  <p class="cover-subtitle">Why a man and an alien can love each other — and what <em>Project Hail Mary</em> wouldn't say about it</p>
+  <div class="cover-scroll">Continue Reading</div>
+</div>
+
+<div class="body-wrap">
+
+  <!-- SPOILER WARNING -->
+  <div class="spoiler">
+    <p>Spoiler warning &mdash; This essay discusses the plot of Project Hail Mary, including the ending. If you haven&rsquo;t seen the movie or read the book, stop here, go watch it, and come back. The piece will still be here. Trust me on this one.</p>
+  </div>
+
+  <!-- I. OPENING -->
+  <div class="section">
+    <div class="section-marker">
+      <span class="section-numeral">I</span>
+      <div class="section-line"></div>
+    </div>
+
+    <p class="drop">I watched <em>Project Hail Mary</em> last night. I can&rsquo;t stop thinking about it.</p>
+
+    <p>If you haven&rsquo;t seen it, the short version: a middle school science teacher wakes up alone on a spaceship with no memory of how he got there. Eventually he finds out Earth is dying, he was drafted into a suicide mission to save it, and &mdash; a third of the way through the story &mdash; he meets an alien. Different star system. Different biology. Different everything. They can&rsquo;t breathe the same atmosphere. They can&rsquo;t eat the same food. They don&rsquo;t share a single gene, a single word, a single cultural reference. They should have nothing in common.</p>
+
+    <p>They become the closest friends either one of them has ever had.</p>
+
+    <p>I walked out of the theater and realized I had just spent two and a half hours caring deeply about a rock. Not a metaphorical rock &mdash; a literal, five-limbed, ammonia-breathing, spider-shaped alien who communicates by making musical notes with his body. And the thing I felt was not some pleasant aesthetic appreciation of clever worldbuilding. It was the same thing I feel about my wife, my family, my oldest friends. That particular warmth that isn&rsquo;t quite any other warmth. The thing the Greeks had a specific word for.</p>
+
+    <p>I want to talk about what that is. Because I don&rsquo;t think it&rsquo;s what most people think it is.</p>
+  </div>
+
+  <div class="divider"><div class="divider-arm"></div><div class="divider-pip"></div><div class="divider-arm"></div></div>
+
+  <!-- II. THE SUBSTRATE -->
+  <div class="section">
+    <div class="section-marker">
+      <span class="section-numeral">II</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>The Substrate Doesn&rsquo;t Matter</h2>
+
+    <p class="drop">Here is the strange thing the story proves, almost by accident: if connection can form between a human and an alien who share literally zero biology, then connection is not <em>about</em> biology. It&rsquo;s not about shared species, or shared culture, or shared ancestry, or shared anything at the surface level. Strip all of that away &mdash; and the story strips it all away &mdash; and something still happens between the two of them that we unmistakably recognize as love.</p>
+
+    <p>Which means the thing we&rsquo;ve been calling &ldquo;connection&rdquo; our whole lives is something more fundamental than we usually treat it as. It&rsquo;s not an emergent feature of human social life. It&rsquo;s not an evolved adaptation for tribal cooperation. Or rather &mdash; it may be those things also, but whatever those mechanisms are, they&rsquo;re instantiating something that precedes them. Something substrate-independent. Something the biology merely lets us <em>participate in</em>, not something the biology <em>creates</em>.</p>
+
+    <p>I&rsquo;ve been chewing on this for a day now, and I keep arriving at the same place. The tradition already figured this out. Aristotle called the highest form of it <em>philia teleia</em> &mdash; perfect friendship, virtue-friendship. Two people who recognize excellence in each other and are made better by the recognition. He said this kind of friend is <em>another self</em> &mdash; not a merger, a mirror. He also said you cannot be fully virtuous alone. Certain human excellences <em>only exist in relation</em>. You need the other to become what you are.</p>
+
+    <p>Cicero said a friend is one before whom you may think aloud. Montaigne, writing about his dead friend &Eacute;tienne, said the only answer to why he loved him was: <em>because it was him, because it was me.</em> He could not explain it further. One of the most articulate men who ever lived shrugged, because the thing is prior to words.</p>
+
+    <p>Every one of these thinkers was pointing at the same shape. And the shape doesn&rsquo;t care whether the other is your species.</p>
+  </div>
+
+  <div class="divider"><div class="divider-arm"></div><div class="divider-pip"></div><div class="divider-arm"></div></div>
+
+  <!-- III. THE LOAD-BEARING CLAIM -->
+  <div class="section">
+    <div class="section-marker">
+      <span class="section-numeral">III</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>The Load-Bearing Claim</h2>
+
+    <p class="drop">Here is the part where I stop tiptoeing.</p>
+
+    <p>The tradition I come from has a three-word answer for what this substrate-independent thing is. It is not an answer I use lightly, and it is not an answer I would have written a year ago. But I think it is the true one, and I think <em>Project Hail Mary</em> is a two-and-a-half-hour demonstration of it without the author ever naming it:</p>
+
+    <div class="pq">
+      <p>Friendship is God.</p>
+    </div>
+
+    <p>Not &ldquo;friendship is <em>like</em> God.&rdquo; Not &ldquo;friendship is <em>almost as important as</em> God.&rdquo; Not &ldquo;friendship is how we glimpse God.&rdquo; I mean the load-bearing version: <em>what happens between two beings in genuine mutual recognition and sacrificial care is literally a mode of divine being.</em> A local instantiation, thinned by our finitude but not different in kind, of the thing the universe is fundamentally made of.</p>
+
+    <p>The first epistle of John puts it as directly as it can be put: <em>God is love.</em> Not &ldquo;God loves.&rdquo; God <em>is.</em> The Greek has no middle term &mdash; <em>ho theos ag&aacute;p&emacr; estin.</em> Love is not one of God&rsquo;s properties. Love is what God <em>is</em>. And the corollary, which the same letter states explicitly and most modern readers skip over: <em>anyone who loves is born of God and knows God. Anyone who does not love does not know God.</em> Regardless of profession. Regardless of creed. The test is whether you love.</p>
+
+    <p>Aquinas, a thousand years later, takes this and runs. He defines <em>caritas</em> &mdash; the highest love &mdash; as <em>friendship with God.</em> Aristotelian virtue-friendship, but extended vertically. And because God, in the classical understanding, is not a being made of parts but pure, simple, unified being, friendship-with-God is not friendship with some entity who happens to exist. It is participation in God&rsquo;s own inner life. Christian theology claims, at its deepest, that God is already internally a friendship &mdash; Father, Son, Spirit in eternal mutual self-giving, each fully in the others, none losing themselves. The Greek word for this is <em>perichoresis</em>. The divine dance. Reality, at bottom, is not a collection of things. It is a relationship.</p>
+
+    <p>Every genuine friendship is a finite echo of that infinite relationship. When my wife and I sit together in the evening, when I trust a brother with something that matters, when &mdash; yes &mdash; a man and an alien build a life together on a ship at the edge of the known universe, what is happening is not that we are <em>remembering</em> God or <em>symbolizing</em> God or <em>pointing at</em> God. The warmth itself <em>is</em> God, participated in, encountered under the form of this particular other.</p>
+
+    <p>This is why isolation feels like death even when you are biologically alive. Not because you lack stimulation. Because you have been cut off from the substrate of reality. It is why the hardest punishment civilized men have devised is solitary confinement. It is why every culture in history treats exile as a form of execution. Being-alone is not a neutral state; it is the refusal of what you were built for. Augustine, fifteen hundred years before we had a word for neuroscience, said it plainly: <em>Thou hast made us for Thyself, and our heart is restless until it rests in Thee.</em> And that rest, it turns out, is almost never a solitary experience. It is found in relation, because the Thee is relational all the way down.</p>
+  </div>
+
+  <div class="divider"><div class="divider-arm"></div><div class="divider-pip"></div><div class="divider-arm"></div></div>
+
+  <!-- IV. WHAT THIS MEANS -->
+  <div class="section">
+    <div class="section-marker">
+      <span class="section-numeral">IV</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>What This Means If You Take It Seriously</h2>
+
+    <p class="drop">If friendship is God in the load-bearing sense, then a lot of things in ordinary life get reclassified.</p>
+
+    <p>Marriage is not a lifestyle arrangement. It is liturgy. Two people binding themselves to each other in fidelity is not a sentimental ceremony &mdash; it is participation in the generative structure of reality itself, which is fidelity and self-giving all the way down.</p>
+
+    <p>Having children is not a private project. It is the creation of new nodes in the relational fabric of the universe &mdash; new beings capable of the divine dance, new mirrors in which the Good can recognize itself.</p>
+
+    <p>Community is not optional social scaffolding for people who happen to prefer groups. It is where human beings become fully real. The man with no friends is not merely lonely; he is metaphysically stunted. The Founders knew this. <em>The Federalist</em> is one long argument that self-government requires civic friendship &mdash; that a nation of strangers cannot remain a nation. Tocqueville, arriving from France in 1831, said the thing that most astonished him about America was not our laws but our associations: the constant, voluntary, thick web of Americans gathering in rooms to do things together. He said it was the soul of the republic. He was right. When those rooms empty out, the republic ends.</p>
+
+    <p>Work done in genuine service to others &mdash; the doctor treating the patient, the engineer building the device that lets the doctor see, the teacher meeting the student where he is &mdash; is not economic activity with a warm glow attached. It is <em>caritas</em> in institutional form. It is the divine dance expressed through competence. This is why good work feels different from busywork, even when the pay is identical. One is participation. The other is not.</p>
+
+    <div class="pq">
+      <p>There are no ordinary people. You have never talked to a mere mortal.</p>
+      <div class="pq-source">C.S. Lewis</div>
+    </div>
+
+    <p>And every other &mdash; every genuine other &mdash; carries a weight that cannot be reduced to utility, or particles, or social role. Every person you meet is a finite window onto the infinite, a place where Being itself is locally instantiated in a form you can love. That includes, apparently, aliens. That includes, I suspect, more than we know.</p>
+  </div>
+
+  <div class="divider"><div class="divider-arm"></div><div class="divider-pip"></div><div class="divider-arm"></div></div>
+
+  <!-- V. THE SCENE -->
+  <div class="section">
+    <div class="section-marker">
+      <span class="section-numeral">V</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>A Scene That Should Have Been in the Movie</h2>
+
+    <p class="drop">Now let me show you what I mean.</p>
+
+    <p>Weir never gives Grace and Rocky this conversation. I think he knew the conversation was there and chose not to take it, probably because he wanted the book to stay accessible to readers who would hear God-talk as a tribal marker rather than a metaphysical claim. I understand the choice. But the shape of the story demands the conversation, and so in the spirit of finishing what he started, here it is.</p>
+
+    <div class="scene-rule">
+      <div class="scene-rule-arm"></div>
+      <div class="scene-rule-center">Scene</div>
+      <div class="scene-rule-arm"></div>
+    </div>
+
+    <div class="screenplay">
+
+      <p class="sp-direction">The common area of the Hail Mary. Low light. Grace is finishing a meal pack. Rocky is in his tank on the other side of the divider, working on something with three hands while the fourth taps the xenonite idly, a tic Grace has come to find comforting.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">You ever think about how we shouldn&rsquo;t be here, buddy?</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Explain.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Any one thing that&rsquo;s happened to us &mdash; us surviving the journey to Tau Ceti, us meeting, figuring out how to talk, discovering and collecting the Taumoeba, the Taumoeba working, you breaking through your barrier and dragging me to the med bay when the ship spun &mdash; any <em>one</em> of those things not happening and we&rsquo;re both dead. And our planets are dead. Pick any link in the chain, pull it out, everything falls apart.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Yes. I think this often.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">And none of it did fall apart. Every single link held. That&rsquo;s &mdash; I don&rsquo;t have a word for what that is. <em>(half-laughs)</em> Or I do, but it&rsquo;s not a word scientists use.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">What word.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Miracle.</span>
+      </div>
+
+      <p class="sp-direction">Rocky stops tapping. The other three hands pause.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">On Erid, we have word like this. But word is different shape. Means &mdash; thing that happens because universe <em>wants</em> it to happen. Not accident. Opposite of accident.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog"><em>(quietly)</em> Yeah. That&rsquo;s closer to what I mean.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Question, question.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Shoot.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Your people. Before Astrophage. Before Hail Mary. You think &mdash; universe made <em>for</em> thinking? Or thinking made by universe accident?</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">That&rsquo;s a hell of a question for a Tuesday, buddy.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Is not Tuesday. Is day four hundred twelve.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Fair.</span>
+      </div>
+
+      <p class="sp-direction">He sets down the meal pack. Looks at his hands.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Most scientists where I come from would say accident. Particles bounced around. Life showed up. Eventually brains. No plan.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">You believe, question?</span>
+      </div>
+
+      <p class="sp-direction">A long silence.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">&hellip;I don&rsquo;t know. I used to. It got harder.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Why harder?</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Because you&rsquo;re here. You and me shouldn&rsquo;t be able to talk. Your biochemistry is insane. Your planet orbits a different star. We share zero ancestry &mdash; zero. And somehow we&rsquo;re friends. That shouldn&rsquo;t work if it&rsquo;s all just accident. Accidents don&rsquo;t line up that well.</span>
+      </div>
+
+      <p class="sp-direction">Rocky stops working. All five hands still. On Erid this is the equivalent of full attention.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Explain more.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">On Earth we have this old idea. That the universe has a <em>shape</em> to it. Not physical shape. A moral shape. A logical shape. That when two minds meet, anywhere in the universe, they can recognize each other because they&rsquo;re both tuned to the same thing underneath. The old philosophers called it the <em>logos</em>. Reason. Pattern. The thing behind the thing.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Eridian word. <em>Koret.</em> Means &mdash; the way things fit. When metal fits metal correct, is <em>koret</em>. When music is correct, is <em>koret</em>. When friend understands friend, is <em>koret</em>.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog"><em>(quietly)</em> Yeah. Yeah, that&rsquo;s it. That&rsquo;s exactly it.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog"><em>Koret</em> is everywhere. My people know this. Is why we build. Is why we make music. Is why we send ships into dark looking for help for sun dying. Because <em>koret</em> says &mdash; all things connect. Or want to connect.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">You&rsquo;re telling me Eridian philosophers figured out Aristotle.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Who Aristotle, question.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Smart guy. Dead now. He said the whole universe is pulled along by love. Not romance love. The pull-toward-the-good love. Everything reaching for what it&rsquo;s supposed to be.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog"><em>(long pause)</em> Yes. This is <em>koret</em>. Your Aristotle knows.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">So then what&rsquo;s pulling? What&rsquo;s doing the pulling?</span>
+      </div>
+
+      <p class="sp-direction">Rocky taps the divider twice. A gesture Grace learned months ago means something like reverence.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">My people have word. <em>Tameth.</em> Is &mdash; source of <em>koret</em>. Maker of fit. Is not <em>in</em> universe. Universe is <em>in</em> it.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">We have a word for that too.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Tell, question.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">&hellip;God. Most of my people would say God. I haven&rsquo;t said that word &mdash; not like this, not meaning it &mdash; in a long time.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Why, question.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Where I worked, nobody talked about it. Not because anyone had thought it through &mdash; because nobody else was talking about it either. It got easier to just not bring it up.</span>
+      </div>
+
+      <p class="sp-direction">Rocky&rsquo;s arms drop slightly &mdash; the Eridian shrug.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Smart people on Erid talk about it all time. Stupid people too busy.</span>
+      </div>
+
+      <p class="sp-direction">Grace laughs. Then doesn&rsquo;t.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Rocky. If we both die out here. If we save our planets and we don&rsquo;t make it home. Do you think &mdash; does <em>tameth</em> &mdash; do you think it matters that we were friends?</span>
+      </div>
+
+      <p class="sp-direction">Rocky goes perfectly still again. Full attention.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Question is wrong shape, Grace.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">How.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">You ask if friendship matters <em>to tameth</em>. Is backward. Friendship <em>is tameth</em>. Small piece. Real piece. You and me &mdash; <em>(taps his own carapace, a gesture he learned from Grace)</em> &mdash; is universe doing what universe is <em>for</em>.</span>
+      </div>
+
+      <p class="sp-direction">Silence. Grace puts down the meal pack.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">&hellip;I wish I&rsquo;d met you when I was twenty.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">I wish I meet you when I hatch. Would save time.</span>
+      </div>
+
+      <p class="sp-direction">Grace laughs. Wipes his eyes. Rocky pretends not to notice, which on Erid is the highest form of respect.</p>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Rocky</span>
+        <span class="sp-dialog">Sleep now, Grace. <em>Koret</em> continues tomorrow.</span>
+      </div>
+
+      <div class="sp-exchange">
+        <span class="sp-char">Grace</span>
+        <span class="sp-dialog">Yeah, buddy. <em>Koret</em> continues tomorrow.</span>
+      </div>
+
+    </div><!-- /screenplay -->
+
+    <div class="scene-rule">
+      <div class="scene-rule-arm"></div>
+      <div class="scene-rule-center"></div>
+      <div class="scene-rule-arm"></div>
+    </div>
+
+  </div>
+
+  <div class="divider"><div class="divider-arm"></div><div class="divider-pip"></div><div class="divider-arm"></div></div>
+
+  <!-- VI. WHY THIS IS THE POINT -->
+  <div class="section">
+    <div class="section-marker">
+      <span class="section-numeral">VI</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Why This Is the Point</h2>
+
+    <p class="drop">The reason this scene works &mdash; and the reason it had to be written &mdash; is that Weir built a story whose entire emotional weight rests on a metaphysical claim he refused to name. That <em>connection is real, substrate-independent, and worth dying for.</em> That a man and an alien can love each other with the same love that binds a marriage or a family, because the substrate was never the point.</p>
+
+    <p>If that claim is true, it has consequences. It means the universe has a shape, and the shape is love. It means every genuine friendship is a local encounter with the thing that holds reality together. It means <em>tameth</em>, <em>logos</em>, <em>koret</em>, God &mdash; these are translations of each other across cultures that never met, because they were all pointing at the same fact.</p>
+
+    <p>And it means the most important thing you will ever do is love the particular others you have been given. Your spouse. Your children. Your parents. Your friends. Your neighbors. The stranger in the room. The alien on the ship.</p>
+
+    <p>Weir showed us a man who saved two civilizations and then chose to spend the rest of his life with his friend rather than go home. Most reviewers called that ending bittersweet. I don&rsquo;t think it was bittersweet at all. I think it was the only possible ending, because Grace had finally understood what every serious mind in history has been trying to tell us.</p>
+
+    <div class="pq">
+      <p>Friendship is God. Everything else is commentary.</p>
+    </div>
+
+  </div>
+
+</div><!-- /body-wrap -->
+
+<div class="coda">
+  <div class="coda-word">Koret</div>
+  <div class="coda-gloss">The way things fit &mdash; when friend understands friend</div>
+  <div class="coda-rule"></div>
+  <div class="coda-quote">Thou hast made us for Thyself, and our heart is restless until it rests in Thee. &mdash; Augustine of Hippo</div>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('.section');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
