@@ -1,0 +1,3082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Quorum — Parliamentary OS (MVP)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1419;
+    --bg-elev: #161d24;
+    --bg-card: #1a232c;
+    --bg-hover: #233040;
+    --border: #2a3744;
+    --border-strong: #3d4f60;
+    --text: #e8eef3;
+    --text-dim: #8a9ba8;
+    --text-faint: #5a6b78;
+    --accent: #d4a13c;
+    --accent-dim: #8a6824;
+    --action: #4a9eda;
+    --action-dim: #1e4d75;
+    --success: #6fb86f;
+    --danger: #e07171;
+    --warning: #d4a13c;
+    --display: 'Newsreader', Georgia, serif;
+    --sans: 'Inter Tight', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', 'Consolas', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr 360px;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    background: var(--bg-elev);
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .brand {
+    font-family: var(--display);
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .brand-mark {
+    color: var(--accent);
+  }
+
+  .brand-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-top: -4px;
+  }
+
+  .profile-selector {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  .meta-block {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .meta-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .meta-value {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .meta-value.large {
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+
+  .stat-row .v {
+    font-family: var(--mono);
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .stat-row .l {
+    color: var(--text-dim);
+  }
+
+  .state-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--accent-dim);
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .state-pill::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .main {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-bar {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .header-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .timer {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+
+  .agenda-strip {
+    padding: 12px 28px;
+    background: var(--bg-elev);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .agenda-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .agenda-chip:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+
+  .agenda-chip.done {
+    color: var(--success);
+    border-color: rgba(111,184,111,0.3);
+  }
+
+  .agenda-chip.done::before {
+    content: '✓';
+  }
+
+  .agenda-chip.current {
+    background: var(--accent-dim);
+    color: var(--text);
+    border-color: var(--accent);
+  }
+
+  .agenda-chip.current::before {
+    content: '●';
+    color: var(--accent);
+  }
+
+  .stage-area {
+    padding: 24px 28px;
+    flex: 1;
+  }
+
+  .context-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+  }
+
+  .context-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 8px;
+  }
+
+  .context-text {
+    font-family: var(--display);
+    font-size: 18px;
+    line-height: 1.45;
+    color: var(--text);
+  }
+
+  .context-text .actor {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .actions-section {
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .action-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .action-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-strong);
+  }
+
+  .action-btn:active {
+    transform: translateY(1px);
+  }
+
+  .action-btn.primary {
+    background: var(--action-dim);
+    border-color: var(--action);
+  }
+
+  .action-btn.primary:hover {
+    background: var(--action);
+  }
+
+  .action-btn.danger:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .action-btn .hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .action-btn.primary .hint {
+    color: rgba(255,255,255,0.7);
+  }
+
+  .legal-ref {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-faint);
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  .stack-area {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stack-item {
+    background: var(--bg-card);
+    border-left: 2px solid var(--accent);
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .stack-item .state-name {
+    color: var(--accent);
+  }
+
+  .right-panel {
+    background: var(--bg-elev);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-tab {
+    flex: 1;
+    padding: 11px 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.12s;
+  }
+
+  .panel-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .panel-tab:hover:not(.active) {
+    color: var(--text);
+  }
+
+  .panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 18px;
+  }
+
+  .panel-section {
+    display: none;
+  }
+
+  .panel-section.active {
+    display: block;
+  }
+
+  .event {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 60px 1fr 50px;
+    gap: 10px;
+    align-items: start;
+    position: relative;
+  }
+
+  .event:last-child {
+    border-bottom: none;
+  }
+
+  .event-time {
+    color: var(--text-faint);
+    font-size: 10px;
+    font-family: var(--mono);
+  }
+
+  .event-type {
+    color: var(--accent);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+    font-family: var(--mono);
+  }
+
+  .event-type.manual {
+    color: var(--warning);
+  }
+
+  .event-body {
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .event-body .name {
+    color: var(--accent);
+  }
+
+  .member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    background: var(--bg-card);
+    border-radius: 3px;
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+
+  .member-row.present {
+    border-left: 2px solid var(--success);
+  }
+
+  .member-row.absent {
+    border-left: 2px solid var(--text-faint);
+    opacity: 0.55;
+  }
+
+  .member-row.not-good-standing {
+    border-left: 2px solid var(--warning);
+  }
+
+  .member-row .role {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: right;
+  }
+
+  .member-name {
+    font-weight: 500;
+  }
+
+  .member-detail {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .ai-prompt {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--text);
+    width: 100%;
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .ai-prompt:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .ai-response {
+    background: var(--bg-card);
+    border-left: 2px solid var(--accent);
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+
+  .ai-response.placeholder {
+    color: var(--text-faint);
+    font-style: italic;
+    border-left-color: var(--text-faint);
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal {
+    background: var(--bg-elev);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 24px;
+    min-width: 480px;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .modal-sub {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 5px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 11px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+  }
+
+  .form-textarea {
+    min-height: 70px;
+    resize: vertical;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .btn {
+    padding: 9px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-strong);
+  }
+
+  .btn.primary {
+    background: var(--action-dim);
+    border-color: var(--action);
+  }
+
+  .btn.primary:hover {
+    background: var(--action);
+  }
+
+  .btn.danger {
+    color: var(--danger);
+  }
+
+  .btn.danger:hover {
+    border-color: var(--danger);
+  }
+
+  .vote-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .vote-btn {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-card);
+    font-family: var(--sans);
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.12s;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .vote-btn:hover { background: var(--bg-hover); }
+  .vote-btn.yes:hover { border-color: var(--success); color: var(--success); }
+  .vote-btn.no:hover { border-color: var(--danger); color: var(--danger); }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-elev);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 10px 18px;
+    color: var(--text);
+    font-size: 13px;
+    z-index: 200;
+    animation: slideUp 0.2s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translate(-50%, 20px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+  }
+
+  .quorum-indicator {
+    padding: 8px 12px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .quorum-indicator.met {
+    background: rgba(111,184,111,0.1);
+    border: 1px solid var(--success);
+    color: var(--success);
+  }
+
+  .quorum-indicator.not-met {
+    background: rgba(224,113,113,0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text-faint);
+    padding: 30px 16px;
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  .footer-actions {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .footer-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 7px 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.12s;
+  }
+
+  .footer-btn:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  .footer-btn.accent {
+    border-color: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  .footer-btn.accent:hover {
+    border-color: var(--accent);
+    background: rgba(212,161,60,0.08);
+  }
+
+  .footer-btn.danger:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+
+  .agenda-editor-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 5px;
+  }
+
+  .agenda-editor-item .grip {
+    color: var(--text-faint);
+    font-family: var(--mono);
+    cursor: grab;
+    font-size: 14px;
+  }
+
+  .agenda-editor-item input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 13px;
+    font-family: var(--sans);
+    padding: 4px;
+  }
+
+  .agenda-editor-item input:focus {
+    outline: none;
+    background: var(--bg);
+  }
+
+  .agenda-editor-item .remove {
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 6px;
+  }
+
+  .agenda-editor-item .remove:hover {
+    color: var(--danger);
+  }
+
+  .quick-entry-fab {
+    position: absolute;
+    bottom: 20px;
+    right: 380px;
+    background: var(--warning);
+    color: var(--bg);
+    border: none;
+    border-radius: 50px;
+    padding: 12px 18px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    z-index: 50;
+    transition: all 0.12s;
+  }
+
+  .quick-entry-fab:hover {
+    background: #e0b34a;
+    transform: translateY(-1px);
+  }
+
+  .org-name {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .combobox-wrap {
+    position: relative;
+  }
+
+  .combobox-input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 11px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+  }
+
+  .combobox-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .combobox-list {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    background: var(--bg-elev);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 10;
+    display: none;
+  }
+
+  .combobox-list.open {
+    display: block;
+  }
+
+  .combobox-item {
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .combobox-item:hover, .combobox-item.active {
+    background: var(--bg-hover);
+  }
+
+  .combobox-item .role-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .combobox-item.freeform {
+    color: var(--warning);
+    border-top: 1px solid var(--border);
+  }
+
+  .combobox-item.freeform::before {
+    content: '+ ';
+    font-weight: 600;
+  }
+
+  .event-actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.12s;
+    justify-content: flex-end;
+  }
+
+  .event:hover .event-actions {
+    opacity: 1;
+  }
+
+  .event-undo {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 6px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .event-undo:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+
+  .event-clock {
+    color: var(--text-faint);
+    font-size: 9px;
+    font-family: var(--mono);
+    margin-top: 1px;
+  }
+
+  .name-flag {
+    color: var(--warning);
+    font-size: 10px;
+    margin-left: 3px;
+    cursor: help;
+  }
+
+  .agenda-editor-item {
+    cursor: move;
+  }
+
+  .agenda-editor-item.dragging {
+    opacity: 0.4;
+  }
+
+  .agenda-editor-item.drag-over {
+    border-top: 2px solid var(--accent);
+  }
+
+  .end-screen {
+    text-align: center;
+    padding: 50px 20px;
+  }
+
+  .end-screen .title {
+    font-family: var(--display);
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .end-screen .summary {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .end-screen .end-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .end-screen .summary-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 520px;
+    margin: 0 auto 24px;
+  }
+
+  .end-screen .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px;
+  }
+
+  .end-screen .stat-card .v {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .end-screen .stat-card .l {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <div class="brand">Q<span class="brand-mark">.</span></div>
+        <div class="brand-sub">parliamentary os</div>
+      </div>
+
+      <div>
+        <div class="meta-label">Meeting Profile</div>
+        <select class="profile-selector" id="profile-selector"></select>
+      </div>
+
+      <div class="meta-block">
+        <div class="meta-label">Organization</div>
+        <div class="org-name" id="org-name">—</div>
+        <div class="meta-value" style="font-size:11px;color:var(--text-dim)" id="org-full">—</div>
+      </div>
+
+      <div class="meta-block">
+        <div class="meta-label">Meeting</div>
+        <div class="meta-value" id="meeting-type">—</div>
+        <div class="meta-value" style="font-size:11px;color:var(--text-dim)" id="meeting-date">Not started</div>
+      </div>
+
+      <div class="meta-block">
+        <div class="meta-label">Current State</div>
+        <div class="state-pill" id="state-pill">PRE-MEETING</div>
+      </div>
+
+      <div class="meta-block">
+        <div class="meta-label">Live Stats</div>
+        <div class="stat-row"><span class="l">Quorum</span><span class="v" id="stat-quorum">—</span></div>
+        <div class="stat-row"><span class="l">Motions</span><span class="v" id="stat-motions">0</span></div>
+        <div class="stat-row"><span class="l">Events</span><span class="v" id="stat-events">0</span></div>
+      </div>
+
+      <div class="footer-actions">
+        <button class="footer-btn accent" onclick="openQuickEntry()">⚡ Quick Entry / Override</button>
+        <button class="footer-btn" onclick="askAI()">Ask Parliamentarian</button>
+        <button class="footer-btn" onclick="exportEventLog()">Export Event Log</button>
+        <button class="footer-btn" onclick="exportJSON()">Export JSON</button>
+        <button class="footer-btn danger" onclick="resetMeeting()">Reset Meeting</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="header-bar">
+        <div>
+          <div class="header-title" id="header-title">Pre-Meeting</div>
+          <div class="header-sub" id="header-sub">Configure agenda, then start</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="timer" id="clock" title="Current clock time">—</div>
+          <div class="timer" id="timer" title="Elapsed since start">00:00</div>
+        </div>
+      </div>
+
+      <div class="agenda-strip" id="agenda-strip"></div>
+
+      <div class="stage-area">
+        <div class="context-card" id="context-card">
+          <div class="context-label">Status</div>
+          <div class="context-text" id="context-text">Select a profile and review the agenda before starting.</div>
+        </div>
+
+        <div class="actions-section">
+          <div class="section-title">Available Actions</div>
+          <div class="action-grid" id="action-grid"></div>
+        </div>
+
+        <div class="stack-area" id="stack-area" style="display:none;">
+          <div class="section-title">State Stack</div>
+          <div id="stack-list"></div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="right-panel">
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-panel="log">Log</button>
+        <button class="panel-tab" data-panel="members">Members</button>
+        <button class="panel-tab" data-panel="ai">Parliamentarian</button>
+      </div>
+      <div class="panel-content">
+        <div class="panel-section active" id="panel-log">
+          <div id="event-log">
+            <div class="empty-state">Event log appears here.</div>
+          </div>
+        </div>
+        <div class="panel-section" id="panel-members">
+          <div id="quorum-status"></div>
+          <div id="member-list"></div>
+        </div>
+        <div class="panel-section" id="panel-ai">
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">Ask a parliamentary question. In production this calls Claude with RONR + your bylaws context.</div>
+          <textarea class="ai-prompt" id="ai-input" placeholder="e.g. Can a motion to table be amended? What vote threshold for bylaws amendment?"></textarea>
+          <button class="btn primary" onclick="submitAI()" style="margin-top:8px;width:100%">Ask</button>
+          <div class="ai-response placeholder" id="ai-output">Responses appear here.</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+const PROFILES = {
+  'fcrcc-pco': {
+    id: 'fcrcc-pco',
+    label: 'FCRCC — PCO Monthly Meeting',
+    organization: {
+      name: 'FCRCC',
+      fullName: 'Franklin County Republican Central Committee',
+      address: 'PO Box 4390, Pasco, WA 99302'
+    },
+    meetingType: 'PCO Monthly Meeting',
+    memberLabel: 'PCO',
+    memberLabelPlural: 'PCOs',
+    precinctLabel: 'Precinct',
+    quorum: {
+      basis: 'good-standing',
+      multiplier: 0.4,
+      goodStandingCount: 21,
+      description: '40% of PCOs in good standing'
+    },
+    parliamentaryAuthority: "Robert's Rules of Order: Simplified and Applied",
+    agenda: [
+      { id: 'call-to-order', label: 'Call to Order' },
+      { id: 'prayer-pledge', label: 'Prayer & Pledge' },
+      { id: 'roll-call', label: 'Roll Call & Quorum' },
+      { id: 'guest-intros', label: 'Guest Introductions' },
+      { id: 'approve-agenda', label: 'Approve Agenda' },
+      { id: 'approve-minutes', label: 'Approve Prior Minutes' },
+      { id: 'chair-report', label: "Chairman's Report" },
+      { id: 'treasurer-report', label: "Treasurer's Report" },
+      { id: 'new-business', label: 'New Business' },
+      { id: 'old-business', label: 'Old Business' },
+      { id: 'workshop', label: 'Workshop' },
+      { id: 'good-of-order', label: 'Good of the Order' },
+      { id: 'adjourn', label: 'Adjourn' }
+    ],
+    members: [
+      { id: 'm1', name: 'Marcus Conner', role: 'Chair', precinct: '—' },
+      { id: 'm2', name: 'Nikki Morgan', role: 'Vice Chair', precinct: '—' },
+      { id: 'm3', name: 'Michelle Andres', role: 'State Committeewoman', precinct: '49' },
+      { id: 'm4', name: 'Chris Hollingsworth', role: 'State Committeeman', precinct: '—' },
+      { id: 'm5', name: 'Gavin Rouse', role: 'Treasurer', precinct: '—' },
+      { id: 'm6', name: 'Don Parks', role: 'PCO', precinct: '29' },
+      { id: 'm7', name: 'Leo Perales', role: 'PCO', precinct: '34' },
+      { id: 'm8', name: 'John Rosenau', role: 'PCO', precinct: '22' },
+      { id: 'm9', name: 'Kari Hale', role: 'PCO', precinct: '73' },
+      { id: 'm10', name: 'Duane Van Beek', role: 'PCO', precinct: '36' },
+      { id: 'm11', name: 'Patrick Guettner', role: 'PCO', precinct: '53' },
+      { id: 'm12', name: 'Adam Kester', role: 'PCO', precinct: '90' },
+      { id: 'm13', name: 'Luke Mehlenbacher', role: 'PCO', precinct: '54' },
+      { id: 'm14', name: 'Matt Boehnke', role: 'PCO', precinct: '—' },
+      { id: 'm15', name: 'Stephen Bauman', role: 'PCO', precinct: '64' },
+      { id: 'm16', name: 'Charles Grimm', role: 'PCO', precinct: '—' },
+      { id: 'm17', name: 'David Trujillo', role: 'PCO', precinct: '—' },
+      { id: 'm18', name: 'Steve Christensen', role: 'PCO', precinct: '—' },
+      { id: 'm19', name: 'Mark Kraft', role: 'PCO', precinct: '—' },
+      { id: 'm20', name: 'Loly Martinez', role: 'PCO', precinct: '—' },
+      { id: 'm21', name: 'Jeff Burckhart', role: 'PCO', precinct: '—' }
+    ]
+  },
+  'fcrcc-exec': {
+    id: 'fcrcc-exec',
+    label: 'FCRCC — Executive Board Meeting',
+    organization: {
+      name: 'FCRCC Executive Board',
+      fullName: 'Franklin County Republican Central Committee — Executive Board',
+      address: 'PO Box 4390, Pasco, WA 99302'
+    },
+    meetingType: 'Executive Board Meeting',
+    memberLabel: 'Board Member',
+    memberLabelPlural: 'Board Members',
+    precinctLabel: 'Role',
+    quorum: {
+      basis: 'present',
+      multiplier: 0.5,
+      goodStandingCount: 10,
+      description: '50% of Executive Committee present'
+    },
+    parliamentaryAuthority: "Robert's Rules of Order: Simplified and Applied",
+    agenda: [
+      { id: 'call-to-order', label: 'Call to Order' },
+      { id: 'attendance', label: 'Attendance' },
+      { id: 'approve-minutes', label: 'Approve Prior Minutes' },
+      { id: 'treasurer-report', label: "Treasurer's Report" },
+      { id: 'business', label: 'Business & Discussion' },
+      { id: 'agenda-planning', label: 'Central Committee Agenda Planning' },
+      { id: 'adjourn', label: 'Adjourn' }
+    ],
+    members: [
+      { id: 'e1', name: 'Marcus Conner', role: 'Chair', precinct: 'Chair' },
+      { id: 'e2', name: 'Nikki Morgan', role: 'Vice Chair', precinct: 'Vice Chair' },
+      { id: 'e3', name: 'Michelle Andres', role: 'State Committeewoman', precinct: 'Committeewoman' },
+      { id: 'e4', name: 'Chris Hollingsworth', role: 'State Committeeman', precinct: 'Committeeman' },
+      { id: 'e5', name: 'Gavin Rouse', role: 'Treasurer', precinct: 'Treasurer' },
+      { id: 'e6', name: 'Asst. Treasurer', role: 'Asst. Treasurer', precinct: 'Asst. Treasurer' },
+      { id: 'e7', name: 'Exec. Secretary', role: 'Exec. Secretary', precinct: 'Exec. Secretary' },
+      { id: 'e8', name: 'Recording Secretary', role: 'Recording Sec.', precinct: 'Recording Sec.' },
+      { id: 'e9', name: 'Financial Advisor', role: 'Financial Advisor', precinct: 'Financial Advisor' },
+      { id: 'e10', name: 'Webmaster', role: 'Webmaster', precinct: 'Webmaster' }
+    ]
+  },
+  'tcahc-board': {
+    id: 'tcahc-board',
+    label: 'TCAHC — Board Meeting',
+    organization: {
+      name: 'TCAHC',
+      fullName: 'Tri-Cities Adult Hockey Club',
+      address: 'Kennewick / Pasco, WA'
+    },
+    meetingType: 'Board Meeting',
+    memberLabel: 'Board Member',
+    memberLabelPlural: 'Board Members',
+    precinctLabel: 'Role',
+    quorum: {
+      basis: 'present',
+      multiplier: 0.5,
+      goodStandingCount: 7,
+      description: '50% of Board present (sample)'
+    },
+    parliamentaryAuthority: "Robert's Rules of Order",
+    agenda: [
+      { id: 'call-to-order', label: 'Call to Order' },
+      { id: 'attendance', label: 'Attendance' },
+      { id: 'approve-minutes', label: 'Approve Prior Minutes' },
+      { id: 'treasurer-report', label: "Treasurer's Report" },
+      { id: 'committee-reports', label: 'Committee Reports' },
+      { id: 'new-business', label: 'New Business' },
+      { id: 'old-business', label: 'Old Business' },
+      { id: 'adjourn', label: 'Adjourn' }
+    ],
+    members: [
+      { id: 't1', name: 'President', role: 'President', precinct: 'President' },
+      { id: 't2', name: 'Vice President', role: 'VP', precinct: 'VP' },
+      { id: 't3', name: 'Gavin Rouse', role: 'Treasurer', precinct: 'Treasurer' },
+      { id: 't4', name: 'Secretary', role: 'Secretary', precinct: 'Secretary' },
+      { id: 't5', name: 'Director — Mens', role: 'Director', precinct: 'Director' },
+      { id: 't6', name: 'Director — Womens', role: 'Director', precinct: 'Director' },
+      { id: 't7', name: 'Director — At Large', role: 'Director', precinct: 'Director' }
+    ]
+  }
+};
+
+const AGENDA_STATES = {
+  'call-to-order': {
+    title: 'Call to Order',
+    sub: 'Begin the meeting',
+    context: 'Click <span class="actor">Call Meeting to Order</span> to begin.',
+    actions: [
+      { id: 'call-to-order', label: 'Call Meeting to Order', hint: 'Mark the start time', primary: true, ref: 'RONR §3' },
+      { id: 'next-agenda', label: 'Skip to Next Agenda Item', hint: 'Skip without recording', ref: '' }
+    ]
+  },
+  'prayer-pledge': {
+    title: 'Prayer & Pledge',
+    sub: 'Opening formalities',
+    context: 'Record opening prayer and Pledge of Allegiance.',
+    actions: [
+      { id: 'record-prayer', label: 'Record Prayer', hint: 'Note who led' },
+      { id: 'record-pledge', label: 'Record Pledge', hint: 'Note who led' },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move to next agenda item', primary: true }
+    ]
+  },
+  'roll-call': {
+    title: 'Roll Call & Quorum',
+    sub: 'Confirm quorum from attendance sheet',
+    context: 'Check your attendance sheet. Confirm quorum status in the <span class="actor">Members panel</span> or use the buttons below.',
+    actions: [
+      { id: 'quorum-achieved', label: 'Quorum Achieved', hint: 'Mark quorum met and continue', primary: true, ref: 'Bylaws §13.3.4' },
+      { id: 'quorum-not-achieved', label: 'No Quorum', hint: 'Proceed without quorum or adjourn', danger: true }
+    ]
+  },
+  'attendance': {
+    title: 'Attendance',
+    sub: 'Confirm quorum',
+    context: 'Check attendance and confirm quorum status in the <span class="actor">Members panel</span> or use the buttons below.',
+    actions: [
+      { id: 'quorum-achieved', label: 'Quorum Achieved', hint: 'Mark quorum met and continue', primary: true },
+      { id: 'quorum-not-achieved', label: 'No Quorum', hint: 'Proceed or adjourn', danger: true }
+    ]
+  },
+  'guest-intros': {
+    title: 'Guest Introductions',
+    sub: 'Welcome non-member attendees',
+    context: 'Record guest names and affiliations if desired.',
+    actions: [
+      { id: 'record-guest', label: 'Record Guest', hint: 'Add guest to log' },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move on', primary: true }
+    ]
+  },
+  'approve-agenda': {
+    title: 'Approve Agenda',
+    sub: 'Motion-second-vote on the agenda itself',
+    context: 'A member moves to approve the agenda. The agenda may be amended before approval.',
+    actions: [
+      { id: 'motion-approve-agenda', label: 'Motion to Approve', hint: 'Standard approval', primary: true, ref: 'RONR §41' },
+      { id: 'amend-agenda', label: 'Amend Agenda', hint: 'Edit agenda items before vote' },
+      { id: 'next-agenda', label: 'Skip', hint: 'No formal approval needed' }
+    ]
+  },
+  'approve-minutes': {
+    title: 'Approve Prior Minutes',
+    sub: 'Review and approve, with corrections',
+    context: 'Approve the prior meeting\'s minutes. Corrections may be entered before approval.',
+    actions: [
+      { id: 'add-correction', label: 'Add Correction', hint: 'Note a correction to prior minutes' },
+      { id: 'motion-approve-minutes', label: 'Motion to Approve', hint: 'Approve minutes (with corrections if any)', primary: true },
+      { id: 'next-agenda', label: 'Skip', hint: 'No prior minutes to approve' }
+    ]
+  },
+  'chair-report': {
+    title: "Chairman's Report",
+    sub: 'Chair addresses the body',
+    context: 'The Chair gives a report.',
+    actions: [
+      { id: 'record-chair-report', label: 'Record Report', hint: 'Capture summary of chair\'s remarks' },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move on', primary: true }
+    ]
+  },
+  'treasurer-report': {
+    title: "Treasurer's Report",
+    sub: 'Financial status',
+    context: 'The Treasurer reports balances and activity.',
+    actions: [
+      { id: 'record-treasurer-report', label: 'Record Report', hint: 'Capture financial summary', primary: true },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move on' }
+    ]
+  },
+  'new-business': {
+    title: 'New Business',
+    sub: 'New items requiring action',
+    context: 'The floor is open for new business. Any member may move, request recognition, or signal completion.',
+    actions: [
+      { id: 'make-motion', label: 'Make a Motion', hint: 'A member moves something', primary: true, ref: 'RONR §10' },
+      { id: 'record-discussion', label: 'Record Discussion', hint: 'Capture discussion without a motion' },
+      { id: 'next-agenda', label: 'Close New Business', hint: 'Move to next agenda item' }
+    ]
+  },
+  'old-business': {
+    title: 'Old Business',
+    sub: 'Unfinished items from prior meetings',
+    context: 'Take up old business items.',
+    actions: [
+      { id: 'make-motion', label: 'Make a Motion', hint: 'A member moves something', primary: true, ref: 'RONR §10' },
+      { id: 'record-discussion', label: 'Record Discussion', hint: 'Capture an update without a motion' },
+      { id: 'next-agenda', label: 'Close Old Business', hint: 'Move on' }
+    ]
+  },
+  'business': {
+    title: 'Business & Discussion',
+    sub: 'Open floor for items',
+    context: 'Open discussion and motions.',
+    actions: [
+      { id: 'make-motion', label: 'Make a Motion', hint: 'A member moves something', primary: true, ref: 'RONR §10' },
+      { id: 'record-discussion', label: 'Record Discussion', hint: 'Capture discussion item' },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move on' }
+    ]
+  },
+  'committee-reports': {
+    title: 'Committee Reports',
+    sub: 'Standing and special committees',
+    context: 'Committee chairs report.',
+    actions: [
+      { id: 'record-committee-report', label: 'Record Committee Report', hint: 'Capture report', primary: true },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move on' }
+    ]
+  },
+  'workshop': {
+    title: 'Workshop',
+    sub: 'Education, speakers, training',
+    context: 'Workshop segment. Record speakers and notes.',
+    actions: [
+      { id: 'record-speaker', label: 'Record Speaker', hint: 'Note who spoke and topic' },
+      { id: 'next-agenda', label: 'End Workshop', hint: 'Move on', primary: true }
+    ]
+  },
+  'agenda-planning': {
+    title: 'Central Committee Agenda Planning',
+    sub: 'Plan next general meeting',
+    context: 'Plan agenda items for the upcoming Central Committee meeting.',
+    actions: [
+      { id: 'record-agenda-item', label: 'Add Planned Item', hint: 'Note an item for next meeting' },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move on', primary: true }
+    ]
+  },
+  'good-of-order': {
+    title: 'Good of the Order',
+    sub: 'Announcements, candidate pitches, forward items',
+    context: 'Open floor for announcements, endorsement requests, candidate pitches, and forward items. Use "Other" for anything else.',
+    actions: [
+      { id: 'record-announcement', label: 'Announcement', hint: 'General announcement' },
+      { id: 'record-candidate-pitch', label: 'Candidate Pitch', hint: 'Candidate seeks support or endorsement' },
+      { id: 'record-forward-item', label: 'Forward Item', hint: 'For next meeting\'s agenda' },
+      { id: 'record-good-of-order-other', label: 'Other', hint: 'Any other Good of the Order item' },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move on', primary: true }
+    ]
+  },
+  'adjourn': {
+    title: 'Adjourn',
+    sub: 'End the meeting',
+    context: 'Move to adjourn the meeting.',
+    actions: [
+      { id: 'motion-adjourn', label: 'Motion to Adjourn', hint: 'Standard adjournment', primary: true, ref: 'RONR §21' }
+    ]
+  }
+};
+
+const MOTION_STATES = {
+  'awaiting-second': {
+    title: 'Awaiting Second',
+    sub: 'Motion needs a seconder',
+    context: '<span class="actor" id="ctx-mover">A member</span> moved: <span class="actor" id="ctx-motion-text">…</span>. The motion needs a second to proceed.',
+    actions: [
+      { id: 'record-second', label: 'Record Second', hint: 'Another member seconds', primary: true, ref: 'RONR §4:9' },
+      { id: 'motion-dies', label: 'Motion Dies (No Second)', hint: 'Return to agenda item', danger: true },
+      { id: 'chair-rules-out-of-order', label: 'Rule Out of Order', hint: 'Chair finds motion improper', danger: true, ref: 'RONR §39' }
+    ]
+  },
+  'debate': {
+    title: 'Debate',
+    sub: 'Motion under consideration',
+    context: 'Motion: <span class="actor" id="ctx-motion-text">…</span> — seconded. Members may now debate.',
+    actions: [
+      { id: 'record-speaker', label: 'Record Speaker', hint: 'Member is recognized' },
+      { id: 'friendly-amendment', label: 'Friendly Amendment', hint: 'Mover accepts; no separate vote', ref: 'RONR §12' },
+      { id: 'move-amend', label: 'Move to Amend', hint: 'Formal amendment requiring vote', ref: 'RONR §12' },
+      { id: 'move-previous-question', label: 'Previous Question', hint: 'End debate (needs 2/3)', ref: 'RONR §16' },
+      { id: 'move-table', label: 'Move to Table', hint: 'Set aside temporarily', ref: 'RONR §17' },
+      { id: 'move-postpone', label: 'Move to Postpone', hint: 'Delay to definite time', ref: 'RONR §14' },
+      { id: 'point-of-order', label: 'Point of Order', hint: 'Procedural challenge', ref: 'RONR §23' },
+      { id: 'proceed-to-vote', label: 'Proceed to Vote', hint: 'Debate concluded', primary: true }
+    ]
+  },
+  'point-of-order': {
+    title: 'Point of Order',
+    sub: 'Chair must rule',
+    context: 'A point of order has been raised. The chair must rule.',
+    actions: [
+      { id: 'rule-well-taken', label: 'Rule Well-Taken', hint: 'Point is valid', ref: 'RONR §23:8' },
+      { id: 'rule-not-well-taken', label: 'Rule Not Well-Taken', hint: 'Point dismissed', primary: true }
+    ]
+  },
+  'voting': {
+    title: 'Voting',
+    sub: 'Cast the vote',
+    context: 'Voting on: <span class="actor" id="ctx-motion-text">…</span>. Select vote method and record outcome.',
+    actions: [
+      { id: 'voice-vote', label: 'Voice Vote', hint: 'Aye / Nay', primary: true, ref: 'RONR §4:36' },
+      { id: 'roll-call', label: 'Roll Call', hint: 'Each member individually', ref: 'RONR §45' },
+      { id: 'ballot-vote', label: 'Ballot Vote', hint: 'Secret written ballot', ref: 'RONR §45' }
+    ]
+  }
+};
+
+// State shown when quorum is absent mid-meeting — only RONR §40 privileged actions.
+const QUORUM_LOST_STATE = {
+  title: 'Quorum Absent',
+  sub: 'Substantive business is suspended',
+  context: 'Quorum is no longer present. Per RONR §40, the assembly may only recess, fix the time to which to adjourn, adjourn, or take measures to obtain a quorum. All substantive motions and votes are suspended until quorum is re-established.',
+  actions: [
+    { id: 'quorum-reestablished', label: 'Quorum Re-established', hint: 'Members have returned — continue the meeting', primary: true, ref: 'RONR §40' },
+    { id: 'recess', label: 'Recess', hint: 'Pause the meeting to round up members', ref: 'RONR §30' },
+    { id: 'fix-time-to-adjourn', label: 'Fix Time to Adjourn', hint: 'Set a continuation meeting', ref: 'RONR §22' },
+    { id: 'obtain-quorum', label: 'Take Measures to Obtain Quorum', hint: 'Call absent members, send sergeant-at-arms', ref: 'RONR §40' },
+    { id: 'adjourn-no-quorum', label: 'Adjourn', hint: 'End the meeting', danger: true, ref: 'RONR §21' }
+  ]
+};
+
+// Returns true when quorum is explicitly absent during a live meeting.
+// null (pre-roll-call) does NOT trigger the block — opening items are unaffected.
+function quorumAbsent() {
+  return !!(state.startedAt && !state.meetingEnded && !state.recessed && state.quorumAchieved === false);
+}
+
+const STORAGE_KEY = 'quorum-mvp-state-v2';
+
+let state = loadState() || createFreshState('fcrcc-pco');
+
+function createFreshState(profileId) {
+  return {
+    profileId,
+    agenda: PROFILES[profileId].agenda.map(a => ({ ...a, complete: false })),
+    currentAgendaIndex: 0,
+    currentMotionState: null,
+    stateStack: [],
+    startedAt: null,
+    endedAt: null,
+    meetingEnded: false,
+    events: [],
+    motions: [],
+    currentMotion: null,
+    quorumAchieved: null,
+    quorumEstablishedOnce: false,
+    recessed: false,
+    recessedAt: null,
+    recessReason: null,
+    adjournTime: null,
+    activePanel: 'log',
+    corrections: [],
+    pendingAmendmentContext: null  // stores parent motion context during amendment sub-process
+  };
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) {
+    console.warn('Save failed', e);
+  }
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    return s ? JSON.parse(s) : null;
+  } catch(e) {
+    return null;
+  }
+}
+
+function getProfile() {
+  return PROFILES[state.profileId];
+}
+
+// Escapes user-supplied strings before injecting into innerHTML to prevent XSS.
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getCurrentAgendaItem() {
+  return state.agenda[state.currentAgendaIndex];
+}
+
+function getCurrentState() {
+  if (quorumAbsent()) return QUORUM_LOST_STATE;
+  if (state.currentMotionState) return MOTION_STATES[state.currentMotionState];
+  const item = getCurrentAgendaItem();
+  if (!item) return AGENDA_STATES['adjourn'];
+  return AGENDA_STATES[item.id] || {
+    title: item.label,
+    sub: 'Custom agenda item',
+    context: 'Custom item: ' + item.label,
+    actions: [
+      { id: 'record-custom-item', label: 'Record Item', hint: 'Capture notes for this custom item' },
+      { id: 'next-agenda', label: 'Continue', hint: 'Move on', primary: true }
+    ]
+  };
+}
+
+function render() {
+  const profile = getProfile();
+
+  document.getElementById('org-name').textContent = profile.organization.name;
+  document.getElementById('org-full').textContent = profile.organization.fullName;
+  document.getElementById('meeting-type').textContent = profile.meetingType;
+  if (!state.startedAt) {
+    document.getElementById('meeting-date').textContent = 'Not started';
+  } else {
+    document.getElementById('meeting-date').textContent = new Date(state.startedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  if (state.recessed) {
+    document.getElementById('state-pill').textContent = 'IN RECESS';
+    document.getElementById('header-title').textContent = 'Meeting In Recess';
+    document.getElementById('header-sub').textContent = state.recessedAt ? `Recessed ${new Date(state.recessedAt).toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'})}` : '';
+    renderRecessScreen();
+    renderAgendaStrip();
+    renderStack();
+    renderStats();
+    renderMembers();
+    renderLog();
+    saveState();
+    return;
+  }
+
+  if (state.meetingEnded) {
+    document.getElementById('state-pill').textContent = 'ADJOURNED';
+    document.getElementById('header-title').textContent = 'Meeting Adjourned';
+    document.getElementById('header-sub').textContent = state.endedAt ? `Ended ${new Date(state.endedAt).toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'})}` : '';
+    renderEndScreen();
+    renderAgendaStrip();
+    renderStack();
+    renderStats();
+    renderMembers();
+    renderLog();
+    saveState();
+    return;
+  }
+
+  const currState = getCurrentState();
+  const agendaItem = getCurrentAgendaItem();
+  const stateLabel = state.currentMotionState ? state.currentMotionState : (agendaItem ? agendaItem.id : 'adjourned');
+  document.getElementById('state-pill').textContent = stateLabel.replace(/-/g,' ').toUpperCase();
+
+  document.getElementById('header-title').textContent = currState.title;
+  document.getElementById('header-sub').textContent = currState.sub;
+  document.getElementById('context-text').innerHTML = interpolateContext(currState.context);
+  document.getElementById('context-card').style.display = '';
+  document.querySelector('.actions-section').style.display = '';
+
+  renderAgendaStrip();
+  renderActions(currState);
+  renderStack();
+  renderStats();
+  renderMembers();
+  renderLog();
+
+  saveState();
+}
+
+function renderEndScreen() {
+  const profile = getProfile();
+  const duration = state.endedAt && state.startedAt
+    ? Math.floor((state.endedAt - state.startedAt) / 60000)
+    : 0;
+
+  document.getElementById('context-card').style.display = 'none';
+  const section = document.querySelector('.actions-section');
+  section.style.display = 'block';
+  section.innerHTML = `
+    <div class="end-screen">
+      <div class="title">Meeting Adjourned</div>
+      <div class="summary">
+        ${profile.organization.fullName}<br>
+        ${state.startedAt ? new Date(state.startedAt).toLocaleString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'}) : ''}
+      </div>
+      <div class="summary-stats">
+        <div class="stat-card"><div class="v">${duration}m</div><div class="l">Duration</div></div>
+        <div class="stat-card"><div class="v" style="font-size:14px;color:${state.quorumAchieved ? 'var(--success)' : state.quorumAchieved === false ? 'var(--danger)' : ''}">${state.quorumAchieved === null ? '—' : state.quorumAchieved ? 'Yes' : 'No'}</div><div class="l">Quorum</div></div>
+        <div class="stat-card"><div class="v">${state.motions.length}</div><div class="l">Motions</div></div>
+        <div class="stat-card"><div class="v">${state.events.length}</div><div class="l">Events</div></div>
+      </div>
+      <div class="end-actions">
+        <button class="btn primary" onclick="exportMinutes()">Export Minutes</button>
+        <button class="btn" onclick="exportEventLog()">Export Event Log</button>
+        <button class="btn" onclick="exportJSON()">Export JSON</button>
+        <button class="btn" onclick="reopenMeeting()">Reopen Meeting</button>
+        <button class="btn danger" onclick="resetMeeting()">Start Fresh</button>
+      </div>
+    </div>
+  `;
+}
+
+function reopenMeeting() {
+  if (!confirm('Reopen the adjourned meeting? You can continue adding events.')) return;
+  state.meetingEnded = false;
+  state.endedAt = null;
+  logEvent('meeting reopened', 'Meeting reopened after adjournment.');
+  if (state.currentAgendaIndex >= state.agenda.length) {
+    state.currentAgendaIndex = state.agenda.length - 1;
+    if (state.agenda[state.currentAgendaIndex]) state.agenda[state.currentAgendaIndex].complete = false;
+  }
+  document.querySelector('.actions-section').innerHTML = `
+    <div class="section-title">Available Actions</div>
+    <div class="action-grid" id="action-grid"></div>
+  `;
+  document.getElementById('context-card').style.display = '';
+  render();
+}
+
+function renderRecessScreen() {
+  const profile = getProfile();
+  const recessTime = state.recessedAt ? new Date(state.recessedAt).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'}) : '—';
+  const recessReason = state.recessReason || 'Awaiting quorum';
+  document.getElementById('context-card').style.display = 'none';
+  const section = document.querySelector('.actions-section');
+  section.style.display = 'block';
+  section.innerHTML = `
+    <div class="end-screen">
+      <div class="title">Meeting In Recess</div>
+      <div class="summary">
+        ${profile.organization.fullName}<br>
+        Recessed at ${recessTime}
+      </div>
+      <div class="summary-stats">
+        <div class="stat-card"><div class="v" style="font-size:13px">${recessReason}</div><div class="l">Reason</div></div>
+        ${state.adjournTime ? `<div class="stat-card"><div class="v" style="font-size:12px">${state.adjournTime}</div><div class="l">Continuation</div></div>` : ''}
+        <div class="stat-card"><div class="v">${state.motions.length}</div><div class="l">Motions</div></div>
+        <div class="stat-card"><div class="v">${state.events.length}</div><div class="l">Events</div></div>
+      </div>
+      <div class="end-actions">
+        <button class="btn primary" onclick="resumeMeeting()">Resume Meeting</button>
+        <button class="btn danger" onclick="adjournNoQuorum()">Adjourn</button>
+      </div>
+    </div>
+  `;
+}
+
+function recessMeeting(reason) {
+  state.recessed = true;
+  state.recessedAt = Date.now();
+  state.recessReason = reason || 'Awaiting quorum';
+  logEvent('recess', `Meeting recessed.${reason ? ' Reason: ' + reason : ''}`);
+  render();
+}
+
+function resumeMeeting() {
+  const quorumPresent = confirm('Confirm: quorum is now present and the meeting can resume?');
+  if (!quorumPresent) {
+    toast('Meeting remains in recess until quorum is confirmed.');
+    return;
+  }
+  state.recessed = false;
+  state.quorumAchieved = true;
+  state.quorumEstablishedOnce = true;
+  logEvent('meeting resumed', 'Meeting resumed. Quorum confirmed present. Continuing agenda.');
+  // Restore action-grid DOM so render() can populate it
+  const section = document.querySelector('.actions-section');
+  section.innerHTML = `
+    <div class="section-title">Available Actions</div>
+    <div class="action-grid" id="action-grid"></div>
+  `;
+  document.getElementById('context-card').style.display = '';
+  render();
+}
+
+function adjournNoQuorum() {
+  if (!confirm('Adjourn the meeting without quorum?')) return;
+  state.meetingEnded = true;
+  state.endedAt = Date.now();
+  state.recessed = false;
+  state.agenda.forEach(a => a.complete = true);
+  logEvent('adjournment', 'Meeting adjourned (no quorum).');
+  render();
+  toast('Meeting adjourned');
+}
+
+function renderAgendaStrip() {
+  const strip = document.getElementById('agenda-strip');
+  if (!state.startedAt) {
+    strip.innerHTML = `<button class="agenda-chip" onclick="openAgendaEditor()">Edit Agenda</button>
+      <button class="agenda-chip" style="background:var(--action-dim);border-color:var(--action);color:var(--text)" onclick="startMeeting()">▶ Start Meeting</button>`;
+    return;
+  }
+  strip.innerHTML = state.agenda.map((item, i) => {
+    let cls = 'agenda-chip';
+    if (item.complete) cls += ' done';
+    if (i === state.currentAgendaIndex) cls += ' current';
+    return `<button class="${cls}" onclick="jumpToAgenda(${i})">${item.label}</button>`;
+  }).join('');
+}
+
+function renderActions(currState) {
+  const grid = document.getElementById('action-grid');
+  grid.innerHTML = '';
+  if (!state.startedAt) {
+    grid.innerHTML = `
+      <button class="action-btn" onclick="openAgendaEditor()">
+        <span>Edit Agenda</span>
+        <span class="hint">Review and customize before starting</span>
+      </button>
+      <button class="action-btn primary" onclick="startMeeting()">
+        <span>Start Meeting</span>
+        <span class="hint">Begin proceedings now</span>
+      </button>
+    `;
+    return;
+  }
+  currState.actions.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'action-btn' + (a.primary ? ' primary' : '') + (a.danger ? ' danger' : '');
+    btn.innerHTML = `
+      <span>${a.label}</span>
+      <span class="hint">${a.hint}</span>
+      ${a.ref ? `<span class="legal-ref">${a.ref}</span>` : ''}
+    `;
+    btn.onclick = () => handleAction(a.id);
+    grid.appendChild(btn);
+  });
+}
+
+function renderStack() {
+  const stackArea = document.getElementById('stack-area');
+  if (!state.stateStack || state.stateStack.length === 0) {
+    stackArea.style.display = 'none';
+    return;
+  }
+  stackArea.style.display = 'block';
+  document.getElementById('stack-list').innerHTML = state.stateStack.map(s =>
+    `<div class="stack-item">Returns to <span class="state-name">${s.replace(/-/g,' ')}</span></div>`
+  ).join('');
+}
+
+function interpolateContext(template) {
+  let result = template;
+  if (state.currentMotion) {
+    result = result.replace('id="ctx-motion-text">…<', `>${state.currentMotion.text}<`);
+    if (state.currentMotion.moverName) {
+      result = result.replace('id="ctx-mover">A member<', `>${state.currentMotion.moverName}<`);
+    }
+  }
+  return result;
+}
+
+function renderStats() {
+  const qEl = document.getElementById('stat-quorum');
+  if (state.quorumAchieved === null) {
+    qEl.textContent = '—';
+    qEl.style.color = '';
+  } else {
+    qEl.textContent = state.quorumAchieved ? 'Achieved' : 'Not achieved';
+    qEl.style.color = state.quorumAchieved ? 'var(--success)' : 'var(--danger)';
+  }
+  document.getElementById('stat-motions').textContent = state.motions.length;
+  document.getElementById('stat-events').textContent = state.events.length;
+}
+
+function renderMembers() {
+  const profile = getProfile();
+  const qa = state.quorumAchieved;
+  const indClass = qa === true ? 'met' : qa === false ? 'not-met' : '';
+  const indText = qa === null ? 'Quorum not yet confirmed' : qa ? 'Quorum Achieved' : 'No Quorum';
+
+  document.getElementById('quorum-status').innerHTML = `
+    <div class="quorum-indicator ${indClass}" style="${indClass ? '' : 'border-color:var(--border);color:var(--text-dim)'}">${indText}</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button class="btn${qa === true ? ' primary' : ''}" style="flex:1;font-size:12px" onclick="setQuorum(true)">✓ Achieved</button>
+      <button class="btn${qa === false ? ' danger' : ''}" style="flex:1;font-size:12px" onclick="setQuorum(false)">✗ Not Achieved</button>
+    </div>
+  `;
+
+  document.getElementById('member-list').innerHTML = profile.members.map(m => {
+    const detail = m.precinct !== '—' ? profile.precinctLabel + ' ' + m.precinct : '';
+    return `<div class="member-row">
+      <div>
+        <div class="member-name">${m.name}</div>
+        ${detail ? `<div class="member-detail">${detail}</div>` : ''}
+      </div>
+      <div class="role">${m.role}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderLog() {
+  const log = document.getElementById('event-log');
+  if (!state.events || state.events.length === 0) {
+    log.innerHTML = '<div class="empty-state">Event log appears here.</div>';
+    return;
+  }
+  log.innerHTML = state.events.slice().reverse().map(e => {
+    const elapsed = state.startedAt ? Math.floor((e.timestamp - state.startedAt) / 1000) : 0;
+    const mm = String(Math.floor(elapsed / 60)).padStart(2,'0');
+    const ss = String(elapsed % 60).padStart(2,'0');
+    const clock = new Date(e.timestamp).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true});
+    const typeClass = e.manual ? 'event-type manual' : 'event-type';
+    return `<div class="event">
+      <div>
+        <div class="event-time">${mm}:${ss}</div>
+        <div class="event-clock">${clock}</div>
+      </div>
+      <div>
+        <div class="${typeClass}">${e.manual ? '⚡ ' : ''}${e.type}</div>
+        <div class="event-body">${e.body}</div>
+      </div>
+      <div class="event-actions">
+        <button class="event-undo" onclick="undoEvent('${e.id}')" title="Remove from log">undo</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function logEvent(type, body, manual=false) {
+  state.events.push({
+    id: 'evt-' + Date.now() + '-' + Math.random().toString(36).slice(2,8),
+    timestamp: Date.now(),
+    stateBefore: state.currentMotionState || (getCurrentAgendaItem() ? getCurrentAgendaItem().id : 'unknown'),
+    type, body, manual
+  });
+}
+
+// Event types that change machine state — removing them from the log without reversing state
+// will cause the record to diverge from the current meeting state.
+const STATE_CHANGING_EVENT_TYPES = new Set([
+  'motion', 'second', 'vote', 'amendment', 'amendment result', 'adjournment',
+  'quorum', 'ruling', 'call to order'
+]);
+
+function undoEvent(eventId) {
+  const idx = state.events.findIndex(e => e.id === eventId);
+  if (idx === -1) return;
+  const ev = state.events[idx];
+  const clean = ev.body.replace(/<[^>]+>/g,'');
+  const isStateChanging = STATE_CHANGING_EVENT_TYPES.has(ev.type.toLowerCase());
+  const warning = isStateChanging
+    ? `⚠ WARNING: This is a state-changing event.\n\nRemoving it will make the meeting record inconsistent with the current meeting state (motion progress, quorum status, agenda position will NOT be reversed).\n\nOnly proceed if you are correcting a data-entry error and the state is already correct.\n\n`
+    : '';
+  if (!confirm(`${warning}Remove this event from the log?\n\n${ev.type.toUpperCase()}: ${clean}`)) return;
+  state.events.splice(idx, 1);
+  toast('Event removed from log');
+  render();
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+
+function setQuorum(achieved) {
+  const prev = state.quorumAchieved;
+  state.quorumAchieved = achieved;
+  if (achieved) {
+    if (!state.quorumEstablishedOnce) {
+      state.quorumEstablishedOnce = true;
+      logEvent('quorum', 'Quorum confirmed: achieved.');
+    } else {
+      logEvent('quorum', 'Quorum re-established — substantive business may resume.');
+    }
+  } else {
+    if (state.quorumEstablishedOnce) {
+      // Clear any in-progress motion so it isn't silently resumed
+      if (state.currentMotionState) {
+        state.currentMotion = null;
+        state.currentMotionState = null;
+        logEvent('quorum', 'Quorum LOST during meeting — substantive business suspended. In-progress motion abandoned.');
+      } else {
+        logEvent('quorum', 'Quorum LOST during meeting — substantive business suspended.');
+      }
+    } else {
+      logEvent('quorum', 'Quorum not achieved — noted in record.');
+    }
+  }
+  render();
+}
+
+function nextAgenda() {
+  if (state.currentAgendaIndex < state.agenda.length) {
+    state.agenda[state.currentAgendaIndex].complete = true;
+    state.currentAgendaIndex++;
+  }
+  if (state.currentAgendaIndex >= state.agenda.length) {
+    if (!state.meetingEnded) {
+      if (confirm('You have reached the end of the agenda. End the meeting?')) {
+        state.meetingEnded = true;
+        state.endedAt = Date.now();
+        logEvent('adjournment', 'Meeting ended (end of agenda reached).');
+        toast('Meeting ended');
+      } else {
+        state.currentAgendaIndex = state.agenda.length - 1;
+        if (state.agenda[state.currentAgendaIndex]) state.agenda[state.currentAgendaIndex].complete = false;
+      }
+    }
+  }
+  render();
+}
+
+function jumpToAgenda(index) {
+  if (state.currentMotionState) {
+    if (!confirm('A motion is in progress. Jumping will abandon it. Continue?')) return;
+    state.currentMotionState = null;
+    state.currentMotion = null;
+  }
+  state.currentAgendaIndex = index;
+  render();
+}
+
+function startMeeting() {
+  state.startedAt = Date.now();
+  logEvent('call to order', `Meeting called to order. (${getProfile().meetingType})`);
+  state.currentAgendaIndex = 0;
+  render();
+}
+
+function handleAction(actionId) {
+  switch (actionId) {
+    case 'call-to-order':
+      if (!state.startedAt) state.startedAt = Date.now();
+      logEvent('call to order', 'Meeting called to order.');
+      nextAgenda();
+      break;
+    case 'next-agenda':
+      nextAgenda();
+      break;
+    case 'record-prayer':
+      promptForActor('Who led the prayer?', name => {
+        logEvent('opening', `Prayer led by <span class="name">${name}</span>.`);
+        render();
+      });
+      break;
+    case 'record-pledge':
+      promptForActor('Who led the pledge?', name => {
+        logEvent('opening', `Pledge led by <span class="name">${name}</span>.`);
+        render();
+      });
+      break;
+    case 'quorum-achieved':
+      state.quorumAchieved = true;
+      state.quorumEstablishedOnce = true;
+      logEvent('quorum', 'Quorum confirmed: achieved.');
+      nextAgenda();
+      break;
+    case 'quorum-not-achieved':
+      state.quorumAchieved = false;
+      logEvent('quorum', 'Quorum not achieved — noted in record.');
+      nextAgenda();
+      break;
+    case 'quorum-reestablished':
+      setQuorum(true);
+      break;
+    case 'recess': {
+      const reason = prompt('Reason for recess (optional — press OK to skip):');
+      if (reason === null) break; // cancelled
+      recessMeeting(reason.trim() || 'Awaiting quorum');
+      break;
+    }
+    case 'fix-time-to-adjourn': {
+      const t = prompt('Continuation meeting date/time (e.g. "June 4, 7:00 PM"):');
+      if (!t || !t.trim()) break;
+      state.adjournTime = t.trim();
+      logEvent('fix time to adjourn', `Continuation meeting set for: ${t.trim()}. (RONR §22)`);
+      render();
+      break;
+    }
+    case 'obtain-quorum': {
+      const m = prompt('Measures taken to obtain quorum (e.g. "called absent PCOs"):');
+      if (!m || !m.trim()) break;
+      logEvent('obtain quorum', `Measures to obtain quorum: ${m.trim()}`);
+      render();
+      break;
+    }
+    case 'adjourn-no-quorum':
+      adjournNoQuorum();
+      break;
+    case 'record-guest':
+      promptForActor('Guest name + affiliation:', name => {
+        logEvent('guest introduction', `Guest: ${name}`);
+        render();
+      });
+      break;
+    case 'amend-agenda':
+      openAgendaEditor(true);
+      break;
+    case 'motion-approve-agenda':
+      promptMotion('Approval of the agenda as presented.', 'agenda');
+      break;
+    case 'add-correction':
+      promptForActor('Correction (e.g. "Kari Hale 73"):', name => {
+        state.corrections.push(name);
+        logEvent('correction', `Correction to prior minutes: ${name}`);
+        render();
+      });
+      break;
+    case 'motion-approve-minutes':
+      const corrText = state.corrections.length > 0
+        ? `prior minutes with corrections: ${state.corrections.join('; ')}`
+        : 'prior minutes as presented';
+      promptMotion(`Approval of ${corrText}.`, 'minutes');
+      break;
+    case 'record-chair-report':
+      promptText("Chairman's report summary:", text => {
+        logEvent('report', `Chairman's Report: ${text}`);
+        render();
+      });
+      break;
+    case 'record-treasurer-report':
+      promptText('Treasurer report (e.g. balance, key items):', text => {
+        logEvent('report', `Treasurer's Report: ${text}`);
+        nextAgenda();
+      });
+      break;
+    case 'record-committee-report':
+      promptForActor('Committee name:', cname => {
+        promptText(`${cname} report:`, text => {
+          logEvent('report', `<span class="name">${cname}</span> committee: ${text}`);
+          render();
+        });
+      });
+      break;
+    case 'record-discussion':
+      promptText('Discussion item / notes:', text => {
+        logEvent('discussion', text);
+        render();
+      });
+      break;
+    case 'record-custom-item':
+      promptText(`Notes for "${getCurrentAgendaItem().label}":`, text => {
+        logEvent(getCurrentAgendaItem().id, text);
+        render();
+      });
+      break;
+    case 'record-speaker':
+      promptForActor(`${getProfile().memberLabel} speaking + brief note:`, name => {
+        logEvent('speaker', `<span class="name">${name}</span>`);
+        render();
+      });
+      break;
+    case 'record-announcement':
+      promptText('Announcement:', text => {
+        logEvent('announcement', text);
+        render();
+      });
+      break;
+    case 'record-candidate-pitch':
+      promptText('Candidate pitch (name + ask):', text => {
+        logEvent('candidate pitch', text);
+        render();
+      });
+      break;
+    case 'record-forward-item':
+      promptText('Forward item for next agenda:', text => {
+        logEvent('forward item', text);
+        render();
+      });
+      break;
+    case 'record-good-of-order-other':
+      promptText('Good of the Order item (anything):', text => {
+        logEvent('good of the order', text);
+        render();
+      });
+      break;
+    case 'record-agenda-item':
+      promptText('Planned item for next Central Committee meeting:', text => {
+        logEvent('planned agenda item', text);
+        render();
+      });
+      break;
+    case 'make-motion':
+      promptForMotionFull();
+      break;
+    case 'motion-adjourn':
+      promptMotion('Adjournment.', 'adjourn');
+      break;
+    case 'record-second':
+      promptSelectMember('Who seconded the motion?', state.currentMotion.moverId, (id, display, name) => {
+        state.currentMotion.seconderId = id;
+        state.currentMotion.seconderName = name;
+        state.currentMotion.seconderDisplay = display;
+        logEvent('second', `Motion seconded by ${display}.`);
+        state.currentMotionState = 'debate';
+        render();
+      });
+      break;
+    case 'motion-dies': {
+      const dyingText = state.currentMotion.text;
+      const isAmendment = state.currentMotion.kind === 'amendment';
+      logEvent('motion', `Motion died for lack of a second: "${dyingText}"`);
+      if (isAmendment && state.pendingAmendmentContext) {
+        const ctx = state.pendingAmendmentContext;
+        state.pendingAmendmentContext = null;
+        state.currentMotion = ctx.parentMotion;
+        state.currentMotionState = ctx.parentMotionState;
+        logEvent('amendment result', `Amendment died — no second. Main motion proceeds as originally stated.`);
+      } else {
+        state.currentMotion = null;
+        state.currentMotionState = null;
+      }
+      render();
+      break;
+    }
+    case 'chair-rules-out-of-order': {
+      const ruledText = state.currentMotion.text;
+      const isAmendmentRuled = state.currentMotion.kind === 'amendment';
+      logEvent('ruling', `Chair ruled out of order: "${ruledText}"`);
+      if (isAmendmentRuled && state.pendingAmendmentContext) {
+        const ctx = state.pendingAmendmentContext;
+        state.pendingAmendmentContext = null;
+        state.currentMotion = ctx.parentMotion;
+        state.currentMotionState = ctx.parentMotionState;
+        logEvent('amendment result', `Amendment ruled out of order. Main motion proceeds as originally stated.`);
+      } else {
+        state.currentMotion = null;
+        state.currentMotionState = null;
+      }
+      render();
+      break;
+    }
+    case 'friendly-amendment':
+      promptText('Friendly amendment (mover accepts):', text => {
+        logEvent('amendment', `Friendly amendment accepted by mover: "${text}". Motion now reads: revised.`);
+        state.currentMotion.text += ` [amended: ${text}]`;
+        render();
+      });
+      break;
+    case 'move-amend':
+      promptForMotionFull(true);
+      break;
+    case 'move-previous-question':
+      logEvent('motion', `Previous Question moved. (Requires 2/3.)`);
+      toast('Proceeding to vote');
+      if (state.currentMotion) state.currentMotion.requiresTwoThirds = true;
+      state.currentMotionState = 'voting';
+      render();
+      break;
+    case 'move-table':
+      logEvent('motion', `Motion to lay on the table.`);
+      state.currentMotionState = 'voting';
+      render();
+      break;
+    case 'move-postpone':
+      logEvent('motion', `Motion to postpone.`);
+      state.currentMotionState = 'voting';
+      render();
+      break;
+    case 'point-of-order':
+      state.stateStack.push(state.currentMotionState);
+      state.currentMotionState = 'point-of-order';
+      logEvent('point of order', `Point of order raised.`);
+      render();
+      break;
+    case 'rule-well-taken':
+      logEvent('ruling', `Chair: point well-taken.`);
+      state.currentMotionState = state.stateStack.pop() || null;
+      render();
+      break;
+    case 'rule-not-well-taken':
+      logEvent('ruling', `Chair: point not well-taken.`);
+      state.currentMotionState = state.stateStack.pop() || null;
+      render();
+      break;
+    case 'proceed-to-vote':
+      state.currentMotionState = 'voting';
+      render();
+      break;
+    case 'voice-vote':
+      promptVote('voice');
+      break;
+    case 'roll-call':
+      promptVote('roll call');
+      break;
+    case 'ballot-vote':
+      promptVote('ballot');
+      break;
+  }
+}
+
+function showModal(html) {
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.innerHTML = `<div class="modal">${html}</div>`;
+  document.body.appendChild(backdrop);
+  return backdrop;
+}
+
+function closeModal() {
+  // Remove click-outside listeners registered by attachCombobox before removing the modal.
+  document.querySelectorAll('.combobox-input').forEach(input => {
+    if (input._clickOutside) {
+      document.removeEventListener('click', input._clickOutside);
+      delete input._clickOutside;
+    }
+  });
+  document.querySelectorAll('.modal-backdrop').forEach(m => m.remove());
+}
+
+function buildComboboxHTML(id, placeholder) {
+  return `
+    <div class="combobox-wrap" id="${id}-wrap">
+      <input type="text" class="combobox-input" id="${id}" placeholder="${placeholder}" autocomplete="off">
+      <div class="combobox-list" id="${id}-list"></div>
+    </div>
+  `;
+}
+
+function attachCombobox(id, onSelect) {
+  const input = document.getElementById(id);
+  const list = document.getElementById(id + '-list');
+  const profile = getProfile();
+  let activeIndex = -1;
+  let currentMatches = [];
+
+  function selected(memberOrFreeform, displayName) {
+    input.value = displayName;
+    list.classList.remove('open');
+    input._selection = memberOrFreeform;
+    if (onSelect) onSelect(memberOrFreeform, displayName);
+  }
+
+  function update() {
+    const q = input.value.trim().toLowerCase();
+    currentMatches = profile.members.filter(m => {
+      if (!q) return true;
+      const hay = (m.name + ' ' + m.precinct + ' ' + m.role).toLowerCase();
+      return hay.includes(q);
+    });
+    activeIndex = -1;
+    if (currentMatches.length === 0 && !q) {
+      list.classList.remove('open');
+      return;
+    }
+    let html = currentMatches.map((m, i) => {
+      const detail = m.precinct !== '—' ? profile.precinctLabel + ' ' + m.precinct : m.role;
+      return `<div class="combobox-item" data-i="${i}" data-id="${m.id}">
+        <span>${m.name}</span>
+        <span class="role-tag">${detail}</span>
+      </div>`;
+    }).join('');
+    if (q && !currentMatches.some(m => m.name.toLowerCase() === q)) {
+      html += `<div class="combobox-item freeform" data-freeform="1">Use "${input.value.trim()}" (not in roster)</div>`;
+    }
+    list.innerHTML = html;
+    list.classList.add('open');
+    list.querySelectorAll('.combobox-item').forEach(el => {
+      el.onclick = () => {
+        if (el.dataset.freeform) {
+          selected({ freeform: true, name: input.value.trim() }, input.value.trim());
+        } else {
+          const m = profile.members.find(x => x.id === el.dataset.id);
+          const detail = m.precinct !== '—' ? ' ' + m.precinct : '';
+          selected(m, m.name + detail);
+        }
+      };
+    });
+  }
+
+  input.oninput = update;
+  input.onfocus = update;
+  input.onkeydown = (e) => {
+    const items = list.querySelectorAll('.combobox-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIndex = Math.min(items.length - 1, activeIndex + 1);
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
+      if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIndex = Math.max(0, activeIndex - 1);
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
+      if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeIndex >= 0 && items[activeIndex]) {
+        items[activeIndex].click();
+      } else if (input.value.trim()) {
+        const exact = currentMatches.find(m => m.name.toLowerCase() === input.value.trim().toLowerCase());
+        if (exact) {
+          const detail = exact.precinct !== '—' ? ' ' + exact.precinct : '';
+          selected(exact, exact.name + detail);
+        } else {
+          selected({ freeform: true, name: input.value.trim() }, input.value.trim());
+        }
+      }
+    } else if (e.key === 'Escape') {
+      list.classList.remove('open');
+    }
+  };
+  // Scoped click-outside handler — stored on the input so it can be cleaned up on modal close.
+  input._clickOutside = (e) => {
+    if (!input.contains(e.target) && !list.contains(e.target)) {
+      list.classList.remove('open');
+    }
+  };
+  document.addEventListener('click', input._clickOutside);
+
+  setTimeout(() => input.focus(), 50);
+  return input;
+}
+
+function getComboboxResult(id) {
+  const input = document.getElementById(id);
+  if (!input) return null;
+  const txt = input.value.trim();
+  if (!txt) return null;
+  if (input._selection) return input._selection;
+  const profile = getProfile();
+  const exact = profile.members.find(m => m.name.toLowerCase() === txt.toLowerCase());
+  if (exact) return exact;
+  return { freeform: true, name: txt };
+}
+
+function formatActor(result) {
+  if (!result) return '';
+  if (result.freeform) {
+    return `<span class="name">${result.name}</span><span class="name-flag" title="Not in member roster">⚑</span>`;
+  }
+  const profile = getProfile();
+  const detail = result.precinct !== '—' ? ' ' + result.precinct : '';
+  return `<span class="name">${result.name}${detail}</span>`;
+}
+
+function promptForActor(label, callback) {
+  showModal(`
+    <div class="modal-title">${label}</div>
+    <div class="modal-sub">Start typing a name. Matches from the roster appear; non-matches will be flagged.</div>
+    <div class="form-group">
+      ${buildComboboxHTML('actor-cb', 'Type name or detail...')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="submitActor()">OK</button>
+    </div>
+  `);
+  attachCombobox('actor-cb');
+  window.submitActor = () => {
+    const result = getComboboxResult('actor-cb');
+    if (!result) { alert('Enter a name.'); return; }
+    closeModal();
+    callback(formatActor(result));
+  };
+}
+
+function promptSelectMember(label, excludeId, callback) {
+  showModal(`
+    <div class="modal-title">${label}</div>
+    <div class="form-group">
+      ${buildComboboxHTML('member-cb', 'Type name...')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="submitMemberSel()">OK</button>
+    </div>
+  `);
+  attachCombobox('member-cb');
+  window.submitMemberSel = () => {
+    const result = getComboboxResult('member-cb');
+    if (!result) { alert('Enter a name.'); return; }
+    closeModal();
+    const display = formatActor(result);
+    const id = result.id || null;
+    const name = result.freeform ? result.name : `${result.name}${result.precinct !== '—' ? ' ' + result.precinct : ''}`;
+    callback(id, display, name);
+  };
+}
+
+function promptText(label, callback) {
+  showModal(`
+    <div class="modal-title">${label}</div>
+    <div class="form-group">
+      <textarea class="form-textarea" id="text-input" autofocus></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="submitText()">Record</button>
+    </div>
+  `);
+  document.getElementById('text-input').focus();
+  window.submitText = () => {
+    const v = document.getElementById('text-input').value.trim();
+    if (!v) { alert('Enter text.'); return; }
+    closeModal();
+    callback(v);
+  };
+}
+
+function promptForMotionFull(isAmendment=false) {
+  showModal(`
+    <div class="modal-title">${isAmendment ? 'Move to Amend' : 'Make a Motion'}</div>
+    <div class="modal-sub">Type the mover's name (typeahead from roster). State the ${isAmendment ? 'amendment' : 'motion'} clearly.</div>
+    <div class="form-group">
+      <label class="form-label">${isAmendment ? 'Amender' : 'Mover'}</label>
+      ${buildComboboxHTML('mover-cb', 'Start typing...')}
+    </div>
+    <div class="form-group">
+      <label class="form-label">${isAmendment ? 'Amendment' : 'Motion'} text</label>
+      <textarea class="form-textarea" id="motion-text" placeholder="${isAmendment ? 'I move to amend by...' : 'I move that...'}"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="submitFullMotion(${isAmendment})">Record</button>
+    </div>
+  `);
+  attachCombobox('mover-cb');
+  window.submitFullMotion = (amend) => {
+    const result = getComboboxResult('mover-cb');
+    const text = document.getElementById('motion-text').value.trim();
+    if (!result) { alert('Enter a mover.'); return; }
+    if (!text) { alert('Enter motion text.'); return; }
+    const moverDisplay = formatActor(result);
+    if (amend) {
+      // Real amendment sub-process: save parent motion context, enter amendment as a new motion.
+      if (!state.currentMotion) { toast('No pending motion to amend.'); closeModal(); return; }
+      state.pendingAmendmentContext = {
+        parentMotionState: state.currentMotionState,
+        parentMotion: { ...state.currentMotion }
+      };
+      state.currentMotion = {
+        id: 'amend-' + Date.now(),
+        moverId: result.id || null,
+        moverName: result.freeform ? result.name : `${result.name}${result.precinct !== '—' ? ' ' + result.precinct : ''}`,
+        moverDisplay,
+        text: `Amend: ${text}`,
+        kind: 'amendment',
+        agendaItemId: getCurrentAgendaItem() ? getCurrentAgendaItem().id : null
+      };
+      state.currentMotionState = 'awaiting-second';
+      logEvent('amendment', `${moverDisplay} moved to amend: "<em>${escapeHtml(text)}</em>". Needs second, debate, vote — RONR §12.`);
+      closeModal();
+      render();
+    } else {
+      state.currentMotion = {
+        id: 'mo' + (state.motions.length + 1),
+        moverId: result.id || null,
+        moverName: result.freeform ? result.name : `${result.name}${result.precinct !== '—' ? ' ' + result.precinct : ''}`,
+        moverDisplay,
+        text,
+        agendaItemId: getCurrentAgendaItem() ? getCurrentAgendaItem().id : null
+      };
+      state.motions.push(state.currentMotion);
+      state.currentMotionState = 'awaiting-second';
+      logEvent('motion', `${moverDisplay} moved: "<em>${escapeHtml(text)}</em>"`);
+      closeModal();
+      render();
+    }
+  };
+}
+
+function promptMotion(presetText, kind) {
+  showModal(`
+    <div class="modal-title">Motion: ${presetText}</div>
+    <div class="form-group">
+      <label class="form-label">Mover</label>
+      ${buildComboboxHTML('preset-mover-cb', 'Type name...')}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Seconder</label>
+      ${buildComboboxHTML('preset-seconder-cb', 'Type name...')}
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="submitQuickMotion('${kind}')">Record & Vote</button>
+    </div>
+  `);
+  attachCombobox('preset-mover-cb');
+  attachCombobox('preset-seconder-cb');
+  window.submitQuickMotion = (kind) => {
+    const mover = getComboboxResult('preset-mover-cb');
+    const sec = getComboboxResult('preset-seconder-cb');
+    if (!mover || !sec) { alert('Enter both mover and seconder.'); return; }
+    if (mover.id && sec.id && mover.id === sec.id) { alert('Mover and seconder must differ.'); return; }
+    const moverDisplay = formatActor(mover);
+    const secDisplay = formatActor(sec);
+    const moverName = `${mover.name}${mover.precinct && mover.precinct !== '—' ? ' ' + mover.precinct : ''}`;
+    const secName = `${sec.name}${sec.precinct && sec.precinct !== '—' ? ' ' + sec.precinct : ''}`;
+    logEvent('motion', `${moverDisplay} moved: <em>${escapeHtml(presetText)}</em> Seconded by ${secDisplay}.`);
+    state.currentMotion = {
+      id: 'mo' + (state.motions.length + 1),
+      text: presetText,
+      moverId: mover.id || null,
+      moverDisplay, seconderDisplay: secDisplay,
+      moverName,
+      seconderName: secName,
+      kind
+    };
+    state.motions.push(state.currentMotion);
+    state.currentMotionState = 'voting';
+    closeModal();
+    render();
+  };
+}
+
+function promptVote(method) {
+  const m = state.currentMotion;
+  const thresholdLabel = m && m.requiresTwoThirds
+    ? '2/3 required (Previous Question or bylaws amendment)'
+    : 'Majority required (more than half of votes cast)';
+  const isRollCallOrBallot = method === 'roll call' || method === 'ballot';
+  const tallyNote = isRollCallOrBallot ? 'Enter tally before recording outcome:' : 'Tally (optional — leave blank for voice):';
+
+  showModal(`
+    <div class="modal-title">${method.charAt(0).toUpperCase() + method.slice(1)} Vote</div>
+    <div class="modal-sub">Outcome of: "<em>${escapeHtml(m ? m.text : '')}</em>"</div>
+    <div style="font-size:12px;color:var(--text-dim);margin:6px 0 10px">${thresholdLabel}</div>
+    <div style="font-size:12px;margin-bottom:8px">${tallyNote}</div>
+    <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-end">
+      <div>
+        <label style="font-size:11px;display:block;margin-bottom:3px;color:var(--text-dim)">AYE</label>
+        <input id="tally-aye" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px" placeholder="—">
+      </div>
+      <div>
+        <label style="font-size:11px;display:block;margin-bottom:3px;color:var(--text-dim)">NAY</label>
+        <input id="tally-nay" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px" placeholder="—">
+      </div>
+      <div>
+        <label style="font-size:11px;display:block;margin-bottom:3px;color:var(--text-dim)">ABSTAIN</label>
+        <input id="tally-abs" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px" placeholder="—">
+      </div>
+    </div>
+    <div class="vote-grid">
+      <button class="vote-btn yes" onclick="collectTalliesAndRecord('passed','${method}')">Passed</button>
+      <button class="vote-btn no" onclick="collectTalliesAndRecord('failed','${method}')">Failed</button>
+      <button class="vote-btn" onclick="collectTalliesAndRecord('unanimous','${method}')">Unanimous</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+// Collects tally inputs from the vote modal, stores on currentMotion, then calls recordVote.
+function collectTalliesAndRecord(outcome, method) {
+  if (state.currentMotion) {
+    const aye = parseInt(document.getElementById('tally-aye').value, 10);
+    const nay = parseInt(document.getElementById('tally-nay').value, 10);
+    const abs = parseInt(document.getElementById('tally-abs').value, 10);
+    state.currentMotion.tally = {
+      aye: isNaN(aye) ? null : aye,
+      nay: isNaN(nay) ? null : nay,
+      abstain: isNaN(abs) ? null : abs
+    };
+  }
+  recordVote(outcome, method);
+}
+
+function recordVote(outcome, method) {
+  const motion = state.currentMotion;
+  const text = motion.text;
+  const kind = motion.kind;
+
+  // Build tally string for log
+  const t = motion.tally;
+  const tallyStr = (t && (t.aye !== null || t.nay !== null || t.abstain !== null))
+    ? ` — Aye: ${t.aye ?? '?'}, Nay: ${t.nay ?? '?'}, Abstain: ${t.abstain ?? '?'}`
+    : '';
+
+  // Store outcome on the motion object for minutes generation
+  motion.voteOutcome = outcome;
+  motion.voteMethod = method;
+
+  logEvent('vote', `Vote on "<em>${escapeHtml(text)}</em>" (${method})${tallyStr}: <span class="name" style="color:${outcome === 'failed' ? 'var(--danger)' : 'var(--success)'}">${outcome.toUpperCase()}</span>`);
+
+  // Amendment sub-process resolution: restore parent motion context
+  if (kind === 'amendment' && state.pendingAmendmentContext) {
+    const ctx = state.pendingAmendmentContext;
+    state.pendingAmendmentContext = null;
+    if (outcome !== 'failed') {
+      // Amendment passed — apply it to the parent motion text
+      ctx.parentMotion.text += ` [as amended: ${escapeHtml(text.replace(/^Amend: /i, ''))}]`;
+      logEvent('amendment result', `Amendment <span class="name" style="color:var(--success)">PASSED</span>. Main motion as amended proceeds.`);
+    } else {
+      logEvent('amendment result', `Amendment <span class="name" style="color:var(--danger)">FAILED</span>. Main motion proceeds as originally stated.`);
+    }
+    state.currentMotion = ctx.parentMotion;
+    state.currentMotionState = ctx.parentMotionState;
+    closeModal();
+    render();
+    return;
+  }
+
+  if (kind === 'minutes') state.corrections = [];
+
+  if (kind === 'adjourn' && outcome !== 'failed') {
+    state.currentMotion = null;
+    state.currentMotionState = null;
+    state.endedAt = Date.now();
+    state.meetingEnded = true;
+    state.agenda.forEach(a => a.complete = true);
+    logEvent('adjournment', 'Meeting adjourned.');
+    closeModal();
+    render();
+    toast('Meeting adjourned');
+    return;
+  }
+  state.currentMotion = null;
+  state.currentMotionState = null;
+  closeModal();
+  if (kind === 'agenda' || kind === 'minutes') nextAgenda();
+  else render();
+}
+
+function openAgendaEditor(midMeeting=false) {
+  const itemsHTML = state.agenda.map((item, i) => `
+    <div class="agenda-editor-item" draggable="true" data-index="${i}">
+      <span class="grip" title="Drag to reorder">⋮⋮</span>
+      <input type="text" value="${item.label}" data-index="${i}">
+      <button class="remove" onclick="removeAgendaItem(${i})" title="Remove">×</button>
+    </div>
+  `).join('');
+  showModal(`
+    <div class="modal-title">${midMeeting ? 'Amend Agenda' : 'Configure Agenda'}</div>
+    <div class="modal-sub">${midMeeting ? 'Modify the agenda mid-meeting. Changes will be logged.' : 'Drag items by the ⋮⋮ handle to reorder. Add or remove items as needed.'}</div>
+    <div id="agenda-edit-list">${itemsHTML}</div>
+    <button class="btn" onclick="addAgendaItem()" style="margin-top:8px">+ Add Item</button>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="saveAgenda(${midMeeting})">Save Agenda</button>
+    </div>
+  `);
+  attachAgendaDragDrop();
+}
+
+function attachAgendaDragDrop() {
+  const list = document.getElementById('agenda-edit-list');
+  if (!list) return;
+  let dragSrc = null;
+
+  list.querySelectorAll('.agenda-editor-item').forEach(item => {
+    item.ondragstart = (e) => {
+      dragSrc = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    };
+    item.ondragend = () => {
+      item.classList.remove('dragging');
+      list.querySelectorAll('.agenda-editor-item').forEach(x => x.classList.remove('drag-over'));
+    };
+    item.ondragover = (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (item !== dragSrc) item.classList.add('drag-over');
+    };
+    item.ondragleave = () => item.classList.remove('drag-over');
+    item.ondrop = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (dragSrc && item !== dragSrc) {
+        const rect = item.getBoundingClientRect();
+        const after = e.clientY > rect.top + rect.height / 2;
+        if (after) item.parentNode.insertBefore(dragSrc, item.nextSibling);
+        else item.parentNode.insertBefore(dragSrc, item);
+      }
+      item.classList.remove('drag-over');
+    };
+  });
+}
+
+function addAgendaItem() {
+  const list = document.getElementById('agenda-edit-list');
+  const div = document.createElement('div');
+  div.className = 'agenda-editor-item';
+  div.draggable = true;
+  div.innerHTML = `<span class="grip" title="Drag to reorder">⋮⋮</span><input type="text" placeholder="New item label"><button class="remove" onclick="this.parentElement.remove()" title="Remove">×</button>`;
+  list.appendChild(div);
+  div.querySelector('input').focus();
+  attachAgendaDragDrop();
+}
+
+function removeAgendaItem(index) {
+  const list = document.getElementById('agenda-edit-list');
+  const items = list.querySelectorAll('.agenda-editor-item');
+  if (items[index]) items[index].remove();
+}
+
+function saveAgenda(midMeeting) {
+  const items = document.querySelectorAll('#agenda-edit-list .agenda-editor-item');
+  const newAgenda = [];
+  items.forEach(itemEl => {
+    const label = itemEl.querySelector('input').value.trim();
+    if (!label) return;
+    const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const existing = state.agenda.find(a => a.label === label);
+    newAgenda.push({
+      id: existing ? existing.id : slug,
+      label,
+      complete: existing ? existing.complete : false
+    });
+  });
+  if (newAgenda.length === 0) { alert('Agenda must have at least one item.'); return; }
+  state.agenda = newAgenda;
+  if (state.currentAgendaIndex >= newAgenda.length) state.currentAgendaIndex = Math.max(0, newAgenda.length - 1);
+  if (midMeeting) logEvent('agenda', `Agenda amended.`);
+  closeModal();
+  render();
+}
+
+function openQuickEntry() {
+  showModal(`
+    <div class="modal-title">⚡ Quick Entry / Override</div>
+    <div class="modal-sub">Use when the structured flow can't capture what just happened. This logs a manual entry into the event stream.</div>
+    <div class="form-group">
+      <label class="form-label">Event type</label>
+      <input type="text" class="form-input" id="qe-type" placeholder="e.g. ruling, ad-hoc, appeal, unanimous-consent, note">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Actor (optional)</label>
+      ${buildComboboxHTML('qe-actor-cb', 'Type name (optional)...')}
+    </div>
+    <div class="form-group">
+      <label class="form-label">What happened</label>
+      <textarea class="form-textarea" id="qe-text" placeholder="Describe the event in plain language..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="submitQuickEntry()">Log Event</button>
+    </div>
+  `);
+  attachCombobox('qe-actor-cb');
+  setTimeout(() => document.getElementById('qe-type').focus(), 60);
+}
+
+function submitQuickEntry() {
+  const type = document.getElementById('qe-type').value.trim() || 'manual';
+  const actor = getComboboxResult('qe-actor-cb');
+  const text = document.getElementById('qe-text').value.trim();
+  if (!text) { alert('Describe what happened.'); return; }
+  let body = text;
+  if (actor) body = `${formatActor(actor)}: ${text}`;
+  logEvent(type, body, true);
+  closeModal();
+  toast('Manual entry logged');
+  render();
+}
+
+function askAI() {
+  document.querySelector('[data-panel="ai"]').click();
+  document.getElementById('ai-input').focus();
+}
+
+function submitAI() {
+  const q = document.getElementById('ai-input').value.trim();
+  if (!q) return;
+  const out = document.getElementById('ai-output');
+  out.classList.remove('placeholder');
+  const profile = getProfile();
+  out.innerHTML = `<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px">You asked:</div>
+    <div style="margin-bottom:10px;font-style:italic">"${q}"</div>
+    <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px">Response (stub):</div>
+    <div>In production this calls Claude scoped to ${profile.parliamentaryAuthority} and ${profile.organization.name}'s bylaws. Citations point to section numbers only — verify exact language in your own copy.</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Reference: RONR §X:Y · ${profile.organization.name} Bylaws Art. IV</div>`;
+  logEvent('parliamentarian query', `Queried: "${q}"`);
+  render();
+}
+
+// Generates RONR-formatted meeting minutes from the event stream and motion records.
+function exportMinutes() {
+  if (state.events.length === 0) { alert('No events to export.'); return; }
+  const profile = getProfile();
+  const org = profile.organization;
+  const startDate = state.startedAt ? new Date(state.startedAt) : null;
+  const endDate = state.endedAt ? new Date(state.endedAt) : null;
+  const dateFmt = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+  const timeFmt = { hour: 'numeric', minute: '2-digit', hour12: true };
+
+  const quorumStatus = state.quorumAchieved === null
+    ? 'Not confirmed'
+    : state.quorumAchieved
+      ? 'Achieved'
+      : state.meetingEnded
+        ? 'Not achieved — meeting adjourned without quorum'
+        : 'Not achieved';
+
+  // Build per-agenda-item narrative from events
+  const agendaSections = [];
+  let currentItemId = null;
+  let currentItemLines = [];
+
+  function flushItem() {
+    if (currentItemId && currentItemLines.length > 0) {
+      agendaSections.push({ id: currentItemId, lines: currentItemLines });
+    }
+    currentItemLines = [];
+  }
+
+  // Group events by agenda item using stateBefore
+  state.events.forEach(ev => {
+    const itemId = ev.stateBefore || 'general';
+    if (itemId !== currentItemId) {
+      flushItem();
+      currentItemId = itemId;
+    }
+    const clean = ev.body.replace(/<[^>]+>/g, '').replace(/⚑/g, '[unverified]').trim();
+    if (clean) currentItemLines.push({ type: ev.type, text: clean, manual: ev.manual });
+  });
+  flushItem();
+
+  // Build agenda item label lookup
+  const agendaLabels = {};
+  (state.agenda || []).forEach(item => { agendaLabels[item.id] = item.label; });
+
+  // Format motions section
+  const motionLines = [];
+  state.motions.forEach((m, idx) => {
+    motionLines.push('');
+    motionLines.push(`MOTION ${idx + 1}: "${m.text}"`);
+    if (m.moverName) motionLines.push(`  Moved by: ${m.moverName}`);
+    if (m.seconderName) motionLines.push(`  Seconded by: ${m.seconderName}`);
+    if (m.voteMethod) {
+      let voteStr = `  Vote: ${m.voteMethod.charAt(0).toUpperCase() + m.voteMethod.slice(1)}`;
+      if (m.tally) {
+        const t = m.tally;
+        const parts = [];
+        if (t.aye !== null) parts.push(`Aye: ${t.aye}`);
+        if (t.nay !== null) parts.push(`Nay: ${t.nay}`);
+        if (t.abstain !== null) parts.push(`Abstain: ${t.abstain}`);
+        if (parts.length > 0) voteStr += ` (${parts.join(', ')})`;
+      }
+      motionLines.push(voteStr);
+    }
+    if (m.voteOutcome) {
+      motionLines.push(`  Result: ${m.voteOutcome.toUpperCase()}`);
+    }
+    if (m.requiresTwoThirds) motionLines.push(`  Threshold: 2/3 required`);
+  });
+
+  const lines = [
+    org.fullName.toUpperCase(),
+    profile.meetingType,
+    startDate ? startDate.toLocaleDateString('en-US', dateFmt) : 'Date unknown',
+    org.address || '',
+    '',
+    `Time called to order: ${startDate ? startDate.toLocaleTimeString('en-US', timeFmt) : '—'}`,
+    endDate ? `Time adjourned: ${endDate.toLocaleTimeString('en-US', timeFmt)}` : 'Status: in progress',
+    '',
+    `Quorum: ${quorumStatus}`,
+    `Parliamentary authority: ${profile.parliamentaryAuthority || 'Robert\'s Rules of Order'}`,
+    '',
+    '═'.repeat(60),
+    'PROCEEDINGS',
+    '═'.repeat(60),
+  ];
+
+  // Add narrative by agenda item
+  let agendaNum = 0;
+  agendaSections.forEach(section => {
+    const label = agendaLabels[section.id]
+      || section.id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    agendaNum++;
+    lines.push('');
+    lines.push(`${agendaNum}. ${label.toUpperCase()}`);
+    section.lines.forEach(ev => {
+      lines.push(`   [${ev.type.toUpperCase()}${ev.manual ? ' — MANUAL' : ''}] ${ev.text}`);
+    });
+  });
+
+  if (state.motions.length > 0) {
+    lines.push('');
+    lines.push('═'.repeat(60));
+    lines.push('MOTIONS SUMMARY');
+    lines.push('═'.repeat(60));
+    motionLines.forEach(l => lines.push(l));
+  }
+
+  lines.push('');
+  lines.push('─'.repeat(60));
+  lines.push(`Minutes generated by Quorum on ${new Date().toLocaleString()}`);
+  lines.push('These minutes require approval at the next meeting per RONR §48.');
+  if (state.quorumAchieved !== false) {
+    lines.push('Secretary: ______________________________  Date approved: ____________');
+  }
+
+  const filename = `${org.name.toLowerCase().replace(/\s+/g,'-')}-minutes-${new Date().toISOString().slice(0,10)}.txt`;
+  download(lines.join('\n'), filename, 'text/plain');
+  toast('Minutes exported');
+}
+
+// Exports the raw timestamped event log (all events in order).
+function exportEventLog() {
+  if (state.events.length === 0) { alert('No events to export.'); return; }
+  const profile = getProfile();
+  const lines = [
+    `${profile.organization.fullName}`,
+    `${profile.meetingType} — Event Log`,
+    `Date: ${state.startedAt ? new Date(state.startedAt).toLocaleString() : 'not started'}`,
+    state.endedAt ? `Ended: ${new Date(state.endedAt).toLocaleString()}` : `Status: in progress`,
+    `Quorum: ${state.quorumAchieved === null ? 'not confirmed' : state.quorumAchieved ? 'achieved' : 'not achieved'}`,
+    ``,
+    `--- EVENT LOG (${state.events.length} entries) ---`,
+    ...state.events.map(e => {
+      const elapsed = state.startedAt ? Math.floor((e.timestamp - state.startedAt) / 1000) : 0;
+      const mm = String(Math.floor(elapsed / 60)).padStart(2,'0');
+      const ss = String(elapsed % 60).padStart(2,'0');
+      const clock = new Date(e.timestamp).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true});
+      const clean = e.body.replace(/<[^>]+>/g, '').replace(/⚑/g, '[unverified]');
+      return `[${mm}:${ss} | ${clock}] ${e.manual ? '[MANUAL] ' : ''}${e.type.toUpperCase()}: ${clean}`;
+    })
+  ];
+  download(lines.join('\n'), `${profile.organization.name.toLowerCase().replace(/\s+/g,'-')}-event-log-${new Date().toISOString().slice(0,10)}.txt`, 'text/plain');
+  toast('Event log exported');
+}
+
+function exportJSON() {
+  download(JSON.stringify(state, null, 2), `quorum-state-${new Date().toISOString().slice(0,10)}.json`, 'application/json');
+  toast('JSON exported');
+}
+
+function download(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetMeeting() {
+  if (!confirm('Reset to a fresh meeting? Current data will be cleared.')) return;
+  state = createFreshState(state.profileId);
+  saveState();
+  render();
+}
+
+function switchProfile(profileId) {
+  if (state.events.length > 0) {
+    if (!confirm('Switching profile will reset the current meeting. Export first if needed. Continue?')) {
+      document.getElementById('profile-selector').value = state.profileId;
+      return;
+    }
+  }
+  state = createFreshState(profileId);
+  saveState();
+  render();
+}
+
+const sel = document.getElementById('profile-selector');
+Object.values(PROFILES).forEach(p => {
+  const opt = document.createElement('option');
+  opt.value = p.id;
+  opt.textContent = p.label;
+  sel.appendChild(opt);
+});
+sel.value = state.profileId;
+sel.onchange = (e) => switchProfile(e.target.value);
+
+document.querySelectorAll('.panel-tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    state.activePanel = tab.dataset.panel;
+  };
+});
+
+setInterval(() => {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true});
+  if (state.startedAt) {
+    const endTime = state.endedAt || Date.now();
+    const elapsed = Math.floor((endTime - state.startedAt) / 1000);
+    const mm = String(Math.floor(elapsed / 60)).padStart(2,'0');
+    const ss = String(elapsed % 60).padStart(2,'0');
+    document.getElementById('timer').textContent = `${mm}:${ss}`;
+  }
+}, 1000);
+
+render();
+</script>
+</body>
+</html>
