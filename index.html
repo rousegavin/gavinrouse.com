@@ -73,8 +73,9 @@
     .nav-links a:after{content:"";position:absolute;left:0;right:100%;bottom:4px;height:2px;background:var(--blue);transition:.25s}
     .nav-links a:hover:after,.nav-links a.active:after{right:0}
     .nav-links a.active{color:var(--blue)}
-    .nav-cta{border:1px solid var(--blue);padding:10px 16px!important;border-radius:999px;color:var(--blue)!important}
+    .nav-cta{border:1px solid var(--blue);padding:10px 16px!important;border-radius:999px;color:var(--blue)!important;transition:.25s}
     .nav-cta:after{display:none}
+    .nav-cta:hover{background:var(--blue);color:#fff!important}
     .nav-toggle{display:none;background:none;border:none;cursor:pointer;padding:.5rem}
     .nav-toggle span{display:block;width:20px;height:2px;background:var(--ink);margin:5px 0}
 
@@ -131,6 +132,10 @@
     .role strong{color:var(--muted);font-size:.88rem;font-weight:600}
     .role p{color:var(--muted);max-width:740px;font-size:.94rem;margin:.4rem 0 0}
     .role.edu .date{color:var(--gold)}
+    .role.civic .date{color:var(--gold)}
+    .timeline-label{font-family:var(--display);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:28px 0 6px}
+    .timeline-label:first-child{padding-top:6px}
+    .timeline-label:not(:first-child){border-top:1px solid var(--line);margin-top:6px;padding-top:34px}
     .tech-line{margin-top:36px;font-family:var(--display);font-size:.82rem;color:var(--muted);line-height:2;letter-spacing:.02em}
 
     /* ─── Videos ─── */
@@ -163,7 +168,11 @@
     .project h3{font-size:1.45rem;letter-spacing:-.01em}
     .project p{color:#a9b7cb;margin:.5rem 0 0;font-size:.92rem}
     .project .stack{color:#7686a0;font-size:.72rem;margin-top:.5rem;font-family:var(--display);letter-spacing:.04em}
-    .arrow{font-size:1.6rem;color:#8fb0ff}
+    .arrow{font-size:1.6rem;color:#8fb0ff;display:inline-block;transition:.25s}
+    .project-link{display:contents;color:inherit}
+    .project.linked{cursor:pointer;transition:background .25s}
+    .project.linked:hover{background:rgba(255,255,255,.04)}
+    .project.linked:hover .arrow{transform:translate(3px,-3px)}
 
     /* ─── Contact ─── */
     .contact{background:linear-gradient(135deg,var(--blue),var(--navy));color:#fff;text-align:center}
@@ -283,7 +292,7 @@
             <h3>Engineering confidence into medical software.</h3>
             <p>Leading product quality strategy, people, automation, infrastructure, and release execution across neurodiagnostic software and systems used by clinicians worldwide.</p>
             <div class="tags"><span class="tag">C#</span><span class="tag">Automation</span><span class="tag">Medical Devices</span><span class="tag">Leadership</span></div>
-            <div class="card-meta">8+ years &middot; 30+ releases &middot; FDA-regulated</div>
+            <div class="card-meta">10+ years &middot; 30+ releases &middot; FDA-regulated</div>
           </article>
           <article class="card fade-in">
             <div class="num">02 / CIVIC LEADERSHIP</div>
@@ -328,11 +337,12 @@
         <div class="section-head">
           <div>
             <div class="eyebrow fade-in">Experience</div>
-            <h2 class="fade-in">Nearly a decade<br>of useful work.</h2>
+            <h2 class="fade-in">Over a decade<br>of useful work.</h2>
           </div>
-          <p class="lead fade-in">The roles, milestones, and schooling behind the work.</p>
+          <p class="lead fade-in">The roles, milestones, and schooling that shaped the journey.</p>
         </div>
         <div class="timeline fade-in">
+          <div class="timeline-label">Career</div>
           <article class="role">
             <div class="date">May 2026 &mdash; Present</div>
             <div><h3>Product Quality Test Manager</h3><strong>Cadwell Industries</strong>
@@ -340,29 +350,39 @@
             </div>
           </article>
           <article class="role">
-            <div class="date">July 2025 &mdash; May 2026</div>
+            <div class="date">Jul 2025 &mdash; May 2026</div>
             <div><h3>Product Quality Test Lead</h3><strong>Cadwell Industries</strong>
               <p>Led technical strategy, execution, and infrastructure of product quality across all neurodiagnostic product lines. Managed a team of 8 across test automation, manual testing, and quality systems.</p>
             </div>
           </article>
           <article class="role">
-            <div class="date">March 2022 &mdash; July 2025</div>
+            <div class="date">Mar 2022 &mdash; Jul 2025</div>
             <div><h3>Software Development Engineer in Test II</h3><strong>Cadwell Industries</strong>
               <p>Expanded technical leadership. Developed automated test suites integrated into CI/CD. Mentored junior engineers. Drove quality communication across the organization.</p>
             </div>
           </article>
           <article class="role">
-            <div class="date">July 2017 &mdash; March 2022</div>
+            <div class="date">Jun 2016 &mdash; Mar 2022</div>
             <div><h3>Software Development Engineer in Test I</h3><strong>Cadwell Industries</strong>
-              <p>Core testing and QA for neurodiagnostic software used worldwide. Built test plans, maintained automation framework. Two Cadwell Core Values Awards.</p>
+              <p>Started as a summer intern building a C# application that automated test plan and test report generation &mdash; led to a full-time offer. Core testing and QA for neurodiagnostic software used worldwide. Built test plans, maintained automation framework. Two Cadwell Core Values Awards.</p>
             </div>
           </article>
-          <article class="role">
-            <div class="date">Summer 2016</div>
-            <div><h3>Software Engineer Intern</h3><strong>Cadwell Industries</strong>
-              <p>Built a C# application that automated test plan and test report document generation, significantly increasing the efficiency of the process. Led to full-time offer.</p>
+
+          <div class="timeline-label">Civic &amp; Volunteer</div>
+          <article class="role civic">
+            <div class="date">Apr 2026 &mdash; Present</div>
+            <div><h3>Treasurer</h3><strong>Tri-Cities Adult Hockey Club</strong>
+              <p>Books, budgeting, and financial operations for the club.</p>
             </div>
           </article>
+          <article class="role civic">
+            <div class="date">Dec 2023 &mdash; Present</div>
+            <div><h3>Treasurer</h3><strong>Franklin County Republican Central Committee</strong>
+              <p>PDC compliance, C-3/C-4 filings, and financial operations for the county party.</p>
+            </div>
+          </article>
+
+          <div class="timeline-label">Education</div>
           <article class="role edu">
             <div class="date">2014 &mdash; 2017</div>
             <div><h3>B.S. Computer Science</h3><strong>Eastern Washington University</strong>
@@ -405,23 +425,27 @@
             </div>
             <div class="arrow">&nearr;</div>
           </article>
-          <article class="project fade-in">
+          <article class="project linked fade-in">
             <div class="status status-live">Live</div>
-            <div>
-              <h3>homedefensespear.com</h3>
-              <p>Satirical-but-serious home defense content and affiliate site. Medieval castle defense applied to modern security. Testing the "one-man business with AI" model.</p>
-              <div class="stack">HTML &middot; Affiliate Links</div>
-            </div>
-            <div class="arrow">&nearr;</div>
+            <a class="project-link" href="https://homedefensespear.com" target="_blank" rel="noopener">
+              <div>
+                <h3>homedefensespear.com</h3>
+                <p>Satirical-but-serious home defense content and affiliate site. Medieval castle defense applied to modern security. Testing the "one-man business with AI" model.</p>
+                <div class="stack">HTML &middot; Affiliate Links</div>
+              </div>
+              <div class="arrow">&nearr;</div>
+            </a>
           </article>
-          <article class="project fade-in">
+          <article class="project linked fade-in">
             <div class="status status-hold">On hold</div>
-            <div>
-              <h3>Videography</h3>
-              <p>Cinematic hunting films and event videography. 150K+ views, 15+ events, 7 weddings. Proof of concept that became a real business &mdash; revenue positive from day one.</p>
-              <div class="stack">DaVinci Resolve &middot; YouTube</div>
-            </div>
-            <div class="arrow">&nearr;</div>
+            <a class="project-link" href="https://www.youtube.com/@gavinrouse" target="_blank" rel="noopener">
+              <div>
+                <h3>Videography</h3>
+                <p>Cinematic hunting films and event videography. 150K+ views, 15+ events, 7 weddings. Proof of concept that became a real business &mdash; revenue positive from day one.</p>
+                <div class="stack">DaVinci Resolve &middot; YouTube</div>
+              </div>
+              <div class="arrow">&nearr;</div>
+            </a>
           </article>
         </div>
       </div>
@@ -496,9 +520,9 @@
         <div class="story-text fade-in">
           <p>At fifteen, my first real job was driving wheat truck during harvest on a farm in eastern Washington &mdash; up before dawn, ten-hour days, hauling ten tons of grain through fields that didn't care how old you were. I worked yogurt shops and pizza joints, quit high school sports, and enrolled in Running Start. I wanted to earn money, learn things that mattered, and stop waiting for my real life to start.</p>
           <p>I got a CS degree at EWU and landed at Cadwell as an intern. I built something useful, earned a full-time offer, and spent the next several years building software quality systems for Arc &mdash; software that monitors the electrical activity of the human brain, used in seizure study and diagnosis. Meaningful work. Still is.</p>
-          <p>Then came 2020 and 2021 &mdash; isolated, turbulent, relentless. The relationship I was in fell apart, the lease ended, and I moved back to my hometown in the Tri-Cities to start over. Difficult and necessary in equal measure &mdash; the kind of reset you don't choose but, looking back, wouldn't undo. What remained when everything else dissolved: the river, the mountains, good books, long conversations, time with people I love. I came out the other side with less than I started with, and a clearer idea of what mattered.</p>
-          <p>One morning after a good day on the water, I cut some phone footage into something short and posted it. People watched. I was hooked &mdash; bought gear, committed to the craft, said yes when someone asked me to film their wedding. Word spread. Then somewhere along the way it started feeling like another job, like I was making content instead of making something. So I stepped back. The camera's still rolling &mdash; just on my terms.</p>
-          <p>Somewhere in the middle of all that, I met my wife. There's more to say here than fits in a bio &mdash; she's the most significant thing that's happened to me, and the clearest reason for most of what comes after. We're building a life together, trying to start a family. That road has turned out harder and more expensive than we expected. That hasn't changed where we're headed.</p>
+          <p>Then came 2020 and 2021 &mdash; isolated, turbulent, relentless. Life didn't go the way I'd planned, and I moved back to my hometown in the Tri-Cities to start over. Difficult and necessary in equal measure &mdash; the kind of reset you don't choose but, looking back, wouldn't undo. What remained when everything else dissolved: the river, the mountains, good books, long conversations, time with people I love. I came out the other side with less than I started with, and a clearer idea of what mattered.</p>
+          <p>One morning after a good day on the water, I cut some phone footage into something short and posted it. People watched. I was hooked &mdash; bought gear, committed to the craft, said yes when someone asked me to film their wedding. Word spread. Then somewhere along the way it started feeling like another job &mdash; and life, priorities, and interests had shifted enough since year one that I no longer had the time or passion to keep chasing it. So I stepped back. The camera's still rolling &mdash; just on my terms.</p>
+          <p>Somewhere in the middle of all that, I met my wife. There's more to say here than fits in a bio &mdash; she's the most significant thing that's happened to me, and the clearest reason for most of what comes after. We're building a life together, and the road hasn't always been the one we planned. That hasn't changed where we're headed.</p>
           <p>I moved from Arc to CadLink and became Product Quality Test Lead in 2025, then Product Quality Test Manager in 2026 &mdash; the same work I've always done, now with a team and an organization to run. Alongside it, I took on political service as treasurer of the Franklin County Republican Party, and more recently as treasurer of the Tri-Cities Adult Hockey Club &mdash; because the health of an organization usually comes down to whether someone's willing to own the boring, necessary parts.</p>
           <p>Not for fame. Not for wealth. For my wife, for the family to come, for the people around me, for my God. I'm not trying to change the world. I'm trying to build a life worth pointing toward &mdash; and trusting that if the light is real, people will find their own way to it.</p>
         </div>
@@ -509,8 +533,8 @@
     <section class="section contact" id="contact">
       <div class="wrap">
         <div class="eyebrow fade-in">Connect</div>
-        <h2 class="fade-in">Let's build something worth pointing to.</h2>
-        <p class="fade-in">Software quality, civic tech, AI, or filmmaking &mdash; or just a good conversation. If you make things, I'd like to hear from you.</p>
+        <h2 class="fade-in">I'm always up for<br>a good conversation.</h2>
+        <p class="fade-in">Software quality, civic tech, AI, or filmmaking &mdash; or building, growing, or serving alongside good people. If any of that resonates, I'd like to hear from you.</p>
         <div class="contact-links fade-in">
           <a class="contact-link" href="mailto:gavinlrouse@gmail.com">
             <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
