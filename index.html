@@ -136,6 +136,10 @@
     .timeline-label{font-family:var(--display);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:28px 0 6px}
     .timeline-label:first-child{padding-top:6px}
     .timeline-label:not(:first-child){border-top:1px solid var(--line);margin-top:6px;padding-top:34px}
+    .role-link{display:contents;color:inherit}
+    .role.linked{cursor:pointer;transition:background .2s}
+    .role.linked:hover{background:var(--paper)}
+    .role.linked:hover h3{color:var(--blue)}
     .tech-line{margin-top:36px;font-family:var(--display);font-size:.82rem;color:var(--muted);line-height:2;letter-spacing:.02em}
 
     /* ─── Videos ─── */
@@ -344,57 +348,73 @@
         </div>
         <div class="timeline fade-in">
           <div class="timeline-label">Career</div>
-          <article class="role">
-            <div class="date">May 2026 &mdash; Present</div>
-            <div><h3>Product Quality Test Manager</h3><strong>Cadwell Industries</strong>
-              <p>Managing product quality strategy, people, execution, automation, and infrastructure across all neurodiagnostic product lines &mdash; leading a team of 8 across test automation, manual testing, and quality systems.</p>
-            </div>
+          <article class="role linked">
+            <a class="role-link" href="https://cadwell.com" target="_blank" rel="noopener">
+              <div class="date">May 2026 &mdash; Present</div>
+              <div><h3>Product Quality Test Manager</h3><strong>Cadwell Industries</strong>
+                <p>Managing product quality strategy, people, execution, automation, and infrastructure across all neurodiagnostic product lines &mdash; leading a team of 8 across test automation, manual testing, and quality systems.</p>
+              </div>
+            </a>
           </article>
-          <article class="role">
-            <div class="date">Jul 2025 &mdash; May 2026</div>
-            <div><h3>Product Quality Test Lead</h3><strong>Cadwell Industries</strong>
-              <p>Led technical strategy, execution, and infrastructure of product quality across all neurodiagnostic product lines. Managed a team of 8 across test automation, manual testing, and quality systems.</p>
-            </div>
+          <article class="role linked">
+            <a class="role-link" href="https://cadwell.com" target="_blank" rel="noopener">
+              <div class="date">Jul 2025 &mdash; May 2026</div>
+              <div><h3>Product Quality Test Lead</h3><strong>Cadwell Industries</strong>
+                <p>Led technical strategy, execution, and infrastructure of product quality across all neurodiagnostic product lines. Managed a team of 8 across test automation, manual testing, and quality systems.</p>
+              </div>
+            </a>
           </article>
-          <article class="role">
-            <div class="date">Mar 2022 &mdash; Jul 2025</div>
-            <div><h3>Software Development Engineer in Test II</h3><strong>Cadwell Industries</strong>
-              <p>Expanded technical leadership. Developed automated test suites integrated into CI/CD. Mentored junior engineers. Drove quality communication across the organization.</p>
-            </div>
+          <article class="role linked">
+            <a class="role-link" href="https://cadwell.com" target="_blank" rel="noopener">
+              <div class="date">Mar 2022 &mdash; Jul 2025</div>
+              <div><h3>Software Development Engineer in Test II</h3><strong>Cadwell Industries</strong>
+                <p>Expanded technical leadership. Developed automated test suites integrated into CI/CD. Mentored junior engineers. Drove quality communication across the organization.</p>
+              </div>
+            </a>
           </article>
-          <article class="role">
-            <div class="date">Jun 2016 &mdash; Mar 2022</div>
-            <div><h3>Software Development Engineer in Test I</h3><strong>Cadwell Industries</strong>
-              <p>Started as a summer intern building a C# application that automated test plan and test report generation &mdash; led to a full-time offer. Core testing and QA for neurodiagnostic software used worldwide. Built test plans, maintained automation framework. Two Cadwell Core Values Awards.</p>
-            </div>
+          <article class="role linked">
+            <a class="role-link" href="https://cadwell.com" target="_blank" rel="noopener">
+              <div class="date">Jun 2016 &mdash; Mar 2022</div>
+              <div><h3>Software Development Engineer in Test I</h3><strong>Cadwell Industries</strong>
+                <p>Started as a summer intern building a C# application that automated test plan and test report generation &mdash; led to a full-time offer. Core testing and QA for neurodiagnostic software used worldwide. Built test plans, maintained automation framework. Two Cadwell Core Values Awards.</p>
+              </div>
+            </a>
           </article>
 
           <div class="timeline-label">Civic &amp; Volunteer</div>
-          <article class="role civic">
-            <div class="date">Apr 2026 &mdash; Present</div>
-            <div><h3>Treasurer</h3><strong>Tri-Cities Adult Hockey Club</strong>
-              <p>Books, budgeting, and financial operations for the club.</p>
-            </div>
+          <article class="role civic linked">
+            <a class="role-link" href="https://tcahc.com" target="_blank" rel="noopener">
+              <div class="date">Apr 2026 &mdash; Present</div>
+              <div><h3>Treasurer</h3><strong>Tri-Cities Adult Hockey Club</strong>
+                <p>Books, budgeting, and financial operations for the club.</p>
+              </div>
+            </a>
           </article>
-          <article class="role civic">
-            <div class="date">Dec 2023 &mdash; Present</div>
-            <div><h3>Treasurer</h3><strong>Franklin County Republican Central Committee</strong>
-              <p>PDC compliance, C-3/C-4 filings, and financial operations for the county party.</p>
-            </div>
+          <article class="role civic linked">
+            <a class="role-link" href="https://franklinwagop.com" target="_blank" rel="noopener">
+              <div class="date">Dec 2023 &mdash; Present</div>
+              <div><h3>Treasurer</h3><strong>Franklin County Republican Central Committee</strong>
+                <p>PDC compliance, C-3/C-4 filings, and financial operations for the county party.</p>
+              </div>
+            </a>
           </article>
 
           <div class="timeline-label">Education</div>
-          <article class="role edu">
-            <div class="date">2014 &mdash; 2017</div>
-            <div><h3>B.S. Computer Science</h3><strong>Eastern Washington University</strong>
-              <p>GPA 3.53 &middot; Cum Laude &middot; Presidential Scholarship.</p>
-            </div>
+          <article class="role edu linked">
+            <a class="role-link" href="https://ewu.edu" target="_blank" rel="noopener">
+              <div class="date">2014 &mdash; 2017</div>
+              <div><h3>B.S. Computer Science</h3><strong>Eastern Washington University</strong>
+                <p>GPA 3.53 &middot; Cum Laude &middot; Presidential Scholarship.</p>
+              </div>
+            </a>
           </article>
-          <article class="role edu">
-            <div class="date">2012 &mdash; 2014</div>
-            <div><h3>Running Start / General Studies</h3><strong>Columbia Basin College</strong>
-              <p>GPA 3.80 &middot; Phi Theta Kappa.</p>
-            </div>
+          <article class="role edu linked">
+            <a class="role-link" href="https://columbiabasin.edu" target="_blank" rel="noopener">
+              <div class="date">2012 &mdash; 2014</div>
+              <div><h3>Running Start / General Studies</h3><strong>Columbia Basin College</strong>
+                <p>GPA 3.80 &middot; Phi Theta Kappa.</p>
+              </div>
+            </a>
           </article>
         </div>
         <p class="tech-line fade-in">C# &middot; Visual Studio &middot; Azure DevOps &middot; Ranorex &middot; Git &middot; SQLite &middot; Python &middot; PowerShell &middot; Proxmox &middot; Claude &middot; AI Agent Systems &middot; Agile/Scrum &middot; DaVinci Resolve</p>
