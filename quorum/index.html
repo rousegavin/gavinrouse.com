@@ -7,28 +7,39 @@
 <title>Quorum — Parliamentary OS (MVP)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1419;
-    --bg-elev: #161d24;
-    --bg-card: #1a232c;
-    --bg-hover: #233040;
-    --border: #2a3744;
-    --border-strong: #3d4f60;
-    --text: #e8eef3;
-    --text-dim: #8a9ba8;
-    --text-faint: #5a6b78;
-    --accent: #d4a13c;
-    --accent-dim: #8a6824;
-    --action: #4a9eda;
-    --action-dim: #1e4d75;
-    --success: #6fb86f;
-    --danger: #e07171;
-    --warning: #d4a13c;
-    --display: 'Newsreader', Georgia, serif;
-    --sans: 'Inter Tight', system-ui, sans-serif;
-    --mono: 'JetBrains Mono', 'Consolas', monospace;
+    --bg: #ffffff;
+    --bg-elev: #f1eee8;
+    --bg-card: #f8f7f4;
+    --bg-hover: #e9e5dd;
+    --surface: var(--bg-card);
+    --border: #e3e1db;
+    --border-strong: #cdc9c0;
+    --text: #0d1424;
+    --text-dim: #5f6270;
+    --text-faint: #9aa0ad;
+    --accent: #1c3fd6;
+    --accent-2: #2c53f0;
+    --accent-dim: #e9edfb;
+    --action: #2c53f0;
+    --action-dim: #1c3fd6;
+    --gold: #c9a84c;
+    --gold-2: #d8b656;
+    --success: #17803f;
+    --success-tint: #e6f4ec;
+    --danger: #c62f2f;
+    --danger-tint: #fbe9e9;
+    --warning: #856012;
+    --shadow: 0 22px 55px rgba(7,26,56,.10);
+    --shadow-sm: 0 6px 18px rgba(7,26,56,.08);
+    --radius: 16px;
+    --radius-sm: 8px;
+    --pill: 999px;
+    --display: 'Space Grotesk', system-ui, sans-serif;
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'Space Grotesk', system-ui, sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -68,7 +79,7 @@
   }
 
   .brand-mark {
-    color: var(--accent);
+    color: var(--gold);
   }
 
   .brand-sub {
@@ -83,7 +94,7 @@
   .profile-selector {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: 10px 12px;
     color: var(--text);
     font-family: var(--sans);
@@ -130,6 +141,7 @@
     font-family: var(--mono);
     color: var(--text);
     font-weight: 500;
+    font-variant-numeric: tabular-nums;
   }
 
   .stat-row .l {
@@ -143,7 +155,7 @@
     padding: 4px 10px;
     background: var(--bg-card);
     border: 1px solid var(--accent-dim);
-    border-radius: 3px;
+    border-radius: var(--pill);
     font-family: var(--mono);
     font-size: 10px;
     color: var(--accent);
@@ -198,7 +210,9 @@
     color: var(--text-dim);
     padding: 6px 12px;
     border: 1px solid var(--border);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .02em;
   }
 
   .agenda-strip {
@@ -218,14 +232,14 @@
     padding: 5px 10px;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 3px;
+    border-radius: var(--pill);
     font-size: 11px;
     color: var(--text-dim);
     font-family: var(--mono);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     cursor: pointer;
-    transition: all 0.12s;
+    transition: all 0.2s ease;
   }
 
   .agenda-chip:hover {
@@ -235,7 +249,7 @@
 
   .agenda-chip.done {
     color: var(--success);
-    border-color: rgba(111,184,111,0.3);
+    border-color: var(--success);
   }
 
   .agenda-chip.done::before {
@@ -261,7 +275,8 @@
   .context-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
     padding: 18px 22px;
     margin-bottom: 20px;
   }
@@ -273,6 +288,17 @@
     text-transform: uppercase;
     letter-spacing: 0.12em;
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .context-label::before {
+    content: '';
+    width: 14px;
+    height: 2px;
+    background: var(--gold);
+    display: inline-block;
   }
 
   .context-text {
@@ -303,6 +329,15 @@
     gap: 8px;
   }
 
+  .section-title::before {
+    content: '';
+    width: 14px;
+    height: 2px;
+    background: var(--gold);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
   .section-title::after {
     content: '';
     flex: 1;
@@ -319,7 +354,7 @@
   .action-btn {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
     padding: 12px 14px;
     color: var(--text);
     font-family: var(--sans);
@@ -327,28 +362,32 @@
     font-weight: 500;
     text-align: left;
     cursor: pointer;
-    transition: all 0.12s ease;
+    transition: all 0.25s ease;
     display: flex;
     flex-direction: column;
     gap: 3px;
   }
 
   .action-btn:hover {
-    background: var(--bg-hover);
-    border-color: var(--border-strong);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
   }
 
   .action-btn:active {
-    transform: translateY(1px);
+    transform: translateY(0);
   }
 
   .action-btn.primary {
     background: var(--action-dim);
     border-color: var(--action);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(28,63,214,.22);
   }
 
   .action-btn.primary:hover {
     background: var(--action);
+    color: #fff;
   }
 
   .action-btn.danger:hover {
@@ -419,7 +458,7 @@
     letter-spacing: 0.1em;
     cursor: pointer;
     border-bottom: 2px solid transparent;
-    transition: all 0.12s;
+    transition: all 0.2s ease;
   }
 
   .panel-tab.active {
@@ -463,6 +502,7 @@
     color: var(--text-faint);
     font-size: 10px;
     font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
   }
 
   .event-type {
@@ -495,7 +535,7 @@
     justify-content: space-between;
     padding: 7px 10px;
     background: var(--bg-card);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     font-size: 12px;
     margin-bottom: 3px;
   }
@@ -534,7 +574,7 @@
   .ai-prompt {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: 10px;
     font-family: var(--sans);
     font-size: 12px;
@@ -567,7 +607,7 @@
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.75);
+    background: rgba(13,20,36,0.45);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -578,7 +618,8 @@
   .modal {
     background: var(--bg-elev);
     border: 1px solid var(--border-strong);
-    border-radius: 6px;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
     padding: 24px;
     min-width: 480px;
     max-width: 640px;
@@ -617,7 +658,7 @@
     width: 100%;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: 9px 11px;
     color: var(--text);
     font-family: var(--sans);
@@ -643,29 +684,33 @@
 
   .btn {
     padding: 9px 16px;
-    background: var(--bg-card);
+    background: #fff;
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--pill);
     color: var(--text);
     font-family: var(--sans);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.12s;
+    transition: all 0.25s ease;
   }
 
   .btn:hover {
-    background: var(--bg-hover);
-    border-color: var(--border-strong);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
   }
 
   .btn.primary {
     background: var(--action-dim);
     border-color: var(--action);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(28,63,214,.22);
   }
 
   .btn.primary:hover {
     background: var(--action);
+    color: #fff;
   }
 
   .btn.danger {
@@ -674,6 +719,7 @@
 
   .btn.danger:hover {
     border-color: var(--danger);
+    color: var(--danger);
   }
 
   .vote-grid {
@@ -686,18 +732,18 @@
   .vote-btn {
     padding: 14px;
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--pill);
     background: var(--bg-card);
     font-family: var(--sans);
     font-weight: 500;
     color: var(--text);
     cursor: pointer;
-    transition: all 0.12s;
+    transition: all 0.25s ease;
     text-align: center;
     font-size: 13px;
   }
 
-  .vote-btn:hover { background: var(--bg-hover); }
+  .vote-btn:hover { background: var(--bg-hover); transform: translateY(-2px); }
   .vote-btn.yes:hover { border-color: var(--success); color: var(--success); }
   .vote-btn.no:hover { border-color: var(--danger); color: var(--danger); }
 
@@ -708,11 +754,12 @@
     transform: translateX(-50%);
     background: var(--bg-elev);
     border: 1px solid var(--accent);
-    border-radius: 4px;
+    border-radius: var(--pill);
     padding: 10px 18px;
     color: var(--text);
     font-size: 13px;
     z-index: 200;
+    box-shadow: var(--shadow-sm);
     animation: slideUp 0.2s ease;
   }
 
@@ -723,7 +770,7 @@
 
   .quorum-indicator {
     padding: 8px 12px;
-    border-radius: 3px;
+    border-radius: var(--pill);
     font-family: var(--mono);
     font-size: 11px;
     text-transform: uppercase;
@@ -732,13 +779,13 @@
   }
 
   .quorum-indicator.met {
-    background: rgba(111,184,111,0.1);
+    background: var(--success-tint);
     border: 1px solid var(--success);
     color: var(--success);
   }
 
   .quorum-indicator.not-met {
-    background: rgba(224,113,113,0.1);
+    background: var(--danger-tint);
     border: 1px solid var(--danger);
     color: var(--danger);
   }
@@ -763,8 +810,8 @@
   .footer-btn {
     background: transparent;
     border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 7px 11px;
+    border-radius: var(--pill);
+    padding: 7px 14px;
     color: var(--text-dim);
     font-family: var(--mono);
     font-size: 10px;
@@ -772,7 +819,7 @@
     letter-spacing: 0.08em;
     cursor: pointer;
     text-align: left;
-    transition: all 0.12s;
+    transition: all 0.2s ease;
   }
 
   .footer-btn:hover {
@@ -787,7 +834,7 @@
 
   .footer-btn.accent:hover {
     border-color: var(--accent);
-    background: rgba(212,161,60,0.08);
+    background: var(--accent-dim);
   }
 
   .footer-btn.danger:hover {
@@ -802,7 +849,7 @@
     padding: 8px 10px;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
     margin-bottom: 5px;
   }
 
@@ -841,27 +888,44 @@
     color: var(--danger);
   }
 
+  .agenda-editor-item .reorder-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+    padding: 4px 6px;
+    flex-shrink: 0;
+  }
+
+  .agenda-editor-item .reorder-btn:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
   .quick-entry-fab {
     position: absolute;
     bottom: 20px;
     right: 380px;
-    background: var(--warning);
-    color: var(--bg);
+    background: var(--gold);
+    color: #071a38;
     border: none;
-    border-radius: 50px;
+    border-radius: var(--pill);
     padding: 12px 18px;
     font-family: var(--sans);
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    box-shadow: var(--shadow-sm);
     z-index: 50;
-    transition: all 0.12s;
+    transition: all 0.2s ease;
   }
 
   .quick-entry-fab:hover {
-    background: #e0b34a;
-    transform: translateY(-1px);
+    background: var(--gold-2);
+    transform: translateY(-2px);
   }
 
   .org-name {
@@ -879,7 +943,7 @@
     width: 100%;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: 9px 11px;
     color: var(--text);
     font-family: var(--sans);
@@ -898,7 +962,7 @@
     right: 0;
     background: var(--bg-elev);
     border: 1px solid var(--border-strong);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     max-height: 240px;
     overflow-y: auto;
     z-index: 10;
@@ -944,7 +1008,7 @@
     display: flex;
     gap: 6px;
     opacity: 0;
-    transition: opacity 0.12s;
+    transition: opacity 0.2s ease;
     justify-content: flex-end;
   }
 
@@ -955,7 +1019,7 @@
   .event-undo {
     background: transparent;
     border: 1px solid var(--border);
-    border-radius: 3px;
+    border-radius: var(--pill);
     padding: 2px 6px;
     color: var(--text-dim);
     font-family: var(--mono);
@@ -973,6 +1037,7 @@
     color: var(--text-faint);
     font-size: 9px;
     font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
     margin-top: 1px;
   }
 
@@ -1031,7 +1096,7 @@
   .end-screen .stat-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
     padding: 12px;
   }
 
@@ -1049,10 +1114,248 @@
     letter-spacing: 0.08em;
     margin-top: 4px;
   }
+
+  /* Mobile-only chrome — hidden by default, shown inside the mobile media query below */
+  .mobile-topbar, .mobile-bottomnav, .sidebar-backdrop {
+    display: none;
+  }
+
+  /* ============ Mobile Layout (<=860px) ============ */
+  @media (max-width: 860px) {
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      position: relative;
+    }
+
+    .mobile-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+      background: var(--bg-elev);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .mobile-topbar .brand {
+      font-family: var(--display);
+      font-size: 20px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .mobile-topbar .brand-org {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--text-dim);
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mobile-topbar .m-state {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      flex-shrink: 0;
+    }
+
+    .mobile-menu-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1;
+      padding: 8px 12px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar becomes an off-canvas drawer */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: min(85vw, 320px);
+      z-index: 300;
+      transform: translateX(-100%);
+      transition: transform 0.2s ease;
+      padding-top: calc(20px + env(safe-area-inset-top));
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      box-shadow: 8px 0 40px rgba(7,26,56,0.18);
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-backdrop.open {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,20,36,0.35);
+      z-index: 250;
+    }
+
+    /* Main stage and right panel share the viewport; only one shown at a time,
+       switched via a data-view attribute on .app driven by the bottom nav. */
+    .main, .right-panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      border-left: none;
+    }
+
+    .app[data-view="stage"] .main { display: flex; }
+    .app[data-view="log"] .right-panel,
+    .app[data-view="members"] .right-panel,
+    .app[data-view="ai"] .right-panel { display: flex; }
+
+    .right-panel .panel-tabs {
+      display: none;
+    }
+
+    .header-bar { padding: 12px 16px; }
+    .header-title { font-size: 18px; }
+    .agenda-strip { padding: 10px 16px; }
+    .stage-area { padding: 16px; padding-bottom: 90px; }
+    .panel-content { padding: 14px 16px; padding-bottom: 90px; }
+
+    .action-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .action-btn {
+      min-height: 44px;
+      justify-content: center;
+    }
+
+    /* Bottom nav replaces the desktop panel tabs and drives .app[data-view] */
+    .mobile-bottomnav {
+      display: flex;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      background: var(--bg-elev);
+      padding-bottom: env(safe-area-inset-bottom);
+      z-index: 60;
+    }
+
+    .mobile-nav-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 4px 8px;
+      min-height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      border-top: 2px solid transparent;
+    }
+
+    .mobile-nav-btn.active {
+      color: var(--accent);
+      border-top-color: var(--accent);
+    }
+
+    .mobile-nav-btn .icon {
+      font-size: 15px;
+    }
+
+    /* Modals — desktop forces min-width:480px, wider than most phones */
+    .modal-backdrop {
+      padding: 12px;
+      z-index: 400;
+    }
+
+    .modal {
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      padding: 18px;
+      max-height: 85vh;
+    }
+
+    .modal-actions {
+      flex-wrap: wrap;
+    }
+
+    .vote-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .vote-btn {
+      padding: 12px 6px;
+      font-size: 12px;
+    }
+
+    .agenda-editor-item .reorder-btn {
+      min-width: 34px;
+      min-height: 34px;
+      font-size: 13px;
+    }
+
+    /* Desktop hardcodes right:380px (positioned relative to the right panel column,
+       which no longer exists here) — reposition above the bottom nav */
+    .quick-entry-fab {
+      right: 16px;
+      bottom: calc(72px + env(safe-area-inset-bottom));
+      padding: 12px 16px;
+    }
+
+    .end-screen .summary-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 400px) {
+    .vote-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .state-pill::before { animation: none; }
+    .btn:hover, .action-btn:hover, .vote-btn:hover, .quick-entry-fab:hover {
+      transform: none;
+    }
+  }
 </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app" data-view="stage">
+    <div class="mobile-topbar">
+      <div class="brand">Q<span class="brand-mark">.</span><span class="brand-org" id="m-org-name">—</span></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="m-state" id="m-state-pill">PRE-MEETING</span>
+        <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+      </div>
+    </div>
+    <div class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
     <aside class="sidebar">
       <div>
         <div class="brand">Q<span class="brand-mark">.</span></div>
@@ -1127,6 +1430,8 @@
           <div id="stack-list"></div>
         </div>
       </div>
+
+      <button class="quick-entry-fab" onclick="openQuickEntry()">⚡ Quick Entry / Override</button>
     </main>
 
     <aside class="right-panel">
@@ -1153,6 +1458,21 @@
         </div>
       </div>
     </aside>
+
+    <nav class="mobile-bottomnav">
+      <button class="mobile-nav-btn active" data-view="stage" onclick="setMobileView('stage')">
+        <span class="icon">▤</span><span>Meeting</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="log" onclick="setMobileView('log')">
+        <span class="icon">☰</span><span>Log</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="members" onclick="setMobileView('members')">
+        <span class="icon">◉</span><span>Members</span>
+      </button>
+      <button class="mobile-nav-btn" data-view="ai" onclick="setMobileView('ai')">
+        <span class="icon">✦</span><span>Ask</span>
+      </button>
+    </nav>
   </div>
 
 <script>
@@ -1169,12 +1489,6 @@ const PROFILES = {
     memberLabel: 'PCO',
     memberLabelPlural: 'PCOs',
     precinctLabel: 'Precinct',
-    quorum: {
-      basis: 'good-standing',
-      multiplier: 0.4,
-      goodStandingCount: 21,
-      description: '40% of PCOs in good standing'
-    },
     parliamentaryAuthority: "Robert's Rules of Order: Simplified and Applied",
     agenda: [
       { id: 'call-to-order', label: 'Call to Order' },
@@ -1192,27 +1506,49 @@ const PROFILES = {
       { id: 'adjourn', label: 'Adjourn' }
     ],
     members: [
-      { id: 'm1', name: 'Marcus Conner', role: 'Chair', precinct: '—' },
-      { id: 'm2', name: 'Nikki Morgan', role: 'Vice Chair', precinct: '—' },
-      { id: 'm3', name: 'Michelle Andres', role: 'State Committeewoman', precinct: '49' },
-      { id: 'm4', name: 'Chris Hollingsworth', role: 'State Committeeman', precinct: '—' },
-      { id: 'm5', name: 'Gavin Rouse', role: 'Treasurer', precinct: '—' },
-      { id: 'm6', name: 'Don Parks', role: 'PCO', precinct: '29' },
-      { id: 'm7', name: 'Leo Perales', role: 'PCO', precinct: '34' },
-      { id: 'm8', name: 'John Rosenau', role: 'PCO', precinct: '22' },
-      { id: 'm9', name: 'Kari Hale', role: 'PCO', precinct: '73' },
-      { id: 'm10', name: 'Duane Van Beek', role: 'PCO', precinct: '36' },
-      { id: 'm11', name: 'Patrick Guettner', role: 'PCO', precinct: '53' },
-      { id: 'm12', name: 'Adam Kester', role: 'PCO', precinct: '90' },
-      { id: 'm13', name: 'Luke Mehlenbacher', role: 'PCO', precinct: '54' },
-      { id: 'm14', name: 'Matt Boehnke', role: 'PCO', precinct: '—' },
-      { id: 'm15', name: 'Stephen Bauman', role: 'PCO', precinct: '64' },
-      { id: 'm16', name: 'Charles Grimm', role: 'PCO', precinct: '—' },
-      { id: 'm17', name: 'David Trujillo', role: 'PCO', precinct: '—' },
-      { id: 'm18', name: 'Steve Christensen', role: 'PCO', precinct: '—' },
-      { id: 'm19', name: 'Mark Kraft', role: 'PCO', precinct: '—' },
-      { id: 'm20', name: 'Loly Martinez', role: 'PCO', precinct: '—' },
-      { id: 'm21', name: 'Jeff Burckhart', role: 'PCO', precinct: '—' }
+      { id: 'm1', name: 'Erica Taranto', role: 'PCO', precinct: '003' },
+      { id: 'm2', name: 'Norma Cooke', role: 'PCO', precinct: '006' },
+      { id: 'm3', name: 'Lynda Salgado', role: 'PCO', precinct: '016' },
+      { id: 'm4', name: 'Kim Marie Spencer', role: 'PCO', precinct: '019' },
+      { id: 'm5', name: 'John A. Rosenau', role: 'PCO', precinct: '022' },
+      { id: 'm6', name: 'Steve Christensen', role: 'PCO', precinct: '023' },
+      { id: 'm7', name: 'Trenton Peters', role: 'PCO', precinct: '027' },
+      { id: 'm8', name: 'Don Parks', role: 'PCO', precinct: '029' },
+      { id: 'm9', name: 'Charles Grimm', role: 'PCO', precinct: '031' },
+      { id: 'm10', name: 'Leo A. Perales', role: 'PCO', precinct: '034' },
+      { id: 'm11', name: 'Kati Sant', role: 'PCO', precinct: '035' },
+      { id: 'm12', name: 'Duane Van Beek', role: 'PCO', precinct: '036' },
+      { id: 'm13', name: 'Jeff A Burckhard', role: 'PCO', precinct: '037' },
+      { id: 'm14', name: 'Steve Norberg', role: 'PCO', precinct: '039' },
+      { id: 'm15', name: 'Caleb Atkins', role: 'PCO', precinct: '040' },
+      { id: 'm16', name: 'Thereasa Trujillo', role: 'PCO', precinct: '041' },
+      { id: 'm17', name: 'Mike Gonzalez', role: 'PCO', precinct: '047' },
+      { id: 'm18', name: 'Steve Simmons', role: 'PCO', precinct: '048' },
+      { id: 'm19', name: 'Michelle M. Andres', role: 'State Committeewoman', precinct: '049' },
+      { id: 'm20', name: 'Patrick Guettner', role: 'PCO', precinct: '053' },
+      { id: 'm21', name: 'Luke Mehlenbacher', role: 'PCO', precinct: '054' },
+      { id: 'm22', name: 'David Milne', role: 'PCO', precinct: '057' },
+      { id: 'm23', name: 'Nikki Morgan', role: 'Vice Chair', precinct: '059' },
+      { id: 'm24', name: 'Chris Hollingsworth', role: 'State Committeeman', precinct: '061' },
+      { id: 'm25', name: 'Richard (Rick) Weiss', role: 'PCO', precinct: '062' },
+      { id: 'm26', name: 'Dorothy Frenzel', role: 'PCO', precinct: '066' },
+      { id: 'm27', name: 'Mark Kraft', role: 'PCO', precinct: '071' },
+      { id: 'm28', name: 'Allinda Dockstader', role: 'PCO', precinct: '072' },
+      { id: 'm29', name: 'Kari Hale', role: 'PCO', precinct: '073' },
+      { id: 'm30', name: 'Gordon Thomasson', role: 'PCO', precinct: '074' },
+      { id: 'm31', name: 'Clint Didier', role: 'PCO', precinct: '076' },
+      { id: 'm32', name: 'James Gimenez', role: 'PCO', precinct: '078' },
+      { id: 'm33', name: 'Monty Huber', role: 'PCO', precinct: '080' },
+      { id: 'm34', name: 'Kevin Heinen', role: 'PCO', precinct: '083' },
+      { id: 'm35', name: 'Teri Chase', role: 'PCO', precinct: '084' },
+      { id: 'm36', name: 'Adam D. Kester', role: 'PCO', precinct: '090' },
+      { id: 'm37', name: 'Helen M. Tobin', role: 'PCO', precinct: '093' },
+      { id: 'm38', name: 'Todd Harris', role: 'PCO', precinct: '098' },
+      { id: 'm39', name: 'Lawanda Hatch', role: 'PCO', precinct: '100' },
+      { id: 'm40', name: 'Rocky Mullen', role: 'PCO', precinct: '101' },
+      { id: 'm41', name: 'Trevor Dennis Crosby', role: 'PCO', precinct: '107' },
+      { id: 'm42', name: 'Paul Kamberg', role: 'PCO', precinct: '122' },
+      { id: 'm43', name: 'Joe Cotta', role: 'PCO', precinct: '123' }
     ]
   },
   'fcrcc-exec': {
@@ -1227,12 +1563,6 @@ const PROFILES = {
     memberLabel: 'Board Member',
     memberLabelPlural: 'Board Members',
     precinctLabel: 'Role',
-    quorum: {
-      basis: 'present',
-      multiplier: 0.5,
-      goodStandingCount: 10,
-      description: '50% of Executive Committee present'
-    },
     parliamentaryAuthority: "Robert's Rules of Order: Simplified and Applied",
     agenda: [
       { id: 'call-to-order', label: 'Call to Order' },
@@ -1249,11 +1579,11 @@ const PROFILES = {
       { id: 'e3', name: 'Michelle Andres', role: 'State Committeewoman', precinct: 'Committeewoman' },
       { id: 'e4', name: 'Chris Hollingsworth', role: 'State Committeeman', precinct: 'Committeeman' },
       { id: 'e5', name: 'Gavin Rouse', role: 'Treasurer', precinct: 'Treasurer' },
-      { id: 'e6', name: 'Asst. Treasurer', role: 'Asst. Treasurer', precinct: 'Asst. Treasurer' },
-      { id: 'e7', name: 'Exec. Secretary', role: 'Exec. Secretary', precinct: 'Exec. Secretary' },
-      { id: 'e8', name: 'Recording Secretary', role: 'Recording Sec.', precinct: 'Recording Sec.' },
-      { id: 'e9', name: 'Financial Advisor', role: 'Financial Advisor', precinct: 'Financial Advisor' },
-      { id: 'e10', name: 'Webmaster', role: 'Webmaster', precinct: 'Webmaster' }
+      { id: 'e6', name: 'Vacant', role: 'Asst. Treasurer', precinct: 'Asst. Treasurer' },
+      { id: 'e7', name: 'Vacant', role: 'Exec. Secretary', precinct: 'Exec. Secretary' },
+      { id: 'e8', name: 'Vacant', role: 'Recording Sec.', precinct: 'Recording Sec.' },
+      { id: 'e9', name: 'Vacant', role: 'Financial Advisor', precinct: 'Financial Advisor' },
+      { id: 'e10', name: 'Vacant', role: 'Webmaster', precinct: 'Webmaster' }
     ]
   },
   'tcahc-board': {
@@ -1268,12 +1598,6 @@ const PROFILES = {
     memberLabel: 'Board Member',
     memberLabelPlural: 'Board Members',
     precinctLabel: 'Role',
-    quorum: {
-      basis: 'present',
-      multiplier: 0.5,
-      goodStandingCount: 7,
-      description: '50% of Board present (sample)'
-    },
     parliamentaryAuthority: "Robert's Rules of Order",
     agenda: [
       { id: 'call-to-order', label: 'Call to Order' },
@@ -1286,13 +1610,11 @@ const PROFILES = {
       { id: 'adjourn', label: 'Adjourn' }
     ],
     members: [
-      { id: 't1', name: 'President', role: 'President', precinct: 'President' },
-      { id: 't2', name: 'Vice President', role: 'VP', precinct: 'VP' },
-      { id: 't3', name: 'Gavin Rouse', role: 'Treasurer', precinct: 'Treasurer' },
-      { id: 't4', name: 'Secretary', role: 'Secretary', precinct: 'Secretary' },
-      { id: 't5', name: 'Director — Mens', role: 'Director', precinct: 'Director' },
-      { id: 't6', name: 'Director — Womens', role: 'Director', precinct: 'Director' },
-      { id: 't7', name: 'Director — At Large', role: 'Director', precinct: 'Director' }
+      { id: 't1', name: 'Josh Jacobs', role: 'President', precinct: 'President' },
+      { id: 't2', name: 'Andrew Hamilton', role: 'Vice President', precinct: 'VP' },
+      { id: 't3', name: 'Robyn Sanders', role: 'Secretary', precinct: 'Secretary' },
+      { id: 't4', name: 'Gavin Rouse', role: 'Treasurer', precinct: 'Treasurer' },
+      { id: 't5', name: 'Brian Kirschman', role: 'Member at Large', precinct: 'Member at Large' }
     ]
   }
 };
@@ -1301,7 +1623,7 @@ const AGENDA_STATES = {
   'call-to-order': {
     title: 'Call to Order',
     sub: 'Begin the meeting',
-    context: 'Click <span class="actor">Call Meeting to Order</span> to begin.',
+    context: 'Ready to begin. Start the meeting when the members are present.',
     actions: [
       { id: 'call-to-order', label: 'Call Meeting to Order', hint: 'Mark the start time', primary: true, ref: 'RONR §3' },
       { id: 'next-agenda', label: 'Skip to Next Agenda Item', hint: 'Skip without recording', ref: '' }
@@ -1613,6 +1935,7 @@ function render() {
   const profile = getProfile();
 
   document.getElementById('org-name').textContent = profile.organization.name;
+  document.getElementById('m-org-name').textContent = profile.organization.name;
   document.getElementById('org-full').textContent = profile.organization.fullName;
   document.getElementById('meeting-type').textContent = profile.meetingType;
   if (!state.startedAt) {
@@ -1623,6 +1946,7 @@ function render() {
 
   if (state.recessed) {
     document.getElementById('state-pill').textContent = 'IN RECESS';
+    document.getElementById('m-state-pill').textContent = 'IN RECESS';
     document.getElementById('header-title').textContent = 'Meeting In Recess';
     document.getElementById('header-sub').textContent = state.recessedAt ? `Recessed ${new Date(state.recessedAt).toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'})}` : '';
     renderRecessScreen();
@@ -1637,6 +1961,7 @@ function render() {
 
   if (state.meetingEnded) {
     document.getElementById('state-pill').textContent = 'ADJOURNED';
+    document.getElementById('m-state-pill').textContent = 'ADJOURNED';
     document.getElementById('header-title').textContent = 'Meeting Adjourned';
     document.getElementById('header-sub').textContent = state.endedAt ? `Ended ${new Date(state.endedAt).toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'})}` : '';
     renderEndScreen();
@@ -1653,6 +1978,7 @@ function render() {
   const agendaItem = getCurrentAgendaItem();
   const stateLabel = state.currentMotionState ? state.currentMotionState : (agendaItem ? agendaItem.id : 'adjourned');
   document.getElementById('state-pill').textContent = stateLabel.replace(/-/g,' ').toUpperCase();
+  document.getElementById('m-state-pill').textContent = stateLabel.replace(/-/g,' ').toUpperCase();
 
   document.getElementById('header-title').textContent = currState.title;
   document.getElementById('header-sub').textContent = currState.sub;
@@ -1791,7 +2117,7 @@ function renderAgendaStrip() {
   const strip = document.getElementById('agenda-strip');
   if (!state.startedAt) {
     strip.innerHTML = `<button class="agenda-chip" onclick="openAgendaEditor()">Edit Agenda</button>
-      <button class="agenda-chip" style="background:var(--action-dim);border-color:var(--action);color:var(--text)" onclick="startMeeting()">▶ Start Meeting</button>`;
+      <button class="agenda-chip" style="background:var(--action-dim);border-color:var(--action);color:#fff" onclick="startMeeting()">▶ Start Meeting</button>`;
     return;
   }
   strip.innerHTML = state.agenda.map((item, i) => {
@@ -2021,8 +2347,7 @@ function jumpToAgenda(index) {
 function startMeeting() {
   state.startedAt = Date.now();
   logEvent('call to order', `Meeting called to order. (${getProfile().meetingType})`);
-  state.currentAgendaIndex = 0;
-  render();
+  nextAgenda();
 }
 
 function handleAction(actionId) {
@@ -2617,15 +2942,15 @@ function promptVote(method) {
     <div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-end">
       <div>
         <label style="font-size:11px;display:block;margin-bottom:3px;color:var(--text-dim)">AYE</label>
-        <input id="tally-aye" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px" placeholder="—">
+        <input id="tally-aye" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px" placeholder="—">
       </div>
       <div>
         <label style="font-size:11px;display:block;margin-bottom:3px;color:var(--text-dim)">NAY</label>
-        <input id="tally-nay" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px" placeholder="—">
+        <input id="tally-nay" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px" placeholder="—">
       </div>
       <div>
         <label style="font-size:11px;display:block;margin-bottom:3px;color:var(--text-dim)">ABSTAIN</label>
-        <input id="tally-abs" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px" placeholder="—">
+        <input id="tally-abs" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px" placeholder="—">
       </div>
     </div>
     <div class="vote-grid">
@@ -2715,12 +3040,14 @@ function openAgendaEditor(midMeeting=false) {
     <div class="agenda-editor-item" draggable="true" data-index="${i}">
       <span class="grip" title="Drag to reorder">⋮⋮</span>
       <input type="text" value="${item.label}" data-index="${i}">
-      <button class="remove" onclick="removeAgendaItem(${i})" title="Remove">×</button>
+      <button class="reorder-btn" onclick="moveAgendaItemRow(this,-1)" title="Move up">▲</button>
+      <button class="reorder-btn" onclick="moveAgendaItemRow(this,1)" title="Move down">▼</button>
+      <button class="remove" onclick="removeAgendaItemRow(this)" title="Remove">×</button>
     </div>
   `).join('');
   showModal(`
     <div class="modal-title">${midMeeting ? 'Amend Agenda' : 'Configure Agenda'}</div>
-    <div class="modal-sub">${midMeeting ? 'Modify the agenda mid-meeting. Changes will be logged.' : 'Drag items by the ⋮⋮ handle to reorder. Add or remove items as needed.'}</div>
+    <div class="modal-sub">${midMeeting ? 'Modify the agenda mid-meeting. Changes will be logged.' : 'Drag by the ⋮⋮ handle, or use ▲▼ to reorder. Add or remove items as needed.'}</div>
     <div id="agenda-edit-list">${itemsHTML}</div>
     <button class="btn" onclick="addAgendaItem()" style="margin-top:8px">+ Add Item</button>
     <div class="modal-actions">
@@ -2771,16 +3098,26 @@ function addAgendaItem() {
   const div = document.createElement('div');
   div.className = 'agenda-editor-item';
   div.draggable = true;
-  div.innerHTML = `<span class="grip" title="Drag to reorder">⋮⋮</span><input type="text" placeholder="New item label"><button class="remove" onclick="this.parentElement.remove()" title="Remove">×</button>`;
+  div.innerHTML = `<span class="grip" title="Drag to reorder">⋮⋮</span><input type="text" placeholder="New item label"><button class="reorder-btn" onclick="moveAgendaItemRow(this,-1)" title="Move up">▲</button><button class="reorder-btn" onclick="moveAgendaItemRow(this,1)" title="Move down">▼</button><button class="remove" onclick="removeAgendaItemRow(this)" title="Remove">×</button>`;
   list.appendChild(div);
   div.querySelector('input').focus();
   attachAgendaDragDrop();
 }
 
-function removeAgendaItem(index) {
-  const list = document.getElementById('agenda-edit-list');
-  const items = list.querySelectorAll('.agenda-editor-item');
-  if (items[index]) items[index].remove();
+// Reorders/removes by walking from the clicked button to its own row, rather than a
+// baked-in index — indices captured at render time go stale as soon as any row moves
+// (via drag or the ▲▼ buttons), which could otherwise delete or shift the wrong item.
+function moveAgendaItemRow(btn, dir) {
+  const item = btn.closest('.agenda-editor-item');
+  if (dir < 0 && item.previousElementSibling) {
+    item.parentElement.insertBefore(item, item.previousElementSibling);
+  } else if (dir > 0 && item.nextElementSibling) {
+    item.parentElement.insertBefore(item.nextElementSibling, item);
+  }
+}
+
+function removeAgendaItemRow(btn) {
+  btn.closest('.agenda-editor-item').remove();
 }
 
 function saveAgenda(midMeeting) {
@@ -2806,6 +3143,7 @@ function saveAgenda(midMeeting) {
 }
 
 function openQuickEntry() {
+  toggleSidebar(false);
   showModal(`
     <div class="modal-title">⚡ Quick Entry / Override</div>
     <div class="modal-sub">Use when the structured flow can't capture what just happened. This logs a manual entry into the event stream.</div>
@@ -2844,7 +3182,7 @@ function submitQuickEntry() {
 }
 
 function askAI() {
-  document.querySelector('[data-panel="ai"]').click();
+  setMobileView('ai');
   document.getElementById('ai-input').focus();
 }
 
@@ -2987,6 +3325,7 @@ function exportMinutes() {
 
 // Exports the raw timestamped event log (all events in order).
 function exportEventLog() {
+  toggleSidebar(false);
   if (state.events.length === 0) { alert('No events to export.'); return; }
   const profile = getProfile();
   const lines = [
@@ -3011,6 +3350,7 @@ function exportEventLog() {
 }
 
 function exportJSON() {
+  toggleSidebar(false);
   download(JSON.stringify(state, null, 2), `quorum-state-${new Date().toISOString().slice(0,10)}.json`, 'application/json');
   toast('JSON exported');
 }
@@ -3026,6 +3366,7 @@ function download(content, filename, type) {
 }
 
 function resetMeeting() {
+  toggleSidebar(false);
   if (!confirm('Reset to a fresh meeting? Current data will be cleared.')) return;
   state = createFreshState(state.profileId);
   saveState();
@@ -3033,6 +3374,7 @@ function resetMeeting() {
 }
 
 function switchProfile(profileId) {
+  toggleSidebar(false);
   if (state.events.length > 0) {
     if (!confirm('Switching profile will reset the current meeting. Export first if needed. Continue?')) {
       document.getElementById('profile-selector').value = state.profileId;
@@ -3054,15 +3396,38 @@ Object.values(PROFILES).forEach(p => {
 sel.value = state.profileId;
 sel.onchange = (e) => switchProfile(e.target.value);
 
+// Shared by the desktop panel tabs and the mobile bottom nav — both switch which
+// right-panel section (Log / Members / Parliamentarian) is visible.
+function activatePanel(name) {
+  document.querySelectorAll('.panel-tab').forEach(t => t.classList.toggle('active', t.dataset.panel === name));
+  document.querySelectorAll('.panel-section').forEach(s => s.classList.toggle('active', s.id === 'panel-' + name));
+  state.activePanel = name;
+}
+
 document.querySelectorAll('.panel-tab').forEach(tab => {
-  tab.onclick = () => {
-    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
-    state.activePanel = tab.dataset.panel;
-  };
+  tab.onclick = () => activatePanel(tab.dataset.panel);
 });
+
+// Mobile: switches which top-level view (.main "stage", or one of the right-panel
+// sections) is shown full-screen, driven by the bottom nav. No-op visually on desktop.
+function setMobileView(view) {
+  const app = document.querySelector('.app');
+  app.dataset.view = view;
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  if (view !== 'stage') activatePanel(view);
+  toggleSidebar(false);
+}
+
+// Mobile: opens/closes the off-canvas sidebar drawer. Harmless no-op on desktop
+// since the drawer CSS only applies inside the mobile media query.
+function toggleSidebar(open) {
+  const sidebar = document.querySelector('.sidebar');
+  const backdrop = document.querySelector('.sidebar-backdrop');
+  if (!sidebar || !backdrop) return;
+  const shouldOpen = open !== undefined ? open : !sidebar.classList.contains('open');
+  sidebar.classList.toggle('open', shouldOpen);
+  backdrop.classList.toggle('open', shouldOpen);
+}
 
 setInterval(() => {
   const now = new Date();
