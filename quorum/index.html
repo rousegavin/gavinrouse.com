@@ -1393,6 +1393,7 @@
 
       <div class="footer-actions">
         <button class="footer-btn accent" onclick="openQuickEntry()">⚡ Quick Entry / Override</button>
+        <button class="footer-btn" onclick="changePresiding()">Presiding Officer</button>
         <button class="footer-btn" onclick="askAI()">Ask Parliamentarian</button>
         <button class="footer-btn" onclick="exportEventLog()">Export Event Log</button>
         <button class="footer-btn" onclick="exportJSON()">Export JSON</button>
@@ -1489,7 +1490,25 @@ const PROFILES = {
     memberLabel: 'PCO',
     memberLabelPlural: 'PCOs',
     precinctLabel: 'Precinct',
+    // Declarative quorum config. Not read by the MVP (quorum is set manually) —
+    // kept so the formula lives in profile config, not code. goodStandingCount
+    // predates the current roster; recompute before wiring it up.
+    quorum: {
+      basis: 'good-standing',
+      multiplier: 0.4,
+      goodStandingCount: 21,
+      description: '40% of PCOs in good standing'
+    },
     parliamentaryAuthority: "Robert's Rules of Order: Simplified and Applied",
+    // Minutes settings. Per-profile because RONR is silent or the assembly's custom
+    // governs; defaults are MINUTES_DEFAULTS / GOVERNANCE_DEFAULTS. Only the settings a
+    // shipped minutes rule actually reads are listed.
+    governance: { meetsAtLeastQuarterly: true },
+    minutes: { recordLostSecondaryMotions: false, respectfullySubmitted: true },
+    // §13.3.3 "a majority of a quorum", read verbatim (ADR-011): a majority of votes cast AND more
+    // ayes than half the quorum number. The Chair "will vote only in order to break a tie".
+    voting: { chairVote: 'tie-only', quorumFloor: true },
+    actionRefs: { 'quorum-achieved': 'Bylaws §13.3.4' },
     agenda: [
       { id: 'call-to-order', label: 'Call to Order' },
       { id: 'prayer-pledge', label: 'Prayer & Pledge' },
@@ -1563,7 +1582,23 @@ const PROFILES = {
     memberLabel: 'Board Member',
     memberLabelPlural: 'Board Members',
     precinctLabel: 'Role',
+    // Declarative quorum config. Not read by the MVP (quorum is set manually) —
+    // kept so the formula lives in profile config, not code. goodStandingCount
+    // predates the current roster; recompute before wiring it up.
+    quorum: {
+      basis: 'present',
+      multiplier: 0.5,
+      goodStandingCount: 10,
+      description: '50% of Executive Committee present'
+    },
     parliamentaryAuthority: "Robert's Rules of Order: Simplified and Applied",
+    // Minutes settings. Per-profile because RONR is silent or the assembly's custom
+    // governs; defaults are MINUTES_DEFAULTS / GOVERNANCE_DEFAULTS. Only the settings a
+    // shipped minutes rule actually reads are listed.
+    governance: { meetsAtLeastQuarterly: true },
+    minutes: { recordLostSecondaryMotions: false, respectfullySubmitted: true },
+    voting: { chairVote: 'member', quorumFloor: true },
+    actionRefs: { 'quorum-achieved': 'Bylaws §11.4' },   // §11.4: "equal and full voting rights"; "majority vote of a quorum" (ADR-011)
     agenda: [
       { id: 'call-to-order', label: 'Call to Order' },
       { id: 'attendance', label: 'Attendance' },
@@ -1579,11 +1614,11 @@ const PROFILES = {
       { id: 'e3', name: 'Michelle Andres', role: 'State Committeewoman', precinct: 'Committeewoman' },
       { id: 'e4', name: 'Chris Hollingsworth', role: 'State Committeeman', precinct: 'Committeeman' },
       { id: 'e5', name: 'Gavin Rouse', role: 'Treasurer', precinct: 'Treasurer' },
-      { id: 'e6', name: 'Vacant', role: 'Asst. Treasurer', precinct: 'Asst. Treasurer' },
-      { id: 'e7', name: 'Vacant', role: 'Exec. Secretary', precinct: 'Exec. Secretary' },
-      { id: 'e8', name: 'Vacant', role: 'Recording Sec.', precinct: 'Recording Sec.' },
-      { id: 'e9', name: 'Vacant', role: 'Financial Advisor', precinct: 'Financial Advisor' },
-      { id: 'e10', name: 'Vacant', role: 'Webmaster', precinct: 'Webmaster' }
+      { id: 'e6', name: 'Vacant (Asst. Treasurer)', role: 'Asst. Treasurer', precinct: 'Asst. Treasurer' },
+      { id: 'e7', name: 'Vacant (Exec. Secretary)', role: 'Exec. Secretary', precinct: 'Exec. Secretary' },
+      { id: 'e8', name: 'Vacant (Recording Sec.)', role: 'Recording Sec.', precinct: 'Recording Sec.' },
+      { id: 'e9', name: 'Vacant (Financial Advisor)', role: 'Financial Advisor', precinct: 'Financial Advisor' },
+      { id: 'e10', name: 'Vacant (Webmaster)', role: 'Webmaster', precinct: 'Webmaster' }
     ]
   },
   'tcahc-board': {
@@ -1598,7 +1633,22 @@ const PROFILES = {
     memberLabel: 'Board Member',
     memberLabelPlural: 'Board Members',
     precinctLabel: 'Role',
+    // Declarative quorum config. Not read by the MVP (quorum is set manually) —
+    // kept so the formula lives in profile config, not code. goodStandingCount
+    // predates the current roster; recompute before wiring it up.
+    quorum: {
+      basis: 'present',
+      multiplier: 0.5,
+      goodStandingCount: 7,
+      description: '50% of Board present (sample)'
+    },
     parliamentaryAuthority: "Robert's Rules of Order",
+    // Minutes settings. Per-profile because RONR is silent or the assembly's custom
+    // governs; defaults are MINUTES_DEFAULTS / GOVERNANCE_DEFAULTS. Only the settings a
+    // shipped minutes rule actually reads are listed.
+    governance: { meetsAtLeastQuarterly: true },
+    minutes: { recordLostSecondaryMotions: false, respectfullySubmitted: true },
+    voting: { chairVote: 'member' },   // TCAHC: every board member votes, the President included
     agenda: [
       { id: 'call-to-order', label: 'Call to Order' },
       { id: 'attendance', label: 'Attendance' },
@@ -1644,8 +1694,9 @@ const AGENDA_STATES = {
     sub: 'Confirm quorum from attendance sheet',
     context: 'Check your attendance sheet. Confirm quorum status in the <span class="actor">Members panel</span> or use the buttons below.',
     actions: [
-      { id: 'quorum-achieved', label: 'Quorum Achieved', hint: 'Mark quorum met and continue', primary: true, ref: 'Bylaws §13.3.4' },
-      { id: 'quorum-not-achieved', label: 'No Quorum', hint: 'Proceed without quorum or adjourn', danger: true }
+      { id: 'quorum-achieved', label: 'Quorum Achieved', hint: 'Mark quorum met and continue', primary: true },
+      { id: 'quorum-not-achieved', label: 'No Quorum', hint: 'Proceed without quorum or adjourn', danger: true },
+      { id: 'set-quorum-number', label: 'Set Quorum Number', hint: 'How many members make a quorum' }
     ]
   },
   'attendance': {
@@ -1654,7 +1705,8 @@ const AGENDA_STATES = {
     context: 'Check attendance and confirm quorum status in the <span class="actor">Members panel</span> or use the buttons below.',
     actions: [
       { id: 'quorum-achieved', label: 'Quorum Achieved', hint: 'Mark quorum met and continue', primary: true },
-      { id: 'quorum-not-achieved', label: 'No Quorum', hint: 'Proceed or adjourn', danger: true }
+      { id: 'quorum-not-achieved', label: 'No Quorum', hint: 'Proceed or adjourn', danger: true },
+      { id: 'set-quorum-number', label: 'Set Quorum Number', hint: 'How many members make a quorum' }
     ]
   },
   'guest-intros': {
@@ -1701,6 +1753,8 @@ const AGENDA_STATES = {
     context: 'The Treasurer reports balances and activity.',
     actions: [
       { id: 'record-treasurer-report', label: 'Record Report', hint: 'Capture financial summary', primary: true },
+      // RONR §48: a report needs no adoption unless audited, but many assemblies move to approve.
+      { id: 'motion-approve-treasurer', label: 'Motion to Approve Report', hint: 'Where the assembly approves reports by custom', ref: 'RONR §51' },
       { id: 'next-agenda', label: 'Continue', hint: 'Move on' }
     ]
   },
@@ -1791,6 +1845,7 @@ const MOTION_STATES = {
     actions: [
       { id: 'record-second', label: 'Record Second', hint: 'Another member seconds', primary: true, ref: 'RONR §4:9' },
       { id: 'motion-dies', label: 'Motion Dies (No Second)', hint: 'Return to agenda item', danger: true },
+      { id: 'withdraw', label: 'Withdraw Motion', hint: 'The maker withdraws it', ref: 'RONR §33' },
       { id: 'chair-rules-out-of-order', label: 'Rule Out of Order', hint: 'Chair finds motion improper', danger: true, ref: 'RONR §39' }
     ]
   },
@@ -1800,12 +1855,15 @@ const MOTION_STATES = {
     context: 'Motion: <span class="actor" id="ctx-motion-text">…</span> — seconded. Members may now debate.',
     actions: [
       { id: 'record-speaker', label: 'Record Speaker', hint: 'Member is recognized' },
-      { id: 'friendly-amendment', label: 'Friendly Amendment', hint: 'Mover accepts; no separate vote', ref: 'RONR §12' },
+      { id: 'friendly-amendment', label: 'Friendly Amendment', hint: 'Adopted if no one objects', ref: 'RONR §12' },
       { id: 'move-amend', label: 'Move to Amend', hint: 'Formal amendment requiring vote', ref: 'RONR §12' },
       { id: 'move-previous-question', label: 'Previous Question', hint: 'End debate (needs 2/3)', ref: 'RONR §16' },
       { id: 'move-table', label: 'Move to Table', hint: 'Set aside temporarily', ref: 'RONR §17' },
       { id: 'move-postpone', label: 'Move to Postpone', hint: 'Delay to definite time', ref: 'RONR §14' },
       { id: 'point-of-order', label: 'Point of Order', hint: 'Procedural challenge', ref: 'RONR §23' },
+      { id: 'appeal', label: 'Appeal the Ruling', hint: "Assembly decides whether the chair's ruling stands", ref: 'RONR §24' },
+      { id: 'withdraw', label: 'Withdraw Motion', hint: 'Maker withdraws; no objection', ref: 'RONR §33' },
+      { id: 'unanimous-consent', label: 'Unanimous Consent', hint: 'Adopted if no one objects', ref: 'RONR §4:58' },
       { id: 'proceed-to-vote', label: 'Proceed to Vote', hint: 'Debate concluded', primary: true }
     ]
   },
@@ -1824,8 +1882,13 @@ const MOTION_STATES = {
     context: 'Voting on: <span class="actor" id="ctx-motion-text">…</span>. Select vote method and record outcome.',
     actions: [
       { id: 'voice-vote', label: 'Voice Vote', hint: 'Aye / Nay', primary: true, ref: 'RONR §4:36' },
+      { id: 'show-of-hands', label: 'Show of Hands', hint: 'Counted hands', ref: 'RONR §4:38' },
+      { id: 'division', label: 'Division', hint: 'A member doubts the voice vote: rising count', ref: 'RONR §29' },
       { id: 'roll-call', label: 'Roll Call', hint: 'Each member individually', ref: 'RONR §45' },
-      { id: 'ballot-vote', label: 'Ballot Vote', hint: 'Secret written ballot', ref: 'RONR §45' }
+      { id: 'ballot-vote', label: 'Ballot Vote', hint: 'Secret written ballot', ref: 'RONR §45' },
+      { id: 'unanimous-consent', label: 'Unanimous Consent', hint: 'Adopted if no one objects', ref: 'RONR §4:58' },
+      { id: 'point-of-order', label: 'Point of Order', hint: 'Procedural challenge during voting', ref: 'RONR §23' },
+      { id: 'back-to-debate', label: 'Return to Debate', hint: 'Vote not yet taken; debate resumes' }
     ]
   }
 };
@@ -1850,9 +1913,33 @@ function quorumAbsent() {
   return !!(state.startedAt && !state.meetingEnded && !state.recessed && state.quorumAchieved === false);
 }
 
+// RONR §40: with no quorum, only the privileged actions are in order. Checked in handleAction and
+// again in every submit path, because a dialog opened before quorum dropped is still on screen (BUG-08).
+const QUORUM_EXEMPT_ACTIONS = new Set(['quorum-achieved', 'quorum-not-achieved', 'set-quorum-number', 'next-agenda']);
+function blockedByQuorum(actionId) {
+  if (!quorumAbsent()) return false;
+  if (actionId && (QUORUM_EXEMPT_ACTIONS.has(actionId) || QUORUM_LOST_STATE.actions.some(a => a.id === actionId))) return false;
+  if (typeof closeModal === 'function') closeModal();
+  toast('No quorum — only recess, adjourn, fix the time to adjourn, or obtain a quorum are in order (RONR §40).');
+  render();
+  return true;
+}
+
 const STORAGE_KEY = 'quorum-mvp-state-v2';
 
-let state = loadState() || createFreshState('fcrcc-pco');
+// Quarantine for a saved state this build cannot open. Additive — STORAGE_KEY itself is
+// unchanged. A meeting record is never discarded silently: the raw text is copied here
+// and the user is offered a download before the app starts a fresh meeting.
+const RECOVERY_KEY = STORAGE_KEY + '-unreadable';
+
+// Profile used when there is no saved state to take one from.
+const DEFAULT_PROFILE_ID = 'fcrcc-pco';
+
+// Set by loadState() when a saved state had to be quarantined. Read once at boot, after
+// the first render, to tell the user what happened and hand them their data.
+let unreadableState = null;
+
+let state = loadState() || createFreshState(DEFAULT_PROFILE_ID);
 
 function createFreshState(profileId) {
   return {
@@ -1860,13 +1947,21 @@ function createFreshState(profileId) {
     agenda: PROFILES[profileId].agenda.map(a => ({ ...a, complete: false })),
     currentAgendaIndex: 0,
     currentMotionState: null,
+    // Unified frame stack. Each frame is { motionId, state } and records the question
+    // that was pending when a subordinate question (amendment, table, postpone, point
+    // of order) was taken up. motionId is null for frames that carry no motion.
     stateStack: [],
     startedAt: null,
     endedAt: null,
     meetingEnded: false,
     events: [],
+    // Authoritative registry of every motion put before the assembly — main motions,
+    // amendments, and subsidiary motions alike. There is exactly ONE object per motion
+    // and it lives here; everything else references it by id.
     motions: [],
-    currentMotion: null,
+    currentMotion: null,   // live pointer into state.motions (re-linked after reload)
+    currentMotionId: null, // authoritative id; survives the JSON round-trip
+    tabledMotions: [],     // ids of motions laid on the table, retrievable per RONR §34
     quorumAchieved: null,
     quorumEstablishedOnce: false,
     recessed: false,
@@ -1875,7 +1970,7 @@ function createFreshState(profileId) {
     adjournTime: null,
     activePanel: 'log',
     corrections: [],
-    pendingAmendmentContext: null  // stores parent motion context during amendment sub-process
+    pendingAmendmentContext: null  // DEPRECATED — superseded by stateStack frames; migration clears it
   };
 }
 
@@ -1887,17 +1982,295 @@ function saveState() {
   }
 }
 
+// Returns a usable state, or null to boot a fresh meeting. A saved state that cannot be
+// opened is quarantined rather than left in place: the old code returned null on a parse
+// failure and loaded a structurally wrong state blindly, and in both cases the bad bytes
+// stayed under STORAGE_KEY, so the failure repeated on every reload.
 function loadState() {
+  let raw = null;
   try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    return s ? JSON.parse(s) : null;
+    raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    const migrated = migrateState(parsed);
+    if (migrated) return migrated;
+    // Parseable but unusable. The only shape migrateState refuses outright is an unknown
+    // or missing profileId — which happens for real whenever a profile id is renamed or
+    // removed between builds.
+    quarantineState(raw, parsed && parsed.profileId
+      ? `it was recorded under a meeting profile this version of Quorum no longer has ("${parsed.profileId}")`
+      : 'it does not name a meeting profile');
   } catch(e) {
-    return null;
+    if (raw) quarantineState(raw, `it is damaged and could not be read (${e.message})`);
   }
+  return null;
 }
 
+// Moves an unusable saved state out of the way so the app boots clean, keeping a copy.
+// Clearing STORAGE_KEY is what breaks the reload loop — without it the same bad state is
+// re-read on the next load and the app dies again.
+function quarantineState(raw, reason) {
+  try {
+    localStorage.setItem(RECOVERY_KEY, raw);
+    localStorage.removeItem(STORAGE_KEY);
+  } catch(e) {
+    console.warn('Quarantine failed', e);
+  }
+  unreadableState = { raw, reason };
+}
+
+// Brings a persisted state up to the current shape. Storage key is unchanged, so a
+// session written by an older build (string stateStack, pendingAmendmentContext, no
+// tabledMotions) must load without throwing rather than bricking the app on reload.
+// Also re-links state.currentMotion to the canonical object in state.motions: JSON
+// serialization splits a shared reference into two objects, which is the same
+// orphaning bug the single-slot amendment context used to cause at runtime.
+function migrateState(s) {
+  if (!s || typeof s !== 'object') return null;
+
+  // A state naming a profile this build does not have cannot be rendered at all: every
+  // renderer dereferences getProfile(). Refuse it here so the caller can quarantine it
+  // and start fresh. Adopting it onto some other profile is NOT the fallback — that would
+  // print one organization's meeting record under another organization's name.
+  if (!s.profileId || !PROFILES[s.profileId]) return null;
+
+  // Arrays the running code push()es into without guarding.
+  if (!Array.isArray(s.events)) s.events = [];
+  if (!Array.isArray(s.motions)) s.motions = [];
+  if (!Array.isArray(s.corrections)) s.corrections = [];
+  if (!Array.isArray(s.agenda)) s.agenda = [];
+  if (!Array.isArray(s.tabledMotions)) s.tabledMotions = [];
+  if (!Array.isArray(s.stateStack)) s.stateStack = [];
+
+  const legacyFrames = s.stateStack.filter(f => typeof f === 'string');
+  s.stateStack = s.stateStack.filter(f => f && typeof f === 'object');
+
+  // Old shape: the amendment sub-process kept its parent in its own single slot, and
+  // that parent was a shallow COPY of the motion in state.motions. Fold it into the
+  // stack, preferring the canonical object so the copy is discarded, not adopted.
+  // Folded first, because the old build set this up before any point-of-order push.
+  const ctx = s.pendingAmendmentContext;
+  let foldedParentId = null;
+  if (ctx && ctx.parentMotion) {
+    let parent = s.motions.find(m => m.id === ctx.parentMotion.id);
+    if (!parent) { parent = ctx.parentMotion; s.motions.push(parent); }
+    foldedParentId = parent.id;
+    s.stateStack.push({ motionId: parent.id, state: ctx.parentMotionState || 'debate' });
+  }
+  s.pendingAmendmentContext = null;
+
+  // Old shape: stateStack held bare state-name strings, pushed only by point of order
+  // and therefore only while a point of order was pending. Re-attach the then-pending
+  // motion so the frame can actually be restored; a string frame in any other state
+  // could not have been produced by that build and is discarded rather than guessed at.
+  if (s.currentMotionState === 'point-of-order') {
+    const pendingId = s.currentMotionId || (s.currentMotion && s.currentMotion.id) || null;
+    legacyFrames.forEach(name => s.stateStack.push({ motionId: pendingId, state: name }));
+  }
+
+  // Every motion needs an id and a kind for the stack to address it.
+  s.motions.forEach((m, i) => {
+    if (m && !m.id) m.id = 'mo' + (i + 1);
+    if (m && !m.kind) m.kind = 'main';
+  });
+
+  // Events written before agendaItemId existed carry only stateBefore, which names the
+  // agenda item only when no motion was pending. Take it where it does; where it holds a
+  // motion state the item was never recorded and cannot be recovered, so those entries
+  // group under "Business — agenda item not recorded". Carrying the previous item
+  // forward was tried and rejected: an agenda jump with no intervening entry files the
+  // motion under the wrong item, and a misattributed proceeding is worse than an
+  // unattributed one.
+  const agendaIds = {};
+  s.agenda.forEach(a => { if (a && a.id) agendaIds[a.id] = true; });
+  s.events.forEach(ev => {
+    if (ev && ev.agendaItemId === undefined) {
+      ev.agendaItemId = agendaIds[ev.stateBefore] ? ev.stateBefore : null;
+    }
+  });
+
+  // sourceEventIds links each recorded fact about a motion back to the log entry that
+  // records it. A motion saved before this field existed has none, and the minutes then
+  // print its facts unconditionally — the pre-existing behaviour, which is the only safe
+  // default for a record whose supporting entries were never linked.
+  s.motions.forEach(m => { if (m && !m.sourceEventIds) m.sourceEventIds = {}; });
+
+  // Re-link the live pointer. Prefer the id; fall back to matching text for states
+  // written before currentMotionId existed.
+  if (s.currentMotion) {
+    const id = s.currentMotionId || s.currentMotion.id;
+    let canonical = id ? s.motions.find(m => m.id === id) : null;
+    if (!canonical) canonical = s.motions.find(m => m.text === s.currentMotion.text);
+    if (!canonical) { canonical = s.currentMotion; if (!canonical.id) canonical.id = 'mo' + (s.motions.length + 1); s.motions.push(canonical); }
+    s.currentMotion = canonical;
+    s.currentMotionId = canonical.id;
+    // The old build did not link an amendment to its parent — without it, adopting a
+    // migrated amendment would not apply its text to the motion it amends.
+    if (canonical.kind === 'amendment' && !canonical.parentMotionId && foldedParentId) {
+      canonical.parentMotionId = foldedParentId;
+      if (!canonical.degree) canonical.degree = 1;
+    }
+  } else {
+    s.currentMotion = null;
+    s.currentMotionId = null;
+  }
+
+  // Frames must point at canonical motions too.
+  s.stateStack = s.stateStack.filter(f => !f.motionId || s.motions.some(m => m.id === f.motionId));
+  s.tabledMotions = s.tabledMotions.filter(id => s.motions.some(m => m.id === id));
+
+  return s;
+}
+
+// Never returns undefined. Every renderer dereferences this, so an unknown id here means
+// a blank screen with no recovery path. The load path already refuses unknown ids
+// (migrateState), so this is defence in depth against an id going bad mid-session.
 function getProfile() {
-  return PROFILES[state.profileId];
+  return PROFILES[state.profileId] || PROFILES[DEFAULT_PROFILE_ID] || Object.values(PROFILES)[0];
+}
+
+// Defaults for the per-profile minutes settings. A profile that omits a key gets the
+// default; nothing about the minutes is hardcoded to one tenant (locked decision #2).
+const MINUTES_DEFAULTS = {
+  recordLostSecondaryMotions: false,   // RONR §48 — a lost secondary motion is not recorded
+  respectfullySubmitted: true          // custom; both tenants file paper
+};
+const GOVERNANCE_DEFAULTS = {
+  meetsAtLeastQuarterly: true          // RONR §21 — changes the unfinished-business wording
+};
+
+function minutesSetting(key) {
+  const cfg = getProfile().minutes || {};
+  return cfg[key] === undefined ? MINUTES_DEFAULTS[key] : cfg[key];
+}
+
+function governanceSetting(key) {
+  const cfg = getProfile().governance || {};
+  return cfg[key] === undefined ? GOVERNANCE_DEFAULTS[key] : cfg[key];
+}
+
+const VOTING_DEFAULTS = {
+  // RONR §4:56 — the chair may vote whenever the vote would change the result.
+  // 'tie-only': the chair votes only to break a tie (a profile's bylaws may say so).
+  // 'member':   the chair votes like any member (RONR §49:21 small boards; bylaws may say so).
+  chairVote: 'affects-result',
+  // RONR §44: 'cast' — a majority of votes cast; abstentions do not count.
+  // 'present' — a majority of members present; a member present who does not vote counts
+  // against (the abstain box holds "present, not voting").
+  basis: 'cast',
+  // Bylaws that say "a majority of a quorum" (read verbatim, ADR-011): the ayes must also exceed
+  // half the quorum number — two-thirds of it for a motion the bylaws require two-thirds for.
+  quorumFloor: false
+};
+
+// The number of members required for a quorum, from the latest 'quorum number' entry still in
+// the log (event-sourced, so undo removes it). null when never set.
+function quorumNumber() {
+  const ev = (state.events || []).slice().reverse().find(e => e.type === 'quorum number' && e.quorumNumber);
+  return ev ? ev.quorumNumber : null;
+}
+
+function setQuorumNumber() {
+  const cur = quorumNumber();
+  const raw = prompt('How many members are required for a quorum?', cur ? String(cur) : '');
+  if (raw === null) return;
+  const n = parseInt(raw, 10);
+  if (!raw.trim()) return;
+  if (isNaN(n) || n < 1) { alert('Enter a whole number.'); return; }
+  if (n === cur) return;
+  logEvent('quorum number', `Quorum requirement: ${n} members.`).quorumNumber = n;
+  render();
+}
+
+// Smallest aye count that clears the quorum floor, or 0 when no floor applies.
+function quorumFloorAyes(motion) {
+  const q = quorumNumber();
+  if (!votingSetting('quorumFloor') || !q || !motion || motion.kind === 'appeal') return 0;
+  return motion.requiresTwoThirds && motion.kind === 'main' ? Math.ceil(2 * q / 3) : Math.floor(q / 2) + 1;
+}
+
+function votingSetting(key) {
+  const cfg = getProfile().voting || {};
+  return cfg[key] === undefined ? VOTING_DEFAULTS[key] : cfg[key];
+}
+
+// RONR §44: a majority is more than half of the votes cast; two-thirds is at least twice
+// as many ayes as nays. Abstentions are not votes cast. Returns null with no usable tally.
+function outcomeFromTally(motion, t) {
+  if (!t || t.aye === null || t.nay === null) return null;
+  const aye = t.aye + (t.chair === 'aye' ? 1 : 0);
+  const nay = t.nay + (t.chair === 'nay' ? 1 : 0);
+  // Against whom the ayes are measured: nays only (votes cast) or everyone present.
+  const against = votingSetting('basis') === 'present' ? nay + (t.abstain || 0) : nay;
+  // An appeal asks "shall the decision of the chair be sustained?" — a tie sustains (RONR §24:3).
+  const passed = motion && motion.kind === 'appeal' ? aye >= nay
+    : motion && motion.requiresTwoThirds ? (aye > 0 && aye >= 2 * against) : aye > against;
+  return passed && aye >= quorumFloorAyes(motion) ? 'passed' : 'failed';
+}
+
+function thresholdText(motion) {
+  const present = votingSetting('basis') === 'present';
+  const floor = quorumFloorAyes(motion);
+  const bylawsTwoThirds = motion && motion.requiresTwoThirds && motion.kind === 'main';
+  return (motion && motion.requiresTwoThirds ? 'two-thirds' : 'a majority') +
+    (present ? ' of members present (present but not voting counts against)' : ' of votes cast') +
+    (floor ? `, and at least ${floor} ayes (${bylawsTwoThirds ? 'two-thirds' : 'a majority'} of the quorum of ${quorumNumber()})` : '') +
+    (votingSetting('quorumFloor') && !quorumNumber() && motion && motion.kind !== 'appeal'
+      ? ' — quorum number not set, so the minimum aye count is not checked' : '');
+}
+
+// Returns an error message when the chosen outcome or the chair's vote contradicts the
+// tally, or null when the vote may be recorded.
+function voteProblem(motion, outcome, t) {
+  const hasTally = t && t.aye !== null && t.nay !== null;
+  if (t && t.chair) {
+    if (!hasTally) return "Enter the Aye and Nay counts to record the chair's vote.";
+    if (votingSetting('chairVote') === 'tie-only' && t.aye !== t.nay) {
+      return 'The chair votes only to break a tie, and this vote is not tied.';
+    }
+    if (votingSetting('chairVote') !== 'member' &&
+        outcomeFromTally(motion, { aye: t.aye, nay: t.nay }) === outcomeFromTally(motion, t)) {
+      return "The chair's vote would not change the result, so the chair does not vote (RONR §4:56).";
+    }
+  }
+  if (outcome === 'unanimous') {
+    return t && t.nay ? `Not unanimous: the tally shows ${t.nay} opposed.` : null;
+  }
+  const computed = outcomeFromTally(motion, t);
+  if (computed && computed !== outcome) {
+    const need = thresholdText(motion);
+    const tieNote = t.aye === t.nay && !t.chair ? (motion && motion.kind === 'appeal' ? ' A tie sustains the chair.' : ' A tie fails.') : '';
+    return `The tally (Aye ${t.aye}, Nay ${t.nay}${t.chair ? ', chair ' + t.chair : ''}) means the motion ` +
+      `${computed.toUpperCase()}: it needs ${need}.${tieNote} Record "${computed === 'passed' ? 'Passed' : 'Failed'}".`;
+  }
+  return null;
+}
+
+// Event bodies are HTML: markup is stripped first, THEN entities are decoded, so a
+// decoded '<' can never be re-stripped as a tag. Motion text is stored raw and is never
+// passed through here — decoding it would corrupt a literal '&amp;' a member typed.
+// One text path for the minutes and the event log; two renderings of one motion in one
+// document read as two different motions.
+function plainText(html) {
+  return String(html === undefined || html === null ? '' : html)
+    .replace(/<[^>]+>/g, '')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#0?39;|&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')          // last, always — or &amp;quot; becomes "
+    .replace(/⚑/g, '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+
+// Every RONR cite the minutes print must respect the authority the assembly adopted.
+// FCRCC has adopted Robert's Rules of Order: Simplified and Applied, so a bare
+// "per RONR §48" cites a book that tenant never adopted and cannot check.
+function citeAuthority(section) {
+  const auth = (getProfile().parliamentaryAuthority || "Robert's Rules of Order").trim();
+  const isRonr = /^robert'?s rules of order( newly revised)?( \(?12th ed\.?\)?)?$/i.test(auth)
+    || /^ronr\b/i.test(auth);
+  return isRonr ? `RONR ${section}` : `RONR (12th ed.) ${section}`;
 }
 
 // Escapes user-supplied strings before injecting into innerHTML to prevent XSS.
@@ -1915,12 +2288,257 @@ function getCurrentAgendaItem() {
   return state.agenda[state.currentAgendaIndex];
 }
 
+/* ---------------------------------------------------------------------------
+   MOTION REGISTRY + FRAME STACK
+
+   One object per motion, held in state.motions. state.currentMotion is a live
+   pointer into that array and state.stateStack holds { motionId, state } frames
+   for every question set aside while a subordinate question is pending. Nothing
+   ever copies a motion, so an append to .text or a .voteOutcome always lands on
+   the object the minutes read.
+   ------------------------------------------------------------------------- */
+
+// RONR §12: one primary and one secondary amendment may be pending. A third degree
+// is out of order.
+const MAX_AMENDMENT_DEGREE = 2;
+
+function nextMotionId() {
+  return 'mo' + ((state.motions ? state.motions.length : 0) + 1);
+}
+
+function findMotion(id) {
+  if (!id || !state.motions) return null;
+  return state.motions.find(m => m.id === id) || null;
+}
+
+// Registers a new motion and returns the canonical object. Always go through here:
+// a motion that is not in state.motions cannot be addressed by a frame and will not
+// appear in the record.
+function registerMotion(fields) {
+  const motion = Object.assign({
+    id: nextMotionId(),
+    kind: 'main',
+    parentMotionId: null,
+    agendaItemId: getCurrentAgendaItem() ? getCurrentAgendaItem().id : null,
+    // ids of the log entries that record each fact about this motion: created, seconded,
+    // voted, disposed. The event stream is the source of truth (locked decision #3), so
+    // the minutes print a fact only while the entry that records it is still in the log.
+    sourceEventIds: {}
+  }, fields);
+  state.motions.push(motion);
+  return motion;
+}
+
+// Sets the immediately pending question. Keeps the id in sync so a reload can
+// re-link the pointer to the same object.
+function setCurrentMotion(motion) {
+  state.currentMotion = motion || null;
+  state.currentMotionId = motion ? motion.id : null;
+}
+
+// Pushes the immediately pending question onto the stack so a subordinate question
+// can be taken up. Call before setCurrentMotion/currentMotionState are reassigned.
+function pushFrame() {
+  if (!state.stateStack) state.stateStack = [];
+  state.stateStack.push({
+    motionId: state.currentMotion ? state.currentMotion.id : null,
+    state: state.currentMotionState || null
+  });
+}
+
+// Restores the question one level up. Returns true if a frame was available.
+function popFrame() {
+  if (!state.stateStack || state.stateStack.length === 0) {
+    setCurrentMotion(null);
+    state.currentMotionState = null;
+    return false;
+  }
+  const frame = state.stateStack.pop();
+  const motion = findMotion(frame.motionId);
+  setCurrentMotion(motion);
+  // A motion state with no motion behind it would wedge the stage on a placeholder
+  // (only reachable from a legacy or corrupted frame) — fall back to the agenda item.
+  state.currentMotionState = motion ? (frame.state || null) : null;
+  return true;
+}
+
+// Abandons the whole series of pending questions (quorum loss, agenda jump). Records
+// a disposition on each so the minutes can say what became of them.
+function clearFrames(disposition) {
+  const dropped = [];
+  if (state.currentMotion) dropped.push(state.currentMotion);
+  (state.stateStack || []).forEach(f => {
+    const m = findMotion(f.motionId);
+    if (m) dropped.push(m);
+  });
+  if (disposition) {
+    dropped.forEach(m => { if (!m.voteOutcome && !m.disposition) m.disposition = disposition; });
+  }
+  state.stateStack = [];
+  setCurrentMotion(null);
+  state.currentMotionState = null;
+  return dropped;
+}
+
+// Degree of an amendment: 1 for an amendment to a main motion, 2 for an amendment to
+// an amendment. 0 for anything that is not an amendment.
+function amendmentDegree(motion) {
+  if (!motion || motion.kind !== 'amendment') return 0;
+  return motion.degree || 1;
+}
+
+// Returns a shallow clone of a state definition with its action list filtered —
+// never mutates the shared MOTION_STATES / AGENDA_STATES constants.
+function withActions(def, actions) {
+  return Object.assign({}, def, { actions });
+}
+
+// Human label for whatever question is pending after a frame is popped, used in the
+// amendment-result log lines.
+function parentLabel() {
+  const m = state.currentMotion;
+  if (!m) return 'The pending question';
+  return m.kind === 'amendment' ? 'The primary amendment' : 'Main motion';
+}
+
+// Subsidiary motions that dispose of a parent question. Each is a motion in its own
+// right: its own text, its own vote, and its own line in the record. Adopting one
+// disposes of the parent per parentDisposition — it never adopts the parent.
+const SUBSIDIARY_MOTIONS = {
+  'table': {
+    verb: 'to lay on the table',
+    text: p => `that the motion "${p}" be laid on the table`,
+    parentDisposition: 'laid on the table',
+    ref: 'RONR §17'
+  },
+  'postpone': {
+    verb: 'to postpone to a definite time',
+    text: (p, when) => `that the motion "${p}" be postponed to ${when || 'a definite time'}`,
+    parentDisposition: 'postponed to a definite time',
+    ref: 'RONR §14'
+  },
+  'previous-question': {
+    verb: 'for the previous question',
+    text: p => `that the previous question be ordered on "${p}"`,
+    parentDisposition: null,   // adoption puts the parent to an immediate vote
+    requiresTwoThirds: true,
+    ref: 'RONR §16'
+  },
+  'take-from-table': {
+    verb: 'to take from the table',
+    text: p => `that the motion "${p}" be taken from the table`,
+    parentDisposition: null,   // adoption resumes the parent instead of disposing of it
+    ref: 'RONR §34'
+  }
+};
+
+// Creates the subsidiary motion, sets the parent aside on the stack, and takes the
+// new question up for a vote.
+function startSubsidiaryMotion(kind, parent) {
+  parent = parent || state.currentMotion;
+  if (!parent) { toast('No pending motion.'); return; }
+  const spec = SUBSIDIARY_MOTIONS[kind];
+  // RONR §14: the motion to postpone names the time. Empty = not stated in the room.
+  const when = kind === 'postpone'
+    ? (prompt('Postpone to when? (e.g. "the August 4, 2026 meeting")') || '').trim()
+    : '';
+  const motion = registerMotion({ kind, parentMotionId: parent.id, text: spec.text(parent.text, when) });
+  if (when) motion.postponeTo = when;
+  if (spec.requiresTwoThirds) motion.requiresTwoThirds = true;
+  pushFrame();
+  setCurrentMotion(motion);
+  state.currentMotionState = 'voting';
+  const createdEv = logEvent('motion', `Moved ${spec.verb}: "<em>${escapeHtml(motion.text)}</em>" (${spec.ref}).`);
+  motion.sourceEventIds.created = createdEv.id;
+  render();
+  promptSubsidiaryMakers(motion, spec, createdEv);
+}
+
+// Optional: who moved and seconded a subsidiary motion. The motion is already pending, so
+// skipping this never blocks the meeting; saving rewrites the entry that created it.
+function promptSubsidiaryMakers(motion, spec, createdEv) {
+  showModal(`
+    <div class="modal-title">Moved ${spec.verb}</div>
+    <div class="modal-sub">Who moved and seconded it? (optional)</div>
+    <div class="form-group"><label class="form-label">Moved by</label>${buildComboboxHTML('sub-mover-cb', 'Type name...')}</div>
+    <div class="form-group"><label class="form-label">Seconded by</label>${buildComboboxHTML('sub-seconder-cb', 'Type name...')}</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Skip</button>
+      <button class="btn primary" onclick="submitSubsidiaryMakers()">Save</button>
+    </div>
+  `);
+  attachCombobox('sub-mover-cb');
+  attachCombobox('sub-seconder-cb');
+  window.submitSubsidiaryMakers = () => {
+    const mover = getComboboxResult('sub-mover-cb');
+    const sec = getComboboxResult('sub-seconder-cb');
+    if (samePerson(mover, sec)) { alert('Mover and seconder must differ.'); return; }
+    if (mover) { motion.moverId = mover.id || null; motion.moverName = mover.name; }
+    if (sec) { motion.seconderId = sec.id || null; motion.seconderName = sec.name; motion.sourceEventIds.seconded = createdEv.id; }
+    if (mover || sec) {
+      createdEv.body = `${mover ? formatActor(mover) + ' moved' : 'Moved'} ${spec.verb}: "<em>${escapeHtml(motion.text)}</em>"` +
+        `${sec ? '. Seconded by ' + formatActor(sec) : ''} (${spec.ref}).`;
+    }
+    closeModal();
+    render();
+  };
+}
+
+// RONR §34 — bring a motion laid on the table back before the assembly.
+function promptTakeFromTable() {
+  const tabled = (state.tabledMotions || []).map(findMotion).filter(Boolean);
+  if (tabled.length === 0) { toast('No motions on the table.'); return; }
+  if (state.currentMotionState) { toast('Dispose of the pending question first.'); return; }
+  if (tabled.length === 1) { startSubsidiaryMotion('take-from-table', tabled[0]); return; }
+  showModal(`
+    <div class="modal-title">Take from the Table</div>
+    <div class="modal-sub">Select the motion to bring back before the assembly (RONR §34).</div>
+    <div class="form-group">
+      <label class="form-label">Motion on the table</label>
+      <select class="form-select" id="tabled-select">
+        ${tabled.map(m => `<option value="${m.id}">${escapeHtml(m.text)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="submitTakeFromTable()">Move to Take from the Table</button>
+    </div>
+  `);
+  window.submitTakeFromTable = () => {
+    const chosen = findMotion(document.getElementById('tabled-select').value) || tabled[0];
+    closeModal();
+    startSubsidiaryMotion('take-from-table', chosen);
+  };
+}
+
+// Tenant-specific citations (e.g. a bylaws section) live in profile.actionRefs and are overlaid on
+// the shared state table, which must stay tenant-neutral (locked decision #2, BUG-17).
+function withProfileRefs(def) {
+  const refs = getProfile().actionRefs;
+  if (!def || !refs) return def;
+  return withActions(def, def.actions.map(a => refs[a.id] ? Object.assign({}, a, { ref: refs[a.id] }) : a));
+}
+
 function getCurrentState() {
   if (quorumAbsent()) return QUORUM_LOST_STATE;
-  if (state.currentMotionState) return MOTION_STATES[state.currentMotionState];
+  if (state.currentMotionState) {
+    let def = MOTION_STATES[state.currentMotionState];
+    if (!def) return MOTION_STATES['debate'];
+    if (!state.appealable) def = withActions(def, def.actions.filter(a => a.id !== 'appeal'));
+    // No way back to debate once the previous question closed it, or for undebatable motions.
+    const cm = state.currentMotion;
+    if (cm && (cm.debateClosed || ['table', 'previous-question', 'take-from-table'].includes(cm.kind))) {
+      def = withActions(def, def.actions.filter(a => a.id !== 'back-to-debate'));
+    }
+    // Third-degree amendment is out of order — do not offer it (RONR §12).
+    if (amendmentDegree(state.currentMotion) >= MAX_AMENDMENT_DEGREE) {
+      return withActions(def, def.actions.filter(a => a.id !== 'move-amend'));
+    }
+    return def;
+  }
   const item = getCurrentAgendaItem();
   if (!item) return AGENDA_STATES['adjourn'];
-  return AGENDA_STATES[item.id] || {
+  const def = withProfileRefs(AGENDA_STATES[item.id]) || {
     title: item.label,
     sub: 'Custom agenda item',
     context: 'Custom item: ' + item.label,
@@ -1929,6 +2547,13 @@ function getCurrentState() {
       { id: 'next-agenda', label: 'Continue', hint: 'Move on', primary: true }
     ]
   };
+  // A motion laid on the table can be taken up again wherever motions are in order.
+  if ((state.tabledMotions || []).length > 0 && def.actions.some(a => a.id === 'make-motion')) {
+    return withActions(def, def.actions.concat([
+      { id: 'take-from-table', label: 'Take from the Table', hint: 'Resume a motion laid on the table', ref: 'RONR §34' }
+    ]));
+  }
+  return def;
 }
 
 function render() {
@@ -2091,7 +2716,9 @@ function resumeMeeting() {
   state.recessed = false;
   state.quorumAchieved = true;
   state.quorumEstablishedOnce = true;
-  logEvent('meeting resumed', 'Meeting resumed. Quorum confirmed present. Continuing agenda.');
+  // The §40 quorum record in the minutes is built only from 'quorum' events.
+  logEvent('quorum', 'Quorum re-established — substantive business may resume.').quorumAchieved = true;
+  logEvent('meeting resumed', 'Meeting resumed. Continuing agenda.');
   // Restore action-grid DOM so render() can populate it
   const section = document.querySelector('.actions-section');
   section.innerHTML = `
@@ -2102,12 +2729,20 @@ function resumeMeeting() {
   render();
 }
 
+// On adjournment only the item being taken up is complete. Items never reached — including a
+// scheduled "Adjourn" item when the meeting ends early — stay incomplete, so the record does not
+// claim they were taken up (BUG-14).
+function markAdjournedAgenda() {
+  const cur = state.agenda[state.currentAgendaIndex];
+  if (cur) cur.complete = true;
+}
+
 function adjournNoQuorum() {
   if (!confirm('Adjourn the meeting without quorum?')) return;
   state.meetingEnded = true;
   state.endedAt = Date.now();
   state.recessed = false;
-  state.agenda.forEach(a => a.complete = true);
+  markAdjournedAgenda();
   logEvent('adjournment', 'Meeting adjourned (no quorum).');
   render();
   toast('Meeting adjourned');
@@ -2164,17 +2799,21 @@ function renderStack() {
     return;
   }
   stackArea.style.display = 'block';
-  document.getElementById('stack-list').innerHTML = state.stateStack.map(s =>
-    `<div class="stack-item">Returns to <span class="state-name">${s.replace(/-/g,' ')}</span></div>`
-  ).join('');
+  document.getElementById('stack-list').innerHTML = state.stateStack.slice().reverse().map(f => {
+    const label = (f.state || 'agenda item').replace(/-/g,' ');
+    const m = findMotion(f.motionId);
+    const which = m ? `: “${escapeHtml(m.text)}”` : '';
+    return `<div class="stack-item">Returns to <span class="state-name">${label}</span>${which}</div>`;
+  }).join('');
 }
 
 function interpolateContext(template) {
   let result = template;
   if (state.currentMotion) {
-    result = result.replace('id="ctx-motion-text">…<', `>${state.currentMotion.text}<`);
+    result = result.replace('id="ctx-motion-text">…<', `>${escapeHtml(state.currentMotion.text)}<`);
     if (state.currentMotion.moverName) {
-      result = result.replace('id="ctx-mover">A member<', `>${state.currentMotion.moverName}<`);
+      result = result.replace('id="ctx-mover">A member<',
+        `>${escapeHtml(personLabel(state.currentMotion.moverId, state.currentMotion.moverName))}<`);
     }
   }
   return result;
@@ -2186,7 +2825,7 @@ function renderStats() {
     qEl.textContent = '—';
     qEl.style.color = '';
   } else {
-    qEl.textContent = state.quorumAchieved ? 'Achieved' : 'Not achieved';
+    qEl.textContent = (state.quorumAchieved ? 'Achieved' : 'Not achieved') + (quorumNumber() ? ` (${quorumNumber()} req.)` : '');
     qEl.style.color = state.quorumAchieved ? 'var(--success)' : 'var(--danger)';
   }
   document.getElementById('stat-motions').textContent = state.motions.length;
@@ -2205,6 +2844,7 @@ function renderMembers() {
       <button class="btn${qa === true ? ' primary' : ''}" style="flex:1;font-size:12px" onclick="setQuorum(true)">✓ Achieved</button>
       <button class="btn${qa === false ? ' danger' : ''}" style="flex:1;font-size:12px" onclick="setQuorum(false)">✗ Not Achieved</button>
     </div>
+    <button class="btn" style="width:100%;font-size:12px;margin:-6px 0 12px" onclick="setQuorumNumber()">Quorum number: ${quorumNumber() || 'not set'}</button>
   `;
 
   document.getElementById('member-list').innerHTML = profile.members.map(m => {
@@ -2247,13 +2887,26 @@ function renderLog() {
   }).join('');
 }
 
+// Returns the event it appended, so a caller that records a fact about a motion can
+// keep the id of the log entry that records it (see sourceEventIds on registerMotion).
+//
+// agendaItemId is NOT stateBefore. stateBefore holds the motion state whenever one is
+// pending, so it names the agenda item only some of the time — which is why the minutes
+// used to break each motion into pseudo-agenda headings. The agenda item has to be
+// recorded independently of motion progress. (It is also not the data model's
+// state_before, which is a replay snapshot; that field is unchanged and untouched here.)
 function logEvent(type, body, manual=false) {
-  state.events.push({
+  if (!Array.isArray(state.events)) state.events = [];
+  const item = getCurrentAgendaItem();
+  const ev = {
     id: 'evt-' + Date.now() + '-' + Math.random().toString(36).slice(2,8),
     timestamp: Date.now(),
-    stateBefore: state.currentMotionState || (getCurrentAgendaItem() ? getCurrentAgendaItem().id : 'unknown'),
+    agendaItemId: item ? item.id : null,
+    stateBefore: state.currentMotionState || (item ? item.id : 'unknown'),
     type, body, manual
-  });
+  };
+  state.events.push(ev);
+  return ev;
 }
 
 // Event types that change machine state — removing them from the log without reversing state
@@ -2274,8 +2927,33 @@ function undoEvent(eventId) {
     : '';
   if (!confirm(`${warning}Remove this event from the log?\n\n${ev.type.toUpperCase()}: ${clean}`)) return;
   state.events.splice(idx, 1);
-  toast('Event removed from log');
+  // Events that changed a motion's wording carry the before/after text; reverse the change
+  // if nothing has altered the text since (BUG-25).
+  const tc = ev.textChange;
+  const changed = tc && findMotion(tc.motionId);
+  if (changed && changed.text === tc.after) {
+    changed.text = tc.before;
+    toast('Event removed; the motion wording was restored');
+  } else {
+    toast('Event removed from log');
+  }
   render();
+}
+
+// Who is in the chair. Each change is a log entry, so the minutes header names exactly the
+// presiding officers whose entries are still in the record (undo-safe).
+function changePresiding() {
+  if (!state.startedAt) { toast('Start the meeting first.'); return; }
+  promptSelectMember('Who is presiding?', null, (id, display, name) => {
+    const ev = logEvent('presiding', `${display} presiding.`);
+    ev.presiding = { id, name };
+    render();
+  });
+}
+
+function presidingOfficers() {
+  return (state.events || []).filter(e => e.type === 'presiding' && e.presiding)
+    .map(e => personLabel(e.presiding.id, e.presiding.name));
 }
 
 function toast(msg) {
@@ -2292,22 +2970,25 @@ function setQuorum(achieved) {
   if (achieved) {
     if (!state.quorumEstablishedOnce) {
       state.quorumEstablishedOnce = true;
-      logEvent('quorum', 'Quorum confirmed: achieved.');
+      logEvent('quorum', 'Quorum confirmed: achieved.').quorumAchieved = true;
     } else {
-      logEvent('quorum', 'Quorum re-established — substantive business may resume.');
+      logEvent('quorum', 'Quorum re-established — substantive business may resume.').quorumAchieved = true;
     }
   } else {
     if (state.quorumEstablishedOnce) {
-      // Clear any in-progress motion so it isn't silently resumed
-      if (state.currentMotionState) {
-        state.currentMotion = null;
-        state.currentMotionState = null;
-        logEvent('quorum', 'Quorum LOST during meeting — substantive business suspended. In-progress motion abandoned.');
+      // ADR-010 / RONR §40: loss of quorum suspends pending business, it does not dispose
+      // of it. Frames stay put; the lockdown hides substantive actions until quorum returns.
+      const held = [state.currentMotion].concat((state.stateStack || []).map(f => findMotion(f.motionId)))
+        .filter(m => m && !m.voteOutcome && !m.disposition);
+      if (held.length) {
+        logEvent('quorum', `Quorum LOST during meeting — substantive business suspended. ` +
+          `${held.length} pending question(s) held until quorum returns: ` +
+          held.map(m => `"${m.text}"`).join('; ') + '.').quorumAchieved = false;
       } else {
-        logEvent('quorum', 'Quorum LOST during meeting — substantive business suspended.');
+        logEvent('quorum', 'Quorum LOST during meeting — substantive business suspended.').quorumAchieved = false;
       }
     } else {
-      logEvent('quorum', 'Quorum not achieved — noted in record.');
+      logEvent('quorum', 'Quorum not achieved — noted in record.').quorumAchieved = false;
     }
   }
   render();
@@ -2337,8 +3018,7 @@ function nextAgenda() {
 function jumpToAgenda(index) {
   if (state.currentMotionState) {
     if (!confirm('A motion is in progress. Jumping will abandon it. Continue?')) return;
-    state.currentMotionState = null;
-    state.currentMotion = null;
+    clearFrames('abandoned — meeting moved to another agenda item');
   }
   state.currentAgendaIndex = index;
   render();
@@ -2351,6 +3031,9 @@ function startMeeting() {
 }
 
 function handleAction(actionId) {
+  // An appeal must be made at once; any other action closes the window (RONR §24:2).
+  if (actionId !== 'appeal') state.appealable = null;
+  if (blockedByQuorum(actionId)) return;
   switch (actionId) {
     case 'call-to-order':
       if (!state.startedAt) state.startedAt = Date.now();
@@ -2362,26 +3045,34 @@ function handleAction(actionId) {
       break;
     case 'record-prayer':
       promptForActor('Who led the prayer?', name => {
-        logEvent('opening', `Prayer led by <span class="name">${name}</span>.`);
+        logEvent('opening', `Prayer led by ${name}.`);
         render();
       });
       break;
     case 'record-pledge':
       promptForActor('Who led the pledge?', name => {
-        logEvent('opening', `Pledge led by <span class="name">${name}</span>.`);
+        logEvent('opening', `Pledge led by ${name}.`);
         render();
       });
       break;
+    case 'set-quorum-number':
+      setQuorumNumber();
+      break;
     case 'quorum-achieved':
+      // Profiles whose thresholds depend on the quorum number ask for it once.
+      if (votingSetting('quorumFloor') && !quorumNumber()) setQuorumNumber();
       state.quorumAchieved = true;
       state.quorumEstablishedOnce = true;
-      logEvent('quorum', 'Quorum confirmed: achieved.');
-      nextAgenda();
+      logEvent('quorum', 'Quorum confirmed: achieved.').quorumAchieved = true;
+      // Recording an action never moves the agenda (BUG-24): entries made next (roll-call
+      // detail, arrivals) must file under this item. The secretary presses Continue.
+      render();
       break;
     case 'quorum-not-achieved':
+      if (votingSetting('quorumFloor') && !quorumNumber()) setQuorumNumber();
       state.quorumAchieved = false;
-      logEvent('quorum', 'Quorum not achieved — noted in record.');
-      nextAgenda();
+      logEvent('quorum', 'Quorum not achieved — noted in record.').quorumAchieved = false;
+      render();
       break;
     case 'quorum-reestablished':
       setQuorum(true);
@@ -2401,7 +3092,7 @@ function handleAction(actionId) {
       break;
     }
     case 'obtain-quorum': {
-      const m = prompt('Measures taken to obtain quorum (e.g. "called absent PCOs"):');
+      const m = prompt(`Measures taken to obtain quorum (e.g. "called absent ${getProfile().memberLabelPlural}"):`);
       if (!m || !m.trim()) break;
       logEvent('obtain quorum', `Measures to obtain quorum: ${m.trim()}`);
       render();
@@ -2411,8 +3102,9 @@ function handleAction(actionId) {
       adjournNoQuorum();
       break;
     case 'record-guest':
-      promptForActor('Guest name + affiliation:', name => {
-        logEvent('guest introduction', `Guest: ${name}`);
+      // Guests are not members, so no roster matching (and no "not in roster" flag).
+      promptText('Guest name + affiliation:', text => {
+        logEvent('guest introduction', `Guest: ${escapeHtml(text)}`);
         render();
       });
       break;
@@ -2423,11 +3115,15 @@ function handleAction(actionId) {
       promptMotion('Approval of the agenda as presented.', 'agenda');
       break;
     case 'add-correction':
-      promptForActor('Correction (e.g. "Kari Hale 73"):', name => {
-        state.corrections.push(name);
-        logEvent('correction', `Correction to prior minutes: ${name}`);
+      // A correction is free text that becomes part of the motion; it must be plain (BUG-23).
+      promptText('Correction to the prior minutes:', text => {
+        state.corrections.push(text);
+        logEvent('correction', `Correction to prior minutes: ${escapeHtml(text)}`);
         render();
       });
+      break;
+    case 'motion-approve-treasurer':
+      promptMotion("Approval of the Treasurer's report.", 'report');
       break;
     case 'motion-approve-minutes':
       const corrText = state.corrections.length > 0
@@ -2444,13 +3140,13 @@ function handleAction(actionId) {
     case 'record-treasurer-report':
       promptText('Treasurer report (e.g. balance, key items):', text => {
         logEvent('report', `Treasurer's Report: ${text}`);
-        nextAgenda();
+        render();
       });
       break;
     case 'record-committee-report':
-      promptForActor('Committee name:', cname => {
+      promptText('Committee name:', cname => {
         promptText(`${cname} report:`, text => {
-          logEvent('report', `<span class="name">${cname}</span> committee: ${text}`);
+          logEvent('report', `${escapeHtml(cname)} committee: ${text}`);
           render();
         });
       });
@@ -2463,13 +3159,18 @@ function handleAction(actionId) {
       break;
     case 'record-custom-item':
       promptText(`Notes for "${getCurrentAgendaItem().label}":`, text => {
-        logEvent(getCurrentAgendaItem().id, text);
+        // 'note', not the agenda item id: the type field is a type, not a payload.
+        // logEvent already stamps ev.agendaItemId, and every type-keyed minutes rule is
+        // unenforceable while one event type is a per-meeting free variable.
+        logEvent('note', text);
         render();
       });
       break;
     case 'record-speaker':
-      promptForActor(`${getProfile().memberLabel} speaking + brief note:`, name => {
-        logEvent('speaker', `<span class="name">${name}</span>`);
+      // Name from the roster; the note is separate so it never makes the name "off-roster".
+      promptForActor(`Who is speaking?`, name => {
+        const note = (prompt('Brief note (optional):') || '').trim();
+        logEvent('speaker', note ? `${name}: ${escapeHtml(note)}` : name);
         render();
       });
       break;
@@ -2510,91 +3211,159 @@ function handleAction(actionId) {
       promptMotion('Adjournment.', 'adjourn');
       break;
     case 'record-second':
+      if (!state.currentMotion) { toast('No pending motion to second.'); break; }
       promptSelectMember('Who seconded the motion?', state.currentMotion.moverId, (id, display, name) => {
+        if (!state.currentMotion) { toast('No pending motion to second.'); return; }
+        if (blockedByQuorum()) return;
+        if (samePerson({ id, name }, { id: state.currentMotion.moverId, name: state.currentMotion.moverName })) {
+          alert('The mover cannot second their own motion.');
+          return;
+        }
         state.currentMotion.seconderId = id;
         state.currentMotion.seconderName = name;
-        state.currentMotion.seconderDisplay = display;
-        logEvent('second', `Motion seconded by ${display}.`);
+        state.currentMotion.sourceEventIds.seconded = logEvent('second', `Motion seconded by ${display}.`).id;
         state.currentMotionState = 'debate';
         render();
       });
       break;
     case 'motion-dies': {
-      const dyingText = state.currentMotion.text;
-      const isAmendment = state.currentMotion.kind === 'amendment';
-      logEvent('motion', `Motion died for lack of a second: "${dyingText}"`);
-      if (isAmendment && state.pendingAmendmentContext) {
-        const ctx = state.pendingAmendmentContext;
-        state.pendingAmendmentContext = null;
-        state.currentMotion = ctx.parentMotion;
-        state.currentMotionState = ctx.parentMotionState;
-        logEvent('amendment result', `Amendment died — no second. Main motion proceeds as originally stated.`);
-      } else {
-        state.currentMotion = null;
-        state.currentMotionState = null;
+      if (!state.currentMotion) { toast('No pending motion.'); break; }
+      const dying = state.currentMotion;
+      dying.disposition = 'died for lack of a second';
+      dying.sourceEventIds.disposed = logEvent('motion', `Motion died for lack of a second: "${escapeHtml(dying.text)}"`).id;
+      const hadFrame = popFrame();
+      if (dying.kind === 'amendment' && hadFrame) {
+        logEvent('amendment result', `Amendment died — no second. ${parentLabel()} proceeds as previously stated.`);
       }
       render();
       break;
     }
     case 'chair-rules-out-of-order': {
-      const ruledText = state.currentMotion.text;
-      const isAmendmentRuled = state.currentMotion.kind === 'amendment';
-      logEvent('ruling', `Chair ruled out of order: "${ruledText}"`);
-      if (isAmendmentRuled && state.pendingAmendmentContext) {
-        const ctx = state.pendingAmendmentContext;
-        state.pendingAmendmentContext = null;
-        state.currentMotion = ctx.parentMotion;
-        state.currentMotionState = ctx.parentMotionState;
-        logEvent('amendment result', `Amendment ruled out of order. Main motion proceeds as originally stated.`);
-      } else {
-        state.currentMotion = null;
-        state.currentMotionState = null;
+      if (!state.currentMotion) { toast('No pending motion.'); break; }
+      const ruled = state.currentMotion;
+      ruled.disposition = 'ruled out of order by the chair';
+      ruled.sourceEventIds.disposed = logEvent('ruling', `Chair ruled out of order: "${escapeHtml(ruled.text)}"`).id;
+      const hadFrameRuled = popFrame();
+      if (ruled.kind === 'amendment' && hadFrameRuled) {
+        logEvent('amendment result', `Amendment ruled out of order. ${parentLabel()} proceeds as previously stated.`);
       }
       render();
       break;
     }
     case 'friendly-amendment':
-      promptText('Friendly amendment (mover accepts):', text => {
-        logEvent('amendment', `Friendly amendment accepted by mover: "${text}". Motion now reads: revised.`);
-        state.currentMotion.text += ` [amended: ${text}]`;
-        render();
+      // RONR §12: once stated, the motion belongs to the assembly. A "friendly" amendment
+      // is adopted only by unanimous consent; any objection means a formal amendment.
+      promptForActor('Who proposed the amendment?', proposer => {
+        promptText('Amendment wording only (e.g. add "and shall include the QR code"):', text => {
+          if (!state.currentMotion) { toast('No pending motion to amend.'); return; }
+          if (!confirm('The chair asked: "Is there any objection?"\n\nOK = no objection (adopted by unanimous consent)\nCancel = someone objected')) {
+            toast('Objection: the amendment needs a formal motion. Use Move to Amend.');
+            return;
+          }
+          const motion = state.currentMotion;
+          const before = motion.text;
+          motion.text += ` [amended: ${text}]`;
+          const ev = logEvent('amendment', `Amendment proposed by ${proposer}: ${escapeHtml(text)}. ` +
+            `No objection; adopted by unanimous consent. Motion now reads: "<em>${escapeHtml(motion.text)}</em>"`);
+          ev.textChange = { motionId: motion.id, before, after: motion.text };
+          render();
+        });
       });
       break;
     case 'move-amend':
+      // RONR §12 permits an amendment of the second degree but forbids the third.
+      if (amendmentDegree(state.currentMotion) >= MAX_AMENDMENT_DEGREE) {
+        logEvent('ruling', `Chair: a motion to amend an amendment of the second degree is out of order (RONR §12). The pending amendment stands.`);
+        toast('Out of order — RONR §12 allows only two degrees of amendment.');
+        render();
+        break;
+      }
       promptForMotionFull(true);
       break;
     case 'move-previous-question':
-      logEvent('motion', `Previous Question moved. (Requires 2/3.)`);
-      toast('Proceeding to vote');
-      if (state.currentMotion) state.currentMotion.requiresTwoThirds = true;
-      state.currentMotionState = 'voting';
-      render();
+      // The 2/3 belongs to the Previous Question itself, not to the question it closes.
+      startSubsidiaryMotion('previous-question');
       break;
     case 'move-table':
-      logEvent('motion', `Motion to lay on the table.`);
-      state.currentMotionState = 'voting';
-      render();
+      startSubsidiaryMotion('table');
       break;
     case 'move-postpone':
-      logEvent('motion', `Motion to postpone.`);
-      state.currentMotionState = 'voting';
-      render();
+      startSubsidiaryMotion('postpone');
+      break;
+    case 'take-from-table':
+      promptTakeFromTable();
       break;
     case 'point-of-order':
-      state.stateStack.push(state.currentMotionState);
+      pushFrame();
       state.currentMotionState = 'point-of-order';
       logEvent('point of order', `Point of order raised.`);
       render();
       break;
     case 'rule-well-taken':
-      logEvent('ruling', `Chair: point well-taken.`);
-      state.currentMotionState = state.stateStack.pop() || null;
+    case 'rule-not-well-taken': {
+      const ruling = actionId === 'rule-well-taken' ? 'point well-taken' : 'point not well-taken';
+      const ev = logEvent('ruling', `Chair: ${ruling}.`);
+      popFrame();
+      if (state.currentMotion) state.appealable = { eventId: ev.id, ruling };
       render();
       break;
-    case 'rule-not-well-taken':
-      logEvent('ruling', `Chair: point not well-taken.`);
-      state.currentMotionState = state.stateStack.pop() || null;
+    }
+    case 'appeal': {
+      const ruling = state.appealable;
+      if (!ruling || !state.currentMotion) { toast('An appeal must follow a ruling of the chair.'); break; }
+      promptSelectMember('Who appealed from the decision of the chair?', null, (id, display, name) => {
+        state.appealable = null;
+        const appeal = registerMotion({
+          kind: 'appeal', parentMotionId: state.currentMotion.id, moverId: id, moverName: name,
+          text: `Shall the decision of the chair (${ruling.ruling}) be sustained?`
+        });
+        pushFrame();
+        setCurrentMotion(appeal);
+        state.currentMotionState = 'awaiting-second';
+        appeal.sourceEventIds.created = logEvent('appeal',
+          `${display} appealed from the decision of the chair (RONR §24). Question: "<em>${escapeHtml(appeal.text)}</em>"`).id;
+        render();
+      });
+      break;
+    }
+    case 'withdraw': {
+      const m = state.currentMotion;
+      if (!m) { toast('No pending motion.'); break; }
+      // Before it is stated the maker may simply withdraw; after, it needs the assembly's
+      // consent (RONR §33). The secretary records the chair's "any objection?".
+      if (!confirm('The maker asks to withdraw the motion. The chair asked: "Is there any objection?"\n\nOK = no objection (withdrawn)\nCancel = someone objected')) {
+        toast('Objection: permission to withdraw needs a motion and a majority vote.');
+        break;
+      }
+      m.disposition = 'withdrawn';
+      m.sourceEventIds.disposed = logEvent('motion',
+        `Motion withdrawn by the maker with no objection: "<em>${escapeHtml(m.text)}</em>" (RONR §33).`).id;
+      popFrame();
       render();
+      break;
+    }
+    case 'unanimous-consent': {
+      if (!state.currentMotion) { toast('No pending motion.'); break; }
+      if (!confirm('The chair asked: "Is there any objection?"\n\nOK = no objection (adopted by unanimous consent)\nCancel = someone objected')) {
+        toast('Objection: take a vote.');
+        break;
+      }
+      state.currentMotion.tally = null;
+      recordVote('unanimous', 'unanimous consent');
+      break;
+    }
+    case 'back-to-debate':
+      state.currentMotionState = 'debate';
+      render();
+      break;
+    case 'show-of-hands':
+      promptVote('show of hands');
+      break;
+    case 'division':
+      promptForActor('Who called for a division?', name => {
+        logEvent('division', `Division of the assembly called by ${name}; the vote is retaken by a rising count (RONR §29).`);
+        promptVote('rising vote (division)');
+      });
       break;
     case 'proceed-to-vote':
       state.currentMotionState = 'voting';
@@ -2746,14 +3515,28 @@ function getComboboxResult(id) {
   return { freeform: true, name: txt };
 }
 
+// Plain-text label for a person: "Owen Brackett (Precinct 038)" for a roster member with a
+// precinct, the bare name otherwise. Records store the plain name and id; this label and
+// formatActor's HTML exist only at render time (BUG-23, BUG-27).
+// Same person? By roster id when both have one, otherwise by name (BUG-20: off-roster names have no id).
+function samePerson(a, b) {
+  if (!a || !b) return false;
+  if (a.id && b.id) return a.id === b.id;
+  return !!a.name && !!b.name && a.name.trim().toLowerCase() === b.name.trim().toLowerCase();
+}
+
+function personLabel(id, name) {
+  const m = id ? getProfile().members.find(x => x.id === id) : null;
+  if (!m) return name || '';
+  return m.precinct && m.precinct !== '—' ? `${m.name} (${getProfile().precinctLabel} ${m.precinct})` : m.name;
+}
+
 function formatActor(result) {
   if (!result) return '';
   if (result.freeform) {
-    return `<span class="name">${result.name}</span><span class="name-flag" title="Not in member roster">⚑</span>`;
+    return `<span class="name">${escapeHtml(result.name)}</span><span class="name-flag" title="Not in member roster">⚑</span>`;
   }
-  const profile = getProfile();
-  const detail = result.precinct !== '—' ? ' ' + result.precinct : '';
-  return `<span class="name">${result.name}${detail}</span>`;
+  return `<span class="name">${escapeHtml(personLabel(result.id, result.name))}</span>`;
 }
 
 function promptForActor(label, callback) {
@@ -2793,10 +3576,7 @@ function promptSelectMember(label, excludeId, callback) {
     const result = getComboboxResult('member-cb');
     if (!result) { alert('Enter a name.'); return; }
     closeModal();
-    const display = formatActor(result);
-    const id = result.id || null;
-    const name = result.freeform ? result.name : `${result.name}${result.precinct !== '—' ? ' ' + result.precinct : ''}`;
-    callback(id, display, name);
+    callback(result.id || null, formatActor(result), result.name);
   };
 }
 
@@ -2832,6 +3612,9 @@ function promptForMotionFull(isAmendment=false) {
       <label class="form-label">${isAmendment ? 'Amendment' : 'Motion'} text</label>
       <textarea class="form-textarea" id="motion-text" placeholder="${isAmendment ? 'I move to amend by...' : 'I move that...'}"></textarea>
     </div>
+    ${isAmendment ? '' : `<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin:-4px 0 10px">
+      <input type="checkbox" id="motion-two-thirds"> Requires two-thirds (e.g. bylaws amendment, removal from office)
+    </label>`}
     <div class="modal-actions">
       <button class="btn" onclick="closeModal()">Cancel</button>
       <button class="btn primary" onclick="submitFullMotion(${isAmendment})">Record</button>
@@ -2839,43 +3622,53 @@ function promptForMotionFull(isAmendment=false) {
   `);
   attachCombobox('mover-cb');
   window.submitFullMotion = (amend) => {
+    if (blockedByQuorum()) return;
     const result = getComboboxResult('mover-cb');
     const text = document.getElementById('motion-text').value.trim();
     if (!result) { alert('Enter a mover.'); return; }
     if (!text) { alert('Enter motion text.'); return; }
     const moverDisplay = formatActor(result);
+    const moverName = result.name;
     if (amend) {
-      // Real amendment sub-process: save parent motion context, enter amendment as a new motion.
-      if (!state.currentMotion) { toast('No pending motion to amend.'); closeModal(); return; }
-      state.pendingAmendmentContext = {
-        parentMotionState: state.currentMotionState,
-        parentMotion: { ...state.currentMotion }
-      };
-      state.currentMotion = {
-        id: 'amend-' + Date.now(),
-        moverId: result.id || null,
-        moverName: result.freeform ? result.name : `${result.name}${result.precinct !== '—' ? ' ' + result.precinct : ''}`,
-        moverDisplay,
-        text: `Amend: ${text}`,
+      // Amendment sub-process: the parent question goes on the frame stack and the
+      // amendment becomes the immediately pending question. Both are real motions in
+      // state.motions, so nothing is ever a copy.
+      const parent = state.currentMotion;
+      if (!parent) { toast('No pending motion to amend.'); closeModal(); return; }
+      const degree = amendmentDegree(parent) + 1;
+      if (degree > MAX_AMENDMENT_DEGREE) {
+        // Third degree is out of order — the pending amendment is left untouched.
+        closeModal();
+        logEvent('ruling', `Chair: a motion to amend an amendment of the second degree is out of order (RONR §12). The pending amendment stands.`);
+        toast('Out of order — RONR §12 allows only two degrees of amendment.');
+        render();
+        return;
+      }
+      const amendment = registerMotion({
         kind: 'amendment',
-        agendaItemId: getCurrentAgendaItem() ? getCurrentAgendaItem().id : null
-      };
+        degree,
+        parentMotionId: parent.id,
+        moverId: result.id || null,
+        moverName,
+        text: `Amend: ${text}`
+      });
+      pushFrame();
+      setCurrentMotion(amendment);
       state.currentMotionState = 'awaiting-second';
-      logEvent('amendment', `${moverDisplay} moved to amend: "<em>${escapeHtml(text)}</em>". Needs second, debate, vote — RONR §12.`);
+      amendment.sourceEventIds.created = logEvent('amendment', `${moverDisplay} moved to amend ${degree === 2 ? 'the pending amendment' : 'the main motion'}: "<em>${escapeHtml(text)}</em>". Needs second, debate, vote — RONR §12 (degree ${degree}).`).id;
       closeModal();
       render();
     } else {
-      state.currentMotion = {
-        id: 'mo' + (state.motions.length + 1),
+      const twoThirdsBox = document.getElementById('motion-two-thirds');
+      setCurrentMotion(registerMotion({
+        kind: 'main',
         moverId: result.id || null,
-        moverName: result.freeform ? result.name : `${result.name}${result.precinct !== '—' ? ' ' + result.precinct : ''}`,
-        moverDisplay,
+        moverName,
         text,
-        agendaItemId: getCurrentAgendaItem() ? getCurrentAgendaItem().id : null
-      };
-      state.motions.push(state.currentMotion);
+        requiresTwoThirds: !!(twoThirdsBox && twoThirdsBox.checked)
+      }));
       state.currentMotionState = 'awaiting-second';
-      logEvent('motion', `${moverDisplay} moved: "<em>${escapeHtml(text)}</em>"`);
+      state.currentMotion.sourceEventIds.created = logEvent('motion', `${moverDisplay} moved: "<em>${escapeHtml(text)}</em>"`).id;
       closeModal();
       render();
     }
@@ -2901,25 +3694,25 @@ function promptMotion(presetText, kind) {
   attachCombobox('preset-mover-cb');
   attachCombobox('preset-seconder-cb');
   window.submitQuickMotion = (kind) => {
+    if (blockedByQuorum()) return;
     const mover = getComboboxResult('preset-mover-cb');
     const sec = getComboboxResult('preset-seconder-cb');
     if (!mover || !sec) { alert('Enter both mover and seconder.'); return; }
-    if (mover.id && sec.id && mover.id === sec.id) { alert('Mover and seconder must differ.'); return; }
+    if (samePerson(mover, sec)) { alert('Mover and seconder must differ.'); return; }
     const moverDisplay = formatActor(mover);
     const secDisplay = formatActor(sec);
-    const moverName = `${mover.name}${mover.precinct && mover.precinct !== '—' ? ' ' + mover.precinct : ''}`;
-    const secName = `${sec.name}${sec.precinct && sec.precinct !== '—' ? ' ' + sec.precinct : ''}`;
-    logEvent('motion', `${moverDisplay} moved: <em>${escapeHtml(presetText)}</em> Seconded by ${secDisplay}.`);
-    state.currentMotion = {
-      id: 'mo' + (state.motions.length + 1),
+    const presetEv = logEvent('motion', `${moverDisplay} moved: <em>${escapeHtml(presetText)}</em> Seconded by ${secDisplay}.`);
+    setCurrentMotion(registerMotion({
       text: presetText,
       moverId: mover.id || null,
-      moverDisplay, seconderDisplay: secDisplay,
-      moverName,
-      seconderName: secName,
+      moverName: mover.name,
+      seconderId: sec.id || null,
+      seconderName: sec.name,
       kind
-    };
-    state.motions.push(state.currentMotion);
+    }));
+    // One entry records both the motion and its second on this fast path.
+    state.currentMotion.sourceEventIds.created = presetEv.id;
+    state.currentMotion.sourceEventIds.seconded = presetEv.id;
     state.currentMotionState = 'voting';
     closeModal();
     render();
@@ -2928,9 +3721,7 @@ function promptMotion(presetText, kind) {
 
 function promptVote(method) {
   const m = state.currentMotion;
-  const thresholdLabel = m && m.requiresTwoThirds
-    ? '2/3 required (Previous Question or bylaws amendment)'
-    : 'Majority required (more than half of votes cast)';
+  const thresholdLabel = `Requires ${thresholdText(m)}`;
   const isRollCallOrBallot = method === 'roll call' || method === 'ballot';
   const tallyNote = isRollCallOrBallot ? 'Enter tally before recording outcome:' : 'Tally (optional — leave blank for voice):';
 
@@ -2949,9 +3740,16 @@ function promptVote(method) {
         <input id="tally-nay" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px" placeholder="—">
       </div>
       <div>
-        <label style="font-size:11px;display:block;margin-bottom:3px;color:var(--text-dim)">ABSTAIN</label>
+        <label style="font-size:11px;display:block;margin-bottom:3px;color:var(--text-dim)">${votingSetting('basis') === 'present' ? 'PRESENT, NOT VOTING' : 'ABSTAIN'}</label>
         <input id="tally-abs" type="number" min="0" style="width:60px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:14px" placeholder="—">
       </div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;margin:-4px 0 12px;font-size:12px">
+      <label style="color:var(--text-dim)" for="tally-chair">CHAIR'S VOTE</label>
+      <select id="tally-chair" style="padding:3px 6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text)">
+        <option value="">did not vote</option><option value="aye">Aye</option><option value="nay">Nay</option>
+      </select>
+      <span id="tally-result" style="margin-left:auto;font-weight:600"></span>
     </div>
     <div class="vote-grid">
       <button class="vote-btn yes" onclick="collectTalliesAndRecord('passed','${method}')">Passed</button>
@@ -2962,53 +3760,127 @@ function promptVote(method) {
       <button class="btn" onclick="closeModal()">Cancel</button>
     </div>
   `);
+  // Live hint: what the tally means, before anything is recorded.
+  const showResult = () => {
+    const out = document.getElementById('tally-result');
+    if (!out) return;
+    const r = outcomeFromTally(m, readTally());
+    out.textContent = r ? `By the tally: ${r.toUpperCase()}` : '';
+    out.style.color = r === 'failed' ? 'var(--danger)' : 'var(--success)';
+  };
+  ['tally-aye', 'tally-nay', 'tally-chair'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.oninput = el.onchange = showResult;
+  });
 }
 
-// Collects tally inputs from the vote modal, stores on currentMotion, then calls recordVote.
+// "; the chair voted aye to break the tie" / "; tie, the motion fails", for log and minutes.
+function tallyNote(t) {
+  if (!t || t.aye === null || t.nay === null) return '';
+  if (t.chair) return `; the chair voted ${t.chair}${t.aye === t.nay ? ' to break the tie' : ''}`;
+  return t.aye === t.nay ? '; tie' : '';
+}
+
+function readTally() {
+  const num = id => { const v = parseInt((document.getElementById(id) || {}).value, 10); return isNaN(v) ? null : v; };
+  const chairEl = document.getElementById('tally-chair');
+  const chair = chairEl && (chairEl.value === 'aye' || chairEl.value === 'nay') ? chairEl.value : null;
+  return { aye: num('tally-aye'), nay: num('tally-nay'), abstain: num('tally-abs'), chair };
+}
+
+// Collects tally inputs from the vote modal, refuses an outcome the tally contradicts,
+// stores the tally on currentMotion, then calls recordVote.
 function collectTalliesAndRecord(outcome, method) {
+  if (blockedByQuorum()) return;
   if (state.currentMotion) {
-    const aye = parseInt(document.getElementById('tally-aye').value, 10);
-    const nay = parseInt(document.getElementById('tally-nay').value, 10);
-    const abs = parseInt(document.getElementById('tally-abs').value, 10);
-    state.currentMotion.tally = {
-      aye: isNaN(aye) ? null : aye,
-      nay: isNaN(nay) ? null : nay,
-      abstain: isNaN(abs) ? null : abs
-    };
+    const t = readTally();
+    const problem = voteProblem(state.currentMotion, outcome, t);
+    if (problem) { alert(problem); return; }
+    state.currentMotion.tally = t;
   }
   recordVote(outcome, method);
 }
 
 function recordVote(outcome, method) {
   const motion = state.currentMotion;
+  // popFrame() and the quorum lockdown can both leave no question pending; a stale
+  // vote modal must not crash the app.
+  if (!motion) { closeModal(); toast('No motion is pending — nothing to vote on.'); render(); return; }
   const text = motion.text;
   const kind = motion.kind;
+  const adopted = outcome !== 'failed';
 
   // Build tally string for log
   const t = motion.tally;
-  const tallyStr = (t && (t.aye !== null || t.nay !== null || t.abstain !== null))
+  const tallyStr = ((t && (t.aye !== null || t.nay !== null || t.abstain !== null))
     ? ` — Aye: ${t.aye ?? '?'}, Nay: ${t.nay ?? '?'}, Abstain: ${t.abstain ?? '?'}`
-    : '';
+    : '') + tallyNote(t);
 
-  // Store outcome on the motion object for minutes generation
+  // Store outcome on the canonical motion object for minutes generation
   motion.voteOutcome = outcome;
   motion.voteMethod = method;
 
-  logEvent('vote', `Vote on "<em>${escapeHtml(text)}</em>" (${method})${tallyStr}: <span class="name" style="color:${outcome === 'failed' ? 'var(--danger)' : 'var(--success)'}">${outcome.toUpperCase()}</span>`);
+  motion.sourceEventIds.voted = logEvent('vote', `Vote on "<em>${escapeHtml(text)}</em>" (${method})${tallyStr}: <span class="name" style="color:${outcome === 'failed' ? 'var(--danger)' : 'var(--success)'}">${outcome.toUpperCase()}</span>`).id;
 
-  // Amendment sub-process resolution: restore parent motion context
-  if (kind === 'amendment' && state.pendingAmendmentContext) {
-    const ctx = state.pendingAmendmentContext;
-    state.pendingAmendmentContext = null;
-    if (outcome !== 'failed') {
-      // Amendment passed — apply it to the parent motion text
-      ctx.parentMotion.text += ` [as amended: ${escapeHtml(text.replace(/^Amend: /i, ''))}]`;
-      logEvent('amendment result', `Amendment <span class="name" style="color:var(--success)">PASSED</span>. Main motion as amended proceeds.`);
-    } else {
-      logEvent('amendment result', `Amendment <span class="name" style="color:var(--danger)">FAILED</span>. Main motion proceeds as originally stated.`);
+  // --- Amendment sub-process resolution (RONR §12) -------------------------
+  if (kind === 'amendment') {
+    const parent = findMotion(motion.parentMotionId);
+    let textChange = null;
+    if (adopted && parent) {
+      // Applies to the canonical parent object, so the amended text is what the
+      // minutes print and what the assembly votes on next.
+      const before = parent.text;
+      parent.text += ` [as amended: ${text.replace(/^Amend: /i, '')}]`;
+      textChange = { motionId: parent.id, before, after: parent.text };
+      const voteEv = state.events.find(e => e.id === motion.sourceEventIds.voted);
+      if (voteEv) voteEv.textChange = textChange;
     }
-    state.currentMotion = ctx.parentMotion;
-    state.currentMotionState = ctx.parentMotionState;
+    popFrame();
+    const resultEv = logEvent('amendment result', adopted
+      ? `Amendment <span class="name" style="color:var(--success)">PASSED</span>. ${parentLabel()} as amended proceeds: "<em>${escapeHtml(state.currentMotion ? state.currentMotion.text : '')}</em>"`
+      : `Amendment <span class="name" style="color:var(--danger)">FAILED</span>. ${parentLabel()} proceeds as previously stated.`);
+    if (textChange) resultEv.textChange = textChange;
+    closeModal();
+    render();
+    return;
+  }
+
+  // --- Subsidiary motions that dispose of a parent question (§17, §14, §34) --
+  if (SUBSIDIARY_MOTIONS[kind]) {
+    const spec = SUBSIDIARY_MOTIONS[kind];
+    const parent = findMotion(motion.parentMotionId);
+    popFrame();   // discard/restore the frame this motion was taken up from
+    if (adopted && parent) {
+      if (kind === 'previous-question') {
+        // Debate is closed; the pending question is put to a vote at once (RONR §16).
+        state.currentMotionState = 'voting';
+        parent.debateClosed = true;
+        logEvent('motion', `Previous question ordered. Debate is closed; the assembly votes now on "<em>${escapeHtml(parent.text)}</em>" (RONR §16).`);
+      } else if (kind === 'take-from-table') {
+        // The parent comes back before the assembly, undisposed.
+        state.tabledMotions = (state.tabledMotions || []).filter(id => id !== parent.id);
+        delete parent.disposition;
+        delete parent.sourceEventIds.disposed;
+        setCurrentMotion(parent);
+        state.currentMotionState = 'debate';
+        logEvent('motion', `Motion taken from the table and again before the assembly: "<em>${escapeHtml(parent.text)}</em>" (RONR §34).`);
+      } else {
+        // The parent is disposed of as tabled/postponed — NOT adopted.
+        parent.disposition = spec.parentDisposition;
+        if (motion.postponeTo) parent.postponedTo = motion.postponeTo;
+        if (kind === 'table') {
+          state.tabledMotions = (state.tabledMotions || []).concat([parent.id]);
+        }
+        const dispText = parent.postponedTo ? `postponed to ${escapeHtml(parent.postponedTo)}` : spec.parentDisposition;
+        parent.sourceEventIds.disposed = logEvent('motion', `Motion "<em>${escapeHtml(parent.text)}</em>" was ${dispText}. No vote was taken on its merits.`).id;
+        // The disposed question leaves the floor; whatever was pending beneath it
+        // resumes, so no frame is left stranded on the stack.
+        popFrame();
+      }
+    } else if (parent) {
+      // Failed — the parent returns to the state it was in.
+      logEvent('motion', `The motion ${spec.verb} failed. "<em>${escapeHtml(parent.text)}</em>" remains before the assembly.`);
+    }
     closeModal();
     render();
     return;
@@ -3016,23 +3888,24 @@ function recordVote(outcome, method) {
 
   if (kind === 'minutes') state.corrections = [];
 
-  if (kind === 'adjourn' && outcome !== 'failed') {
-    state.currentMotion = null;
-    state.currentMotionState = null;
+  if (kind === 'adjourn' && adopted) {
+    clearFrames(null);
     state.endedAt = Date.now();
     state.meetingEnded = true;
-    state.agenda.forEach(a => a.complete = true);
+    markAdjournedAgenda();
     logEvent('adjournment', 'Meeting adjourned.');
     closeModal();
     render();
     toast('Meeting adjourned');
     return;
   }
-  state.currentMotion = null;
-  state.currentMotionState = null;
+  if (kind === 'appeal') {
+    logEvent('ruling', adopted ? 'The decision of the chair is sustained.' : 'The decision of the chair is reversed.');
+  }
+  // Main question disposed of: pop back to whatever was pending beneath it, if any.
+  popFrame();
   closeModal();
-  if (kind === 'agenda' || kind === 'minutes') nextAgenda();
-  else render();
+  render();
 }
 
 function openAgendaEditor(midMeeting=false) {
@@ -3201,9 +4074,19 @@ function submitAI() {
   render();
 }
 
-// Generates RONR-formatted meeting minutes from the event stream and motion records.
+// Generates RONR-formatted meeting minutes from the event stream.
+//
+// Locked decision #3: the event stream is the source of truth and everything else is a
+// projection. state.motions is that projection — a registry of motion detail — so every
+// fact it holds is checked against the entry in state.events that recorded it before it
+// is printed. An entry removed from the log takes the fact it recorded out of the
+// document with it, and the two halves of the document can no longer contradict each
+// other. (This does not reverse meeting state; ADR-002 keeps that for production.)
 function exportMinutes() {
-  if (state.events.length === 0) { alert('No events to export.'); return; }
+  // Refusing to export is a data-loss path: undo can empty the log while motions,
+  // corrections and a start time remain, and that record must stay reachable.
+  const hasRecord = state.events.length > 0 || (state.motions || []).length > 0 || state.startedAt;
+  if (!hasRecord) { alert('Nothing to export — no meeting has been recorded yet.'); return; }
   const profile = getProfile();
   const org = profile.organization;
   const startDate = state.startedAt ? new Date(state.startedAt) : null;
@@ -3211,65 +4094,253 @@ function exportMinutes() {
   const dateFmt = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
   const timeFmt = { hour: 'numeric', minute: '2-digit', hour12: true };
 
-  const quorumStatus = state.quorumAchieved === null
-    ? 'Not confirmed'
-    : state.quorumAchieved
-      ? 'Achieved'
-      : state.meetingEnded
-        ? 'Not achieved — meeting adjourned without quorum'
-        : 'Not achieved';
+  // Ids of the entries still in the log. A fact linked to an entry that is no longer
+  // here is not printed.
+  const liveEventIds = {};
+  state.events.forEach(ev => { liveEventIds[ev.id] = true; });
 
-  // Build per-agenda-item narrative from events
-  const agendaSections = [];
-  let currentItemId = null;
-  let currentItemLines = [];
-
-  function flushItem() {
-    if (currentItemId && currentItemLines.length > 0) {
-      agendaSections.push({ id: currentItemId, lines: currentItemLines });
-    }
-    currentItemLines = [];
+  // True when the log still carries the entry that recorded this fact about the motion.
+  // A motion saved before sourceEventIds existed carries no link, and its facts print as
+  // they always did — silently dropping an older record would be the worse failure.
+  function recorded(m, key) {
+    const ids = m.sourceEventIds;
+    if (!ids || ids[key] === undefined || ids[key] === null) return true;
+    return !!liveEventIds[ids[key]];
   }
 
-  // Group events by agenda item using stateBefore
-  state.events.forEach(ev => {
-    const itemId = ev.stateBefore || 'general';
-    if (itemId !== currentItemId) {
-      flushItem();
-      currentItemId = itemId;
-    }
-    const clean = ev.body.replace(/<[^>]+>/g, '').replace(/⚑/g, '[unverified]').trim();
-    if (clean) currentItemLines.push({ type: ev.type, text: clean, manual: ev.manual });
+  // Quorum is a temporal fact, not a final flag. Reading only the LAST determination
+  // documents a meeting that had a quorum, adopted motions and lost it when members
+  // left as a meeting that had no quorum — the exact inverse of the truth, in the one
+  // line a challenger reads first. Derive the intervals from the ordered quorum events.
+  const quorumEvents = state.events.filter(ev => ev.type === 'quorum');
+
+  // Entries written before the determination was stamped on them: the last one falls
+  // back to the live flag (as it always did); earlier ones are read from their wording.
+  function quorumValueOf(ev, isLast) {
+    if (ev.quorumAchieved !== undefined) return ev.quorumAchieved === true;
+    if (isLast) return state.quorumAchieved === true;
+    return !/lost|not achieved|not confirmed/i.test(plainText(ev.body));
+  }
+
+  const clockFmt = ts => new Date(ts).toLocaleTimeString('en-US', timeFmt)
+    .replace(/\u202f/g, ' ')          // newer ICU emits a narrow no-break space
+    .replace(/\bAM\b/, 'a.m.').replace(/\bPM\b/, 'p.m.');
+
+  const quorumTimeline = quorumEvents.map((ev, i) => ({
+    at: ev.timestamp,
+    present: quorumValueOf(ev, i === quorumEvents.length - 1)
+  }));
+
+  // Intervals [established, lost) — the open one has end === null.
+  const quorumIntervals = [];
+  quorumTimeline.forEach(pt => {
+    const open = quorumIntervals.length ? quorumIntervals[quorumIntervals.length - 1] : null;
+    if (pt.present) { if (!open || open.end !== null) quorumIntervals.push({ start: pt.at, end: null }); }
+    else if (open && open.end === null) { open.end = pt.at; }
   });
-  flushItem();
+  const everEstablished = quorumIntervals.length > 0;
+  const lastInterval = quorumIntervals[quorumIntervals.length - 1];
+  const quorumLostAtAnyPoint = quorumIntervals.some(iv => iv.end !== null);
+
+  const quorumStatus = quorumTimeline.length === 0
+    ? 'not determined'
+    : !everEstablished
+      ? 'not present at any time'
+      : quorumIntervals.length > 1
+        ? `established at ${clockFmt(quorumIntervals[0].start)}; lost and re-established during the meeting (see Quorum Record)`
+        : lastInterval.end === null
+          ? 'present'
+          : `established at ${clockFmt(lastInterval.start)}; lost at ${clockFmt(lastInterval.end)}`;
+
+  // The minutes may state the meeting adjourned only while an adjournment is in the log.
+  const adjournmentRecorded = state.events.some(ev => ev.type === 'adjournment');
+
+  // Build per-agenda-item narrative from events. Keyed by the agenda item the entry was
+  // recorded under — NOT by stateBefore, which is the motion state whenever a motion is
+  // pending and which therefore split every motion into its own pseudo-agenda heading.
+  // Keyed by item rather than by consecutive run, so an item the assembly returned to
+  // later is one numbered section, not two.
+  const agendaSections = [];
+  const sectionByItem = {};
+
+  // A motion line is rendered from the motion record, never from the event body: two
+  // sections reading one object cannot disagree, and the entity leak (PROCEEDINGS
+  // stripping tags without decoding while MOTIONS SUMMARY read m.text raw) cannot come
+  // back. Everything else goes through plainText().
+  const motionByEventId = {};
+  (state.motions || []).forEach(m => {
+    const ids = m.sourceEventIds || {};
+    Object.keys(ids).forEach(role => { if (ids[role]) motionByEventId[ids[role]] = { motion: m, role }; });
+  });
+
+  function tallySuffix(m) {
+    const t = m.tally;
+    if (!t) return '';
+    const parts = [];
+    if (t.aye !== null && t.aye !== undefined) parts.push(`Aye: ${t.aye}`);
+    if (t.nay !== null && t.nay !== undefined) parts.push(`Nay: ${t.nay}`);
+    if (t.abstain !== null && t.abstain !== undefined) parts.push(`Abstain: ${t.abstain}`);
+    return parts.length ? ` — ${parts.join(', ')}` : '';
+  }
+
+  function eventLineText(ev) {
+    const link = motionByEventId[ev.id];
+    if (link && link.role === 'created') {
+      const label = link.motion.parentMotionId ? secondaryLabel(link.motion) : 'Motion';
+      const by = link.motion.moverName ? ` by ${personLabel(link.motion.moverId, link.motion.moverName)}` : '';
+      return `${label}${by}: "${link.motion.text}"`;
+    }
+    if (link && link.role === 'voted') {
+      const method = link.motion.voteMethod ? ` (${link.motion.voteMethod})` : '';
+      return `Vote on "${link.motion.text}"${method}${tallySuffix(link.motion)}: ${String(link.motion.voteOutcome || '').toUpperCase()}`;
+    }
+    return plainText(ev.body);
+  }
+
+  // Section bookkeeping for the ENG-004 merge conditions: how many separate occasions
+  // the assembly took an item up, and whether it was reached out of the adopted order.
+  let lastLineItemId = null;
+  state.events.forEach(ev => {
+    const itemId = ev.agendaItemId || 'general';
+    let section = sectionByItem[itemId];
+    if (!section) {
+      section = sectionByItem[itemId] = { id: itemId, lines: [], occasions: 0 };
+      agendaSections.push(section);
+    }
+    const clean = eventLineText(ev);
+    if (clean) {
+      if (lastLineItemId !== itemId) section.occasions++;
+      lastLineItemId = itemId;
+      section.lines.push({ type: ev.type, text: clean, manual: ev.manual });
+    }
+  });
 
   // Build agenda item label lookup
   const agendaLabels = {};
-  (state.agenda || []).forEach(item => { agendaLabels[item.id] = item.label; });
+  const agendaOrder = {};
+  (state.agenda || []).forEach((item, i) => { agendaLabels[item.id] = item.label; agendaOrder[item.id] = i; });
 
-  // Format motions section
+  // Print the sections in agenda order, not in the order the assembly happened to reach
+  // them. The numbered list in the minutes is the order of business; an item taken up
+  // out of order still belongs under its own heading. Anything with no recorded item
+  // ("general") sorts last, in the order it was logged.
+  // Departing from the adopted order of business takes unanimous consent or a
+  // two-thirds vote to suspend the rules; jumpToAgenda records no authorization at all,
+  // so the section says the authorization is missing rather than saying nothing.
+  let maxOrderReached = -1;
+  agendaSections.forEach(sec => {
+    const idx = agendaOrder[sec.id];
+    if (idx === undefined) return;
+    if (idx < maxOrderReached) sec.outOfOrder = true;
+    else maxOrderReached = idx;
+  });
+
+  agendaSections.forEach((sec, i) => { sec.seq = i; });
+  agendaSections.sort((x, y) => {
+    const ax = agendaOrder[x.id] === undefined ? Infinity : agendaOrder[x.id];
+    const ay = agendaOrder[y.id] === undefined ? Infinity : agendaOrder[y.id];
+    return ax === ay ? x.seq - y.seq : ax - ay;
+  });
+
+  // Format motions section. Subordinate motions (amendments, table, postpone, take
+  // from the table) are printed nested under the question they were applied to, so
+  // the numbering still matches the main questions the assembly considered.
   const motionLines = [];
-  state.motions.forEach((m, idx) => {
-    motionLines.push('');
-    motionLines.push(`MOTION ${idx + 1}: "${m.text}"`);
-    if (m.moverName) motionLines.push(`  Moved by: ${m.moverName}`);
-    if (m.seconderName) motionLines.push(`  Seconded by: ${m.seconderName}`);
-    if (m.voteMethod) {
-      let voteStr = `  Vote: ${m.voteMethod.charAt(0).toUpperCase() + m.voteMethod.slice(1)}`;
+  const allMotions = state.motions || [];
+
+  // The three fates of a question that was never voted on its merits (RONR §§21, 17,
+  // 34, 14). They are distinct: a pending question carries to the next meeting as
+  // unfinished business, a tabled one stays on the table, a postponed one is a general
+  // order for the time set. Minutes that show any of them with no result are
+  // indistinguishable from minutes of a motion nobody ever voted on.
+  const pendingMotions = [];
+  const seenPending = {};
+  [state.currentMotionId].concat((state.stateStack || []).map(f => f.motionId)).forEach(id => {
+    const m = findMotion(id);
+    if (!m || seenPending[m.id]) return;
+    if (m.voteOutcome || m.disposition) return;
+    seenPending[m.id] = true;
+    pendingMotions.push(m);
+  });
+  const tabledAtAdjournment = (state.tabledMotions || []).map(findMotion).filter(Boolean);
+  const postponedMotions = allMotions.filter(m => m.disposition === 'postponed to a definite time');
+
+  // Kind slugs are internal vocabulary. The minutes print the parliamentary name.
+  function secondaryLabel(sub) {
+    if (sub.kind === 'amendment') {
+      return `Amendment (${(sub.degree || 1) >= 2 ? 'second' : 'first'} degree)`;
+    }
+    const names = {
+      'table': 'Motion to lay on the table',
+      'postpone': 'Motion to postpone to a definite time',
+      'take-from-table': 'Motion to take from the table'
+    };
+    return names[sub.kind] || `Motion ${String(sub.kind || '').replace(/-/g, ' ')}`;
+  }
+
+  // RONR §48 records the secondary motions that adhered to a question and were NOT lost
+  // or withdrawn. A defeated amendment belongs to the event log. [profile]
+  function suppressedSecondary(sub) {
+    if (minutesSetting('recordLostSecondaryMotions')) return false;
+    if (sub.voteOutcome === 'failed') return true;
+    return /withdraw/i.test(sub.disposition || '');
+  }
+
+  function motionDetail(m, indent) {
+    if (m.moverName && recorded(m, 'created')) motionLines.push(`${indent}Moved by: ${personLabel(m.moverId, m.moverName)}`);
+    if (m.seconderName && recorded(m, 'seconded')) motionLines.push(`${indent}Seconded by: ${personLabel(m.seconderId, m.seconderName)}`);
+    if (m.voteMethod && recorded(m, 'voted')) {
+      let voteStr = `${indent}Vote: ${m.voteMethod.charAt(0).toUpperCase() + m.voteMethod.slice(1)}`;
       if (m.tally) {
         const t = m.tally;
         const parts = [];
         if (t.aye !== null) parts.push(`Aye: ${t.aye}`);
         if (t.nay !== null) parts.push(`Nay: ${t.nay}`);
         if (t.abstain !== null) parts.push(`Abstain: ${t.abstain}`);
-        if (parts.length > 0) voteStr += ` (${parts.join(', ')})`;
+        if (parts.length > 0) voteStr += ` (${parts.join(', ')}${tallyNote(t)})`;
       }
       motionLines.push(voteStr);
     }
-    if (m.voteOutcome) {
-      motionLines.push(`  Result: ${m.voteOutcome.toUpperCase()}`);
+    if (m.voteOutcome && recorded(m, 'voted')) motionLines.push(`${indent}Result: ${m.voteOutcome.toUpperCase()}`);
+    // A question set aside was never voted on its merits — say so explicitly rather
+    // than leaving the reader to infer adoption.
+    if (m.disposition && recorded(m, 'disposed')) motionLines.push(`${indent}Disposition: ${m.disposition} (no vote taken on the merits)`);
+    if (pendingMotions.indexOf(m) >= 0) {
+      motionLines.push(adjournmentRecorded
+        ? `${indent}Disposition: PENDING AT ADJOURNMENT — no vote was taken on the merits.`
+        : `${indent}Disposition: PENDING — no vote has been taken on the merits.`);
     }
-    if (m.requiresTwoThirds) motionLines.push(`  Threshold: 2/3 required`);
+    if (m.requiresTwoThirds) motionLines.push(`${indent}Threshold: 2/3 required`);
+  }
+
+  function subordinatesOf(id) {
+    return allMotions.filter(x => x.parentMotionId === id);
+  }
+
+  function printSubordinates(m, depth) {
+    subordinatesOf(m.id).forEach(sub => {
+      if (suppressedSecondary(sub)) return;   // and with it everything beneath it
+      const indent = '  '.repeat(depth + 1);
+      motionLines.push(`${indent}${secondaryLabel(sub)}: "${sub.text}"${unlogged(sub)}`);
+      motionDetail(sub, indent + '  ');
+      printSubordinates(sub, depth + 1);
+    });
+  }
+
+  // A motion whose own entry was removed from the log is still shown — it is part of the
+  // record — but the document says the log no longer carries it rather than presenting it
+  // as an ordinary proceeding.
+  function unlogged(m) {
+    return recorded(m, 'created') ? '' : '   [no longer recorded in the event log]';
+  }
+
+  let motionNum = 0;
+  allMotions.filter(m => !m.parentMotionId).forEach(m => {
+    motionNum++;
+    motionLines.push('');
+    motionLines.push(`MOTION ${motionNum}: "${m.text}"${unlogged(m)}`);
+    motionDetail(m, '  ');
+    printSubordinates(m, 1);
   });
 
   const lines = [
@@ -3279,30 +4350,50 @@ function exportMinutes() {
     org.address || '',
     '',
     `Time called to order: ${startDate ? startDate.toLocaleTimeString('en-US', timeFmt) : '—'}`,
-    endDate ? `Time adjourned: ${endDate.toLocaleTimeString('en-US', timeFmt)}` : 'Status: in progress',
+    (endDate && adjournmentRecorded)
+      ? `Time adjourned: ${endDate.toLocaleTimeString('en-US', timeFmt)}`
+      : 'Status: in progress',
     '',
+    ...(presidingOfficers().length ? [`Presiding: ${presidingOfficers().join(', then ')}`] : []),
     `Quorum: ${quorumStatus}`,
     `Parliamentary authority: ${profile.parliamentaryAuthority || 'Robert\'s Rules of Order'}`,
     '',
     '═'.repeat(60),
     'PROCEEDINGS',
     '═'.repeat(60),
+    '',
+    'Proceedings are recorded by order of business. The exact chronological sequence is',
+    'preserved in the meeting event log.',
   ];
 
   // Add narrative by agenda item
   let agendaNum = 0;
+  if (agendaSections.length === 0) {
+    lines.push('');
+    lines.push('   No proceedings are recorded in the event log.');
+  }
   agendaSections.forEach(section => {
+    if (section.lines.length === 0) return;
     const label = agendaLabels[section.id]
-      || section.id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      || (section.id === 'general'
+        ? 'Business — agenda item not recorded'
+        : section.id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
     agendaNum++;
     lines.push('');
-    lines.push(`${agendaNum}. ${label.toUpperCase()}`);
+    // A section assembled from non-contiguous events must say so, or a merged section
+    // reads as one continuous consideration of the subject.
+    const occasions = section.occasions > 1 ? `   (taken up on ${section.occasions} occasions during the meeting)` : '';
+    lines.push(`${agendaNum}. ${label.toUpperCase()}${occasions}`);
+    if (section.outOfOrder) {
+      lines.push('   [This item was taken up out of the adopted order of business; no');
+      lines.push('   authorization is recorded.]');
+    }
     section.lines.forEach(ev => {
       lines.push(`   [${ev.type.toUpperCase()}${ev.manual ? ' — MANUAL' : ''}] ${ev.text}`);
     });
   });
 
-  if (state.motions.length > 0) {
+  if ((state.motions || []).length > 0) {
     lines.push('');
     lines.push('═'.repeat(60));
     lines.push('MOTIONS SUMMARY');
@@ -3310,13 +4401,139 @@ function exportMinutes() {
     motionLines.forEach(l => lines.push(l));
   }
 
+  // ---- BUSINESS NOT DISPOSED OF (RONR §§21, 34, 14) ----------------------------
+  // EX-03 hook: once adjournment stops marking unreached agenda items complete, this
+  // block also gains "The following items on the adopted agenda were not reached: ...".
+  if (pendingMotions.length || tabledAtAdjournment.length || postponedMotions.length) {
+    lines.push('');
+    lines.push('═'.repeat(60));
+    lines.push('BUSINESS NOT DISPOSED OF');
+    lines.push('═'.repeat(60));
+    const motionRef = m => `  "${m.text}"${m.moverName ? `   (moved by ${personLabel(m.moverId, m.moverName)})` : ''}`;
+    if (pendingMotions.length) {
+      lines.push('');
+      const many = pendingMotions.length > 1;
+      if (!adjournmentRecorded) {
+        lines.push(`The following ${many ? 'questions were' : 'question was'} pending when this record was exported and`);
+        lines.push(`${many ? 'have' : 'has'} not been disposed of:`);
+      } else if (governanceSetting('meetsAtLeastQuarterly')) {
+        lines.push(`The following ${many ? 'questions were' : 'question was'} pending when the assembly adjourned and`);
+        lines.push(`${many ? 'were' : 'was'} not disposed of. ${many ? 'They come' : 'It comes'} before the next regular meeting under`);
+        lines.push(`Unfinished Business and General Orders (${citeAuthority('§21')}):`);
+      } else {
+        lines.push(`The following ${many ? 'questions were' : 'question was'} pending when the assembly adjourned and`);
+        lines.push(`${many ? 'were' : 'was'} not disposed of. Because this assembly does not meet at least quarterly,`);
+        lines.push(`${many ? 'the questions fall' : 'the question falls'} to the ground and must be introduced anew (${citeAuthority('§21')}).`);
+      }
+      lines.push('');
+      pendingMotions.forEach(m => lines.push(motionRef(m)));
+    }
+    if (tabledAtAdjournment.length) {
+      lines.push('');
+      lines.push(`The following ${tabledAtAdjournment.length > 1 ? 'motions remain' : 'motion remains'} on the table (${citeAuthority('§34')}):`);
+      lines.push('');
+      tabledAtAdjournment.forEach(m => lines.push(motionRef(m)));
+    }
+    if (postponedMotions.length) {
+      lines.push('');
+      lines.push(`The following ${postponedMotions.length > 1 ? 'motions stand' : 'motion stands'} postponed to a definite time (${citeAuthority('§14')}):`);
+      lines.push('');
+      postponedMotions.forEach(m => lines.push(`${motionRef(m)}  — postponed to: ${m.postponedTo || '[time not recorded]'}`));
+    }
+  }
+
+  // ---- QUORUM RECORD and the two §40 hazard blocks -----------------------------
+  if (quorumTimeline.length > 1 || quorumLostAtAnyPoint) {
+    lines.push('');
+    lines.push('═'.repeat(60));
+    lines.push(`QUORUM RECORD (${citeAuthority('§40')})`);
+    lines.push('═'.repeat(60));
+    lines.push('');
+    let establishedBefore = false;
+    quorumTimeline.forEach(pt => {
+      const t = clockFmt(pt.at).padEnd(10, ' ');
+      if (pt.present) {
+        lines.push(`  ${t} ${establishedBefore ? 'A quorum was again present and the chair so announced.' : 'A quorum was present and the chair so announced.'}`);
+        establishedBefore = true;
+      } else if (establishedBefore) {
+        lines.push(`  ${t} The chair announced the loss of a quorum. Substantive business was`);
+        lines.push(`             suspended from this point.`);
+      } else {
+        lines.push(`  ${t} The chair announced that no quorum was present.`);
+      }
+    });
+    if (adjournmentRecorded && endDate) {
+      lines.push(`  ${clockFmt(endDate.getTime()).padEnd(10, ' ')} The meeting adjourned.`);
+    }
+    quorumIntervals.forEach(iv => {
+      lines.push('');
+      if (iv.end === null) {
+        lines.push(`  Business transacted after ${clockFmt(iv.start)} was transacted with a quorum present.`);
+      } else {
+        lines.push(`  Business transacted between ${clockFmt(iv.start)} and ${clockFmt(iv.end)} was transacted`);
+        lines.push('  with a quorum present.');
+      }
+    });
+  }
+
+  // Substantive business recorded while no quorum was present, and business recorded
+  // before any quorum was determined at all, are two different §40 problems.
+  const SUBSTANTIVE_TYPES = ['motion', 'second', 'vote', 'amendment', 'amendment result'];
+  const actedWithoutQuorum = [];
+  const actedBeforeDetermination = [];
+  let quorumInForce;            // undefined until the first determination
+  let quorumSeq = 0;
+  state.events.forEach(ev => {
+    if (ev.type === 'quorum') {
+      quorumInForce = quorumValueOf(ev, quorumSeq === quorumEvents.length - 1);
+      quorumSeq++;
+      return;
+    }
+    if (SUBSTANTIVE_TYPES.indexOf(ev.type) < 0) return;
+    const text = eventLineText(ev);
+    if (!text) return;
+    if (quorumInForce === undefined) actedBeforeDetermination.push(text);
+    else if (quorumInForce === false) actedWithoutQuorum.push(text);
+  });
+
+  function hazardBlock(head, items) {
+    if (!items.length) return;
+    lines.push('');
+    head.forEach(l => lines.push(l));
+    items.forEach(t => lines.push(`   ${t}`));
+    lines.push(']');
+  }
+  hazardBlock([
+    '[The following actions were taken while no quorum was present and are null and',
+    `void unless ratified at a later meeting at which a quorum is present (${citeAuthority('§40')}):`
+  ], actedWithoutQuorum);
+  hazardBlock([
+    '[No quorum was determined before the following business was transacted. Under',
+    `${citeAuthority('§40')} no substantive business is in order until the presence of a quorum is`,
+    'established. The validity of these actions is for the assembly to determine:'
+  ], actedBeforeDetermination);
+
   lines.push('');
   lines.push('─'.repeat(60));
-  lines.push(`Minutes generated by Quorum on ${new Date().toLocaleString()}`);
-  lines.push('These minutes require approval at the next meeting per RONR §48.');
-  if (state.quorumAchieved !== false) {
-    lines.push('Secretary: ______________________________  Date approved: ____________');
+  // The attestation is unconditional. Minutes are the secretary's record of what
+  // occurred whether or not a quorum was present — a meeting that never had one still
+  // produces minutes, and those minutes are the document that records that fact. The
+  // old quorumAchieved !== false guard made the commonest real ending (quorum had,
+  // business transacted, quorum lost as members left) unsignable and unapprovable.
+  // The secretary's name lands here with profile.officers / state.meetingOfficers.
+  if (minutesSetting('respectfullySubmitted')) {
+    lines.push('');
+    lines.push('Respectfully submitted,');
   }
+  lines.push('');
+  lines.push('Secretary: _________________________________________');
+  lines.push('');
+  lines.push('Approved by the assembly on: ____________________');
+  lines.push('');
+  lines.push(citeAuthority('§48') === 'RONR §48'
+    ? 'These minutes require approval at the next meeting (RONR §48).'
+    : `These minutes require approval at the next meeting. The assembly's adopted parliamentary authority is ${profile.parliamentaryAuthority}; see also RONR (12th ed.) §48.`);
+  lines.push(`Minutes generated by Quorum on ${new Date().toLocaleString()}`);
 
   const filename = `${org.name.toLowerCase().replace(/\s+/g,'-')}-minutes-${new Date().toISOString().slice(0,10)}.txt`;
   download(lines.join('\n'), filename, 'text/plain');
@@ -3341,8 +4558,7 @@ function exportEventLog() {
       const mm = String(Math.floor(elapsed / 60)).padStart(2,'0');
       const ss = String(elapsed % 60).padStart(2,'0');
       const clock = new Date(e.timestamp).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true});
-      const clean = e.body.replace(/<[^>]+>/g, '').replace(/⚑/g, '[unverified]');
-      return `[${mm}:${ss} | ${clock}] ${e.manual ? '[MANUAL] ' : ''}${e.type.toUpperCase()}: ${clean}`;
+      return `[${mm}:${ss} | ${clock}] ${e.manual ? '[MANUAL] ' : ''}${e.type.toUpperCase()}: ${plainText(e.body)}`;
     })
   ];
   download(lines.join('\n'), `${profile.organization.name.toLowerCase().replace(/\s+/g,'-')}-event-log-${new Date().toISOString().slice(0,10)}.txt`, 'text/plain');
@@ -3373,10 +4589,18 @@ function resetMeeting() {
   render();
 }
 
+// True when a reset would lose anything about the current meeting. The event log alone is
+// not the record: undo can empty it while motions, tabled motions and corrections remain,
+// and a started meeting is itself a record even before its first event.
+function hasMeetingRecord() {
+  return !!(state.startedAt || state.events.length || state.motions.length ||
+            state.tabledMotions.length || state.corrections.length || state.currentMotion);
+}
+
 function switchProfile(profileId) {
   toggleSidebar(false);
-  if (state.events.length > 0) {
-    if (!confirm('Switching profile will reset the current meeting. Export first if needed. Continue?')) {
+  if (hasMeetingRecord()) {
+    if (!confirm('Switching profile will discard the current meeting record. Export first if needed. Continue?')) {
       document.getElementById('profile-selector').value = state.profileId;
       return;
     }
@@ -3442,6 +4666,24 @@ setInterval(() => {
 }, 1000);
 
 render();
+
+// A saved meeting this build could not open. Say so plainly and hand over the data —
+// never discard a meeting record silently. Runs after the first render so the user is
+// looking at a working app rather than a blank page.
+if (unreadableState) {
+  const notice =
+    `Quorum could not open the last saved meeting because ${unreadableState.reason}.\n\n` +
+    `Nothing has been deleted. A copy is kept in this browser (localStorage key ` +
+    `"${RECOVERY_KEY}") and a fresh meeting has been started.\n\n` +
+    `Download a copy of that saved meeting now?`;
+  if (confirm(notice)) {
+    download(unreadableState.raw,
+             `quorum-unopened-state-${new Date().toISOString().slice(0,10)}.json`,
+             'application/json');
+  }
+  toast('Saved meeting could not be opened — started a fresh meeting');
+  unreadableState = null;
+}
 </script>
 </body>
 </html>
